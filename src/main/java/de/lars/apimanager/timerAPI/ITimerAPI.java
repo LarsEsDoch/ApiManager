@@ -1,4 +1,4 @@
-package de.lars.apimanager.timerAPI;
+package de.lars.apiManager.timerAPI;
 
 import org.bukkit.entity.Player;
 

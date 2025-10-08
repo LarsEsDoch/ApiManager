@@ -1,4 +1,4 @@
-package de.lars.apimanager.rankAPI;
+package de.lars.apiManager.rankAPI;
 
 import org.bukkit.entity.Player;
 

@@ -1,7 +1,7 @@
-package de.lars.apimanager.banAPI;
+package de.lars.apiManager.banAPI;
 
-import de.lars.apimanager.Main;
-import de.lars.apimanager.database.MySQL;
+import de.lars.apiManager.Main;
+import de.lars.apiManager.database.MySQL;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;

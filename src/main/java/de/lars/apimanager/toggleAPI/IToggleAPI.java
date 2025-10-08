@@ -1,4 +1,4 @@
-package de.lars.apimanager.toggleAPI;
+package de.lars.apiManager.toggleAPI;
 
 import org.bukkit.entity.Player;
 

@@ -1,7 +1,7 @@
-package de.lars.apimanager.homeAPI;
+package de.lars.apiManager.homeAPI;
 
-import de.lars.apimanager.Main;
-import de.lars.apimanager.database.MySQL;
+import de.lars.apiManager.Main;
+import de.lars.apiManager.database.MySQL;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;

@@ -1,4 +1,4 @@
-package de.lars.apimanager.toggleAPI;
+package de.lars.apiManager.toggleAPI;
 
 public class ToggleAPI {
 

@@ -1,4 +1,4 @@
-package de.lars.apimanager.languageAPI;
+package de.lars.apiManager.languageAPI;
 
 import org.bukkit.entity.Player;
 

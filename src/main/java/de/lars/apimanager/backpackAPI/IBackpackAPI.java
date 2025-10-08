@@ -1,4 +1,4 @@
-package de.lars.apimanager.backpackAPI;
+package de.lars.apiManager.backpackAPI;
 
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;

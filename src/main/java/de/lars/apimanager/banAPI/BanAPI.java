@@ -1,4 +1,4 @@
-package de.lars.apimanager.banAPI;
+package de.lars.apiManager.banAPI;
 
 public class BanAPI {
 

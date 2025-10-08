@@ -1,4 +1,4 @@
-package de.lars.apimanager.questAPI;
+package de.lars.apiManager.questAPI;
 
 public class QuestAPI {
 

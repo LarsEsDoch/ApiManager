@@ -1,4 +1,4 @@
-package de.lars.apimanager.dataAPI;
+package de.lars.apiManager.dataAPI;
 
 public interface IDataAPI {
     boolean isRealTimeActivated();

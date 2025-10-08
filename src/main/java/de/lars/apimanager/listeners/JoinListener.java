@@ -1,15 +1,15 @@
-package de.lars.apimanager.listeners;
+package de.lars.apiManager.listeners;
 
-import de.lars.apimanager.Main;
-import de.lars.apimanager.backpackAPI.BackpackAPIImpl;
-import de.lars.apimanager.banAPI.BanAPIImpl;
-import de.lars.apimanager.coinAPI.CoinAPIImpl;
-import de.lars.apimanager.languageAPI.LanguageAPIImpl;
-import de.lars.apimanager.playersAPI.PlayerAPIImpl;
-import de.lars.apimanager.questAPI.QuestAPIImpl;
-import de.lars.apimanager.rankAPI.RankAPIImpl;
-import de.lars.apimanager.timerAPI.TimerAPIImpl;
-import de.lars.apimanager.toggleAPI.ToggleAPIImpl;
+import de.lars.apiManager.Main;
+import de.lars.apiManager.backpackAPI.BackpackAPIImpl;
+import de.lars.apiManager.banAPI.BanAPIImpl;
+import de.lars.apiManager.coinAPI.CoinAPIImpl;
+import de.lars.apiManager.languageAPI.LanguageAPIImpl;
+import de.lars.apiManager.playersAPI.PlayerAPIImpl;
+import de.lars.apiManager.questAPI.QuestAPIImpl;
+import de.lars.apiManager.rankAPI.RankAPIImpl;
+import de.lars.apiManager.timerAPI.TimerAPIImpl;
+import de.lars.apiManager.toggleAPI.ToggleAPIImpl;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;

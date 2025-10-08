@@ -1,4 +1,4 @@
-package de.lars.apimanager.coinAPI;
+package de.lars.apiManager.coinAPI;
 
 public class CoinAPI {
 

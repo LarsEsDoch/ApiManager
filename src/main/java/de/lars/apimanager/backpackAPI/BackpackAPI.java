@@ -1,4 +1,4 @@
-package de.lars.apimanager.backpackAPI;
+package de.lars.apiManager.backpackAPI;
 
 public class BackpackAPI {
 

@@ -1,4 +1,4 @@
-package de.lars.apimanager.banAPI;
+package de.lars.apiManager.banAPI;
 
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;

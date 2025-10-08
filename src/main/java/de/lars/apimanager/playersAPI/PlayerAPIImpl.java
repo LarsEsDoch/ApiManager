@@ -1,7 +1,7 @@
-package de.lars.apimanager.playersAPI;
+package de.lars.apiManager.playersAPI;
 
-import de.lars.apimanager.Main;
-import de.lars.apimanager.database.MySQL;
+import de.lars.apiManager.Main;
+import de.lars.apiManager.database.MySQL;
 import org.bukkit.entity.Player;
 
 import java.sql.ResultSet;

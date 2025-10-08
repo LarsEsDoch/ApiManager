@@ -1,7 +1,7 @@
 name: ApiManager
-version: '2.8.4'
-main: de.lars.apimanager.Main
-api-version: '1.21.8'
+version: '3.1.1'
+main: de.lars.apiManager.Main
+api-version: '1.21'
 load: STARTUP
 author: KompetenzL0s
 description: A Plugin by Lars as MySQL Api for UtilsManager

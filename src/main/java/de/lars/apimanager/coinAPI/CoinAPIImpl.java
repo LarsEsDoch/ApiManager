@@ -1,7 +1,7 @@
-package de.lars.apimanager.coinAPI;
+package de.lars.apiManager.coinAPI;
 
-import de.lars.apimanager.Main;
-import de.lars.apimanager.database.MySQL;
+import de.lars.apiManager.Main;
+import de.lars.apiManager.database.MySQL;
 import org.bukkit.entity.Player;
 
 import java.sql.ResultSet;

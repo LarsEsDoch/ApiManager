@@ -1,4 +1,4 @@
-package de.lars.apimanager.homeAPI;
+package de.lars.apiManager.homeAPI;
 
 public class HomeAPI {
 

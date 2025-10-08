@@ -1,7 +1,7 @@
-package de.lars.apimanager.dataAPI;
+package de.lars.apiManager.dataAPI;
 
-import de.lars.apimanager.Main;
-import de.lars.apimanager.database.MySQL;
+import de.lars.apiManager.Main;
+import de.lars.apiManager.database.MySQL;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

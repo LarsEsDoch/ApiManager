@@ -1,4 +1,4 @@
-package de.lars.apimanager.rankAPI;
+package de.lars.apiManager.rankAPI;
 
 public class RankAPI {
 

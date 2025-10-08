@@ -1,4 +1,4 @@
-package de.lars.apimanager.playersAPI;
+package de.lars.apiManager.playersAPI;
 
 public class PlayerAPI {
 

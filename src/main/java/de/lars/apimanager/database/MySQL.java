@@ -1,11 +1,11 @@
-package de.lars.apimanager.database;
+package de.lars.apiManager.database;
 
 import com.google.common.base.Preconditions;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.cache.RemovalListener;
-import de.lars.apimanager.Main;
+import de.lars.apiManager.Main;
 import org.bukkit.Bukkit;
 
 import java.sql.*;

@@ -1,4 +1,4 @@
-package de.lars.apimanager.chunkAPI;
+package de.lars.apiManager.chunkAPI;
 
 import org.bukkit.entity.Player;
 
