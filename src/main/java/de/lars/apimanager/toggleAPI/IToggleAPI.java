@@ -2,8 +2,6 @@ package de.lars.apiManager.toggleAPI;
 
 import org.bukkit.entity.Player;
 
-import java.util.UUID;
-
 public interface IToggleAPI {
     void setBedToggle(Player player, boolean toggle);
 

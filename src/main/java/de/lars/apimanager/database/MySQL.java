@@ -9,8 +9,10 @@ import de.lars.apiManager.Main;
 import org.bukkit.Bukkit;
 
 import java.sql.*;
-import java.util.concurrent.*;
-import java.util.function.Consumer;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class MySQL {
 

@@ -5,7 +5,6 @@ import org.bukkit.entity.Player;
 
 import java.util.Calendar;
 import java.util.List;
-import java.util.UUID;
 
 public interface IBanAPI {
     void setBanned(Player player, String reason, Integer time);

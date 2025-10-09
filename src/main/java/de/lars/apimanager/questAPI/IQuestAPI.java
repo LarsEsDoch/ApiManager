@@ -3,7 +3,6 @@ package de.lars.apiManager.questAPI;
 import org.bukkit.entity.Player;
 
 import java.util.Date;
-import java.util.UUID;
 
 public interface IQuestAPI {
 

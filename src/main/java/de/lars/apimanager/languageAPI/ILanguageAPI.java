@@ -2,8 +2,6 @@ package de.lars.apiManager.languageAPI;
 
 import org.bukkit.entity.Player;
 
-import java.util.UUID;
-
 public interface ILanguageAPI {
 
     void setLanguage(Player player, Integer languageId);
