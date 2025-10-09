@@ -68,10 +68,6 @@ public final class Main extends JavaPlugin {
                 .withUser(user)
                 .withPassword(password)
                 .create();
-
-        backpackAPI = new BackpackAPIImpl();
-        backpackAPI.createTables();
-        BackpackAPI.setApi(backpackAPI);
     }
 
     @Override
@@ -129,7 +125,7 @@ public final class Main extends JavaPlugin {
                 .append(Component.text("[", NamedTextColor.DARK_GRAY))
                 .append(Component.text("ApiManager", NamedTextColor.GOLD))
                 .append(Component.text("]", NamedTextColor.DARK_GRAY))
-                .append(Component.text(" All APIs are loaded!", NamedTextColor.DARK_GREEN))
+                .append(Component.text(" All APIs are ready!", NamedTextColor.DARK_GREEN))
                 .build();
         Bukkit.getConsoleSender().sendMessage(message);
     }

@@ -15,7 +15,7 @@ public class PlayerAPIImpl implements IPlayerAPI {
     @Override
     public void setPlaytime(Player player, Integer playtime) {
         UUID uuid = player.getUniqueId();
-        mySQL.update("UPDATE players SET playtime=? WHERE uuid=?", playtime, uuid.toString());
+        mySQL.updateAsync("UPDATE players SET playtime=? WHERE uuid=?", playtime, uuid.toString());
     }
 
     @Override
@@ -34,7 +34,7 @@ public class PlayerAPIImpl implements IPlayerAPI {
 
     public void initPlayer(Player player) {
         UUID uuid = player.getUniqueId();
-        mySQL.update("INSERT INTO players (uuid, playtime, free_chunks) VALUES (?,?,?)", uuid.toString(), 0, 32);
+        mySQL.updateAsync("INSERT INTO players (uuid, playtime, free_chunks) VALUES (?,?,?)", uuid.toString(), 0, 32);
     }
 
     @Override

@@ -22,7 +22,7 @@ public class BackpackAPIImpl implements IBackpackAPI{
     @Override
     public void setSlots(Player player, int slots) {
         UUID playerUUID = player.getUniqueId();
-        mySQL.update("UPDATE backpacks SET slots  = ? WHERE uuid = ?", slots, playerUUID.toString());
+        mySQL.updateAsync("UPDATE backpacks SET slots  = ? WHERE uuid = ?", slots, playerUUID.toString());
     }
 
     @Override
@@ -38,7 +38,7 @@ public class BackpackAPIImpl implements IBackpackAPI{
         }
         String base64EncodedData = Base64.getEncoder().encodeToString(compressedData);
         UUID playerUUID = player.getUniqueId();
-        mySQL.update("UPDATE backpacks SET data = ? WHERE uuid = ?", base64EncodedData, playerUUID.toString());
+        mySQL.updateAsync("UPDATE backpacks SET data = ? WHERE uuid = ?", base64EncodedData, playerUUID.toString());
     }
 
     @Override
@@ -63,7 +63,6 @@ public class BackpackAPIImpl implements IBackpackAPI{
             if (resultSet.next()) {
                 byte[] decodedData = Base64.getDecoder().decode(resultSet.getString("data"));
 
-                // Dekomprimiere die Daten mit zlib
                 String decompressedData;
                 try (ByteArrayInputStream bis = new ByteArrayInputStream(decodedData);
                      InflaterInputStream iis = new InflaterInputStream(bis);
@@ -103,7 +102,7 @@ public class BackpackAPIImpl implements IBackpackAPI{
     @Override
     public void initPlayer(Player player) {
         UUID uuid = player.getUniqueId();
-        mySQL.update("INSERT INTO backpacks (uuid, slots, data) VALUES (?,?,?)", uuid.toString(), 9, "");
+        mySQL.updateAsync("INSERT INTO backpacks (uuid, slots, data) VALUES (?,?,?)", uuid.toString(), 9, "");
     }
 
     @Override

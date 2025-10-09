@@ -17,23 +17,23 @@ public class QuestAPIImpl implements IQuestAPI {
     @Override
     public void setStreak(Player player, int amount) {
         UUID uuid = player.getUniqueId();
-        mySQL.update("UPDATE quests SET streak=? WHERE uuid=?", amount, uuid.toString());
+        mySQL.updateAsync("UPDATE quests SET streak=? WHERE uuid=?", amount, uuid.toString());
     }
 
     @Override
     public void setQuest(Player player, int amount, int number) {
         UUID uuid = player.getUniqueId();
-        mySQL.update("UPDATE quests SET questcomplete=? WHERE uuid=?", 0, uuid.toString());
-        mySQL.update("UPDATE quests SET hasnumber=? WHERE uuid=?", 0, uuid.toString());
-        mySQL.update("UPDATE quests SET quest=? WHERE uuid=?", amount, uuid.toString());
-        mySQL.update("UPDATE quests SET number=? WHERE uuid=?", number, uuid.toString());
+        mySQL.updateAsync("UPDATE quests SET questcomplete=? WHERE uuid=?", 0, uuid.toString());
+        mySQL.updateAsync("UPDATE quests SET hasnumber=? WHERE uuid=?", 0, uuid.toString());
+        mySQL.updateAsync("UPDATE quests SET quest=? WHERE uuid=?", amount, uuid.toString());
+        mySQL.updateAsync("UPDATE quests SET number=? WHERE uuid=?", number, uuid.toString());
         Calendar cal = Calendar.getInstance();
         int year = cal.get(Calendar.YEAR);
         int month = cal.get(Calendar.MONTH) + 1;
         int day = cal.get(Calendar.DAY_OF_MONTH);
-        mySQL.update("UPDATE quests SET dated=? WHERE uuid=?", day, uuid.toString());
-        mySQL.update("UPDATE quests SET datem=? WHERE uuid=?", month, uuid.toString());
-        mySQL.update("UPDATE quests SET datey=? WHERE uuid=?", year, uuid.toString());
+        mySQL.updateAsync("UPDATE quests SET dated=? WHERE uuid=?", day, uuid.toString());
+        mySQL.updateAsync("UPDATE quests SET datem=? WHERE uuid=?", month, uuid.toString());
+        mySQL.updateAsync("UPDATE quests SET datey=? WHERE uuid=?", year, uuid.toString());
     }
 
     @Override
@@ -45,7 +45,7 @@ public class QuestAPIImpl implements IQuestAPI {
         if (amount == false) {
             number = 0;
         }
-        mySQL.update("UPDATE quests SET questcomplete=? WHERE uuid=?", number, uuid.toString());
+        mySQL.updateAsync("UPDATE quests SET questcomplete=? WHERE uuid=?", number, uuid.toString());
     }
 
     @Override
@@ -123,7 +123,7 @@ public class QuestAPIImpl implements IQuestAPI {
         }
         int plus;
         plus = number + amount;
-        mySQL.update("UPDATE quests SET hasnumber=? WHERE uuid=?", plus, uuid.toString());
+        mySQL.updateAsync("UPDATE quests SET hasnumber=? WHERE uuid=?", plus, uuid.toString());
     }
 
     @Override
@@ -140,13 +140,13 @@ public class QuestAPIImpl implements IQuestAPI {
         }
         int minus;
         minus = amount - number;
-        mySQL.update("UPDATE quests SET hasnumber=? WHERE uuid=?", minus, uuid.toString());
+        mySQL.updateAsync("UPDATE quests SET hasnumber=? WHERE uuid=?", minus, uuid.toString());
     }
 
     @Override
     public void setDailyhasnumber(Player player, int number) {
         UUID uuid = player.getUniqueId();
-        mySQL.update("UPDATE quests SET hasnumber=? WHERE uuid=?", number, uuid.toString());
+        mySQL.updateAsync("UPDATE quests SET hasnumber=? WHERE uuid=?", number, uuid.toString());
     }
 
     @Override
@@ -203,7 +203,7 @@ public class QuestAPIImpl implements IQuestAPI {
 
     public void initPlayer(Player player) {
         UUID uuid = player.getUniqueId();
-        mySQL.update("INSERT INTO quests (uuid, streak, quest, dated, datem, datey, questcomplete, number, hasnumber) VALUES (?,?,?,?,?,?,?,?,?)", uuid.toString(), 0, -1 ,0 ,0 ,0 , 0, 0, 0);
+        mySQL.updateAsync("INSERT INTO quests (uuid, streak, quest, dated, datem, datey, questcomplete, number, hasnumber) VALUES (?,?,?,?,?,?,?,?,?)", uuid.toString(), 0, -1 ,0 ,0 ,0 , 0, 0, 0);
     }
 
     @Override

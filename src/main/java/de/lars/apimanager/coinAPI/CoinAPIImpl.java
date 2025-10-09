@@ -31,7 +31,7 @@ public class CoinAPIImpl implements ICoinAPI {
     @Override
     public void addCoins(Player player, int amount) {
         UUID uuid = player.getUniqueId();
-        mySQL.update("UPDATE coinlist SET coins=? WHERE uuid=?", getCoins(player) + amount, uuid.toString());
+        mySQL.updateAsync("UPDATE coinlist SET coins=? WHERE uuid=?", getCoins(player) + amount, uuid.toString());
     }
 
     @Override
@@ -40,14 +40,14 @@ public class CoinAPIImpl implements ICoinAPI {
         int currentCoins = getCoins(player);
 
         if (currentCoins >= amount) {
-            mySQL.update("UPDATE coinlist SET coins=? WHERE uuid=?", currentCoins - amount, uuid.toString());
+            mySQL.updateAsync("UPDATE coinlist SET coins=? WHERE uuid=?", currentCoins - amount, uuid.toString());
         }
     }
 
     @Override
     public void setCoins(Player player, int amount) {
         UUID uuid = player.getUniqueId();
-        mySQL.update("UPDATE coinlist SET coins=? WHERE uuid=?", amount, uuid.toString());
+        mySQL.updateAsync("UPDATE coinlist SET coins=? WHERE uuid=?", amount, uuid.toString());
     }
 
     @Override
@@ -59,7 +59,7 @@ public class CoinAPIImpl implements ICoinAPI {
         String giftString = String.join(",", currentGifts);
 
         String qry = "UPDATE coinlist SET gifts=? WHERE uuid=?";
-        mySQL.update(qry, giftString, playerUUID.toString());
+        mySQL.updateAsync(qry, giftString, playerUUID.toString());
     }
 
     @Override
@@ -71,7 +71,7 @@ public class CoinAPIImpl implements ICoinAPI {
         String giftString = String.join(",", currentGifts);
 
         String qry = "UPDATE coinlist SET gifts=? WHERE uuid=?";
-        mySQL.update(qry, giftString, playerUUID.toString());
+        mySQL.updateAsync(qry, giftString, playerUUID.toString());
     }
 
     @Override
@@ -94,7 +94,7 @@ public class CoinAPIImpl implements ICoinAPI {
 
     public void initPlayer(Player player) {
         UUID uuid = player.getUniqueId();
-        mySQL.update("INSERT INTO coinlist (uuid, coins, gifts) VALUES (?,?, ?)", uuid.toString(), 0, "");
+        mySQL.updateAsync("INSERT INTO coinlist (uuid, coins, gifts) VALUES (?,?, ?)", uuid.toString(), 0, "");
     }
 
   @Override

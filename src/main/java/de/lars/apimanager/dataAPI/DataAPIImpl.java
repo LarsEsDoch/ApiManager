@@ -63,38 +63,38 @@ public class DataAPIImpl implements IDataAPI {
 
     @Override
     public void setRealTimeActivated(boolean activated) {
-        mySQL.update("UPDATE data SET realTimeActivated=?", activated);
+        mySQL.updateAsync("UPDATE data SET realTimeActivated=?", activated);
     }
 
     @Override
     public void setMaintenanceTime(Integer maintenanceTime) {
-        mySQL.update("UPDATE data SET maintenanceTime=?", maintenanceTime);
+        mySQL.updateAsync("UPDATE data SET maintenanceTime=?", maintenanceTime);
     }
 
     @Override
     public void setMaintenanceReason(String maintenanceReason) {
-        mySQL.update("UPDATE data SET maintenanceTime=?", maintenanceReason);
+        mySQL.updateAsync("UPDATE data SET maintenanceTime=?", maintenanceReason);
     }
 
     @Override
     public void activateMaintenance(String reason, Integer time) {
-        mySQL.update("UPDATE data SET maintenance=?", true);
-        mySQL.update("UPDATE data SET maintenanceReason=?", reason);
-        mySQL.update("UPDATE data SET maintenanceTime=?", time);
+        mySQL.updateAsync("UPDATE data SET maintenance=?", true);
+        mySQL.updateAsync("UPDATE data SET maintenanceReason=?", reason);
+        mySQL.updateAsync("UPDATE data SET maintenanceTime=?", time);
     }
 
     @Override
     public void deactivateMaintenance() {
-        mySQL.update("UPDATE data SET maintenance=?", false);
-        mySQL.update("UPDATE data SET maintenanceReason=?", "([---N/A---])");
-        mySQL.update("UPDATE data SET maintenanceTime=?", 0);
+        mySQL.updateAsync("UPDATE data SET maintenance=?", false);
+        mySQL.updateAsync("UPDATE data SET maintenanceReason=?", "");
+        mySQL.updateAsync("UPDATE data SET maintenanceTime=?", 0);
     }
 
     public void createTables() {
         this.mySQL = Main.getInstance().getMySQL();
         mySQL.update("CREATE TABLE IF NOT EXISTS data (realTimeActivated TINYINT(1) DEFAULT TRUE, realWeatherActivated TINYINT(1) DEFAULT FALSE, maintenance TINYINT(1) DEFAULT FALSE, maintenanceReason VARCHAR(255), maintenanceTime INT(35))");
         if (countRowsInTable() < 1) {
-            mySQL.update("INSERT INTO data (realTimeActivated, realWeatherActivated, maintenance, maintenanceReason, maintenanceTime) VALUES (?,?,?,?,?)", true, false, false, "([---N/A---])", 0);
+            mySQL.update("INSERT INTO data (realTimeActivated, realWeatherActivated, maintenance, maintenanceReason, maintenanceTime) VALUES (?,?,?,?,?)", true, false, false, "", 0);
         }
     }
 

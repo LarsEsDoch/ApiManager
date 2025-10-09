@@ -16,78 +16,78 @@ public class BanAPIImpl implements IBanAPI {
     @Override
     public void setBanned(Player player, String reason, Integer time) {
         UUID uuid = player.getUniqueId();
-        mySQL.update("UPDATE banlist SET baned=? WHERE uuid=?", 1, uuid.toString());
-        mySQL.update("UPDATE banlist SET reason=? WHERE uuid=?", reason, uuid.toString());
-        mySQL.update("UPDATE banlist SET time=? WHERE uuid=?", time, uuid.toString());
+        mySQL.updateAsync("UPDATE banlist SET baned=? WHERE uuid=?", 1, uuid.toString());
+        mySQL.updateAsync("UPDATE banlist SET reason=? WHERE uuid=?", reason, uuid.toString());
+        mySQL.updateAsync("UPDATE banlist SET time=? WHERE uuid=?", time, uuid.toString());
         Calendar cal = Calendar.getInstance();
         int year = cal.get(Calendar.YEAR);
         int month = cal.get(Calendar.MONTH) + 1;
         int day = cal.get(Calendar.DAY_OF_MONTH);
-        mySQL.update("UPDATE banlist SET dated=? WHERE uuid=?", day, uuid.toString());
-        mySQL.update("UPDATE banlist SET datem=? WHERE uuid=?", month, uuid.toString());
-        mySQL.update("UPDATE banlist SET datey=? WHERE uuid=?", year, uuid.toString());
+        mySQL.updateAsync("UPDATE banlist SET dated=? WHERE uuid=?", day, uuid.toString());
+        mySQL.updateAsync("UPDATE banlist SET datem=? WHERE uuid=?", month, uuid.toString());
+        mySQL.updateAsync("UPDATE banlist SET datey=? WHERE uuid=?", year, uuid.toString());
     }
 
     @Override
     public void setCriminal(Player player, String reason, Integer time, Player pplayer) {
         UUID uuid = player.getUniqueId();
         UUID Puuid = pplayer.getUniqueId();
-        mySQL.update("UPDATE criminallist SET reason=? WHERE uuid=?", reason, uuid.toString());
-        mySQL.update("UPDATE criminallist SET locked=? WHERE uuid=?", 1, uuid.toString());
-        mySQL.update("UPDATE criminallist SET prosecutor=? WHERE uuid=?", Puuid.toString(), uuid.toString());
+        mySQL.updateAsync("UPDATE criminallist SET reason=? WHERE uuid=?", reason, uuid.toString());
+        mySQL.updateAsync("UPDATE criminallist SET locked=? WHERE uuid=?", 1, uuid.toString());
+        mySQL.updateAsync("UPDATE criminallist SET prosecutor=? WHERE uuid=?", Puuid.toString(), uuid.toString());
     }
 
     @Override
     public void setOnWait(Player player) {
         UUID uuid = player.getUniqueId();
-        mySQL.update("UPDATE criminallist SET locked=? WHERE uuid=?", 2, uuid.toString());
+        mySQL.updateAsync("UPDATE criminallist SET locked=? WHERE uuid=?", 2, uuid.toString());
     }
 
     @Override
     public void setOnCourt(Player player) {
         UUID uuid = player.getUniqueId();
-        mySQL.update("UPDATE criminallist SET locked=? WHERE uuid=?", 3, uuid.toString());
+        mySQL.updateAsync("UPDATE criminallist SET locked=? WHERE uuid=?", 3, uuid.toString());
     }
 
     @Override
     public void setOnLock(Player player) {
         UUID uuid = player.getUniqueId();
-        mySQL.update("UPDATE criminallist SET locked=? WHERE uuid=?", 4, uuid.toString());
+        mySQL.updateAsync("UPDATE criminallist SET locked=? WHERE uuid=?", 4, uuid.toString());
     }
 
     @Override
     public void setLockTime(Player player, Integer time) {
         UUID uuid = player.getUniqueId();
-        mySQL.update("UPDATE criminallist SET time=? WHERE uuid=?", time, uuid.toString());
+        mySQL.updateAsync("UPDATE criminallist SET time=? WHERE uuid=?", time, uuid.toString());
     }
 
     @Override
     public void setLocked(Player player, Integer time, Integer cell) {
         UUID uuid = player.getUniqueId();
-        mySQL.update("UPDATE criminallist SET time=? WHERE uuid=?", time, uuid.toString());
-        mySQL.update("UPDATE criminallist SET locked=? WHERE uuid=?", 5, uuid.toString());
-        mySQL.update("UPDATE criminallist SET cell=? WHERE uuid=?", cell, uuid.toString());
+        mySQL.updateAsync("UPDATE criminallist SET time=? WHERE uuid=?", time, uuid.toString());
+        mySQL.updateAsync("UPDATE criminallist SET locked=? WHERE uuid=?", 5, uuid.toString());
+        mySQL.updateAsync("UPDATE criminallist SET cell=? WHERE uuid=?", cell, uuid.toString());
     }
 
     @Override
     public void setUnlocked(Player player) {
         UUID uuid = player.getUniqueId();
-        mySQL.update("UPDATE criminallist SET locked=? WHERE uuid=?", 0, uuid.toString());
-        mySQL.update("UPDATE criminallist SET reason=? WHERE uuid=?", "-", uuid.toString());
-        mySQL.update("UPDATE criminallist SET time=? WHERE uuid=?", 0, uuid.toString());
-        mySQL.update("UPDATE criminallist SET prosecutor=? WHERE uuid=?", "-", uuid.toString());
-        mySQL.update("UPDATE criminallist SET cell=? WHERE uuid=?", 0, uuid.toString());
+        mySQL.updateAsync("UPDATE criminallist SET locked=? WHERE uuid=?", 0, uuid.toString());
+        mySQL.updateAsync("UPDATE criminallist SET reason=? WHERE uuid=?", "", uuid.toString());
+        mySQL.updateAsync("UPDATE criminallist SET time=? WHERE uuid=?", 0, uuid.toString());
+        mySQL.updateAsync("UPDATE criminallist SET prosecutor=? WHERE uuid=?", "", uuid.toString());
+        mySQL.updateAsync("UPDATE criminallist SET cell=? WHERE uuid=?", 0, uuid.toString());
     }
 
     @Override
     public void setUnBaned(OfflinePlayer player) {
         UUID uuid = player.getUniqueId();
-        mySQL.update("UPDATE banlist SET baned=? WHERE uuid=?", 0, uuid.toString());
-        mySQL.update("UPDATE banlist SET reason=? WHERE uuid=?", "-", uuid.toString());
-        mySQL.update("UPDATE banlist SET time=? WHERE uuid=?", 0, uuid.toString());
-        mySQL.update("UPDATE banlist SET dated=? WHERE uuid=?", 0, uuid.toString());
-        mySQL.update("UPDATE banlist SET datem=? WHERE uuid=?", 0, uuid.toString());
-        mySQL.update("UPDATE banlist SET datey=? WHERE uuid=?", 0, uuid.toString());
+        mySQL.updateAsync("UPDATE banlist SET baned=? WHERE uuid=?", 0, uuid.toString());
+        mySQL.updateAsync("UPDATE banlist SET reason=? WHERE uuid=?", "", uuid.toString());
+        mySQL.updateAsync("UPDATE banlist SET time=? WHERE uuid=?", 0, uuid.toString());
+        mySQL.updateAsync("UPDATE banlist SET dated=? WHERE uuid=?", 0, uuid.toString());
+        mySQL.updateAsync("UPDATE banlist SET datem=? WHERE uuid=?", 0, uuid.toString());
+        mySQL.updateAsync("UPDATE banlist SET datey=? WHERE uuid=?", 0, uuid.toString());
     }
 
     @Override
@@ -242,19 +242,19 @@ public class BanAPIImpl implements IBanAPI {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return -1; // Return a default value when the player is not found
+        return -1;
     }
 
     @Override
     public void initPlayer(Player player) {
         UUID uuid = player.getUniqueId();
-        mySQL.update("INSERT INTO banlist (uuid, baned, dated, datem, datey, reason, time) VALUES (?,?,?,?,?,?,?)", uuid.toString(), 0, 0, 0, 0, "-", 0);
+        mySQL.updateAsync("INSERT INTO banlist (uuid, baned, dated, datem, datey, reason, time) VALUES (?,?,?,?,?,?,?)", uuid.toString(), 0, 0, 0, 0, "", 0);
     }
 
     @Override
     public void initPlayerC(Player player) {
         UUID uuid = player.getUniqueId();
-        mySQL.update("INSERT INTO criminallist (uuid, prosecutor, locked, reason, time, cell) VALUES (?,?,?,?,?,?)", uuid.toString(), "-", 0, "-", 0, 0);
+        mySQL.updateAsync("INSERT INTO criminallist (uuid, prosecutor, locked, reason, time, cell) VALUES (?,?,?,?,?,?)", uuid.toString(), "", 0, "", 0, 0);
     }
 
     @Override

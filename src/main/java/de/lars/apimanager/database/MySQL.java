@@ -48,10 +48,10 @@ public class MySQL {
         this.user = user;
         this.password = password;
         this.port = port;
-        startConnectionRenewalTask(1, TimeUnit.HOURS); // Example: renew every 1 hour
+        startConnectionRenewalTask(1, TimeUnit.HOURS);
     }
 
-    public void update(String update, Object... objs) {
+    public void updateAsync(String update, Object... objs) {
         Bukkit.getScheduler().runTaskAsynchronously(Main.getInstance(), () -> {
             try {
                 Connection connection = cache.get(1);
@@ -63,6 +63,18 @@ public class MySQL {
                 e.printStackTrace();
             }
         });
+    }
+
+    public void update(String update, Object... objs) {
+        try {
+            Connection connection = cache.get(1);
+            try (PreparedStatement p = connection.prepareStatement(update)) {
+                setArguments(objs, p);
+                p.executeUpdate();
+            }
+        } catch (SQLException | ExecutionException e) {
+            e.printStackTrace();
+        }
     }
 
 

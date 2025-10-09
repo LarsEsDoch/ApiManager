@@ -18,13 +18,13 @@ public class HomeAPIImpl implements IHomeAPI {
         UUID ownerUUID = player.getUniqueId();
         String locationString = Objects.requireNonNull(location.getWorld()).getName() + "," + location.getX() + "," + location.getY() + "," + location.getZ();
 
-        mySQL.update("INSERT INTO homes (uuid, name, location, is_public) VALUES (?, ?, ?, ?)", ownerUUID.toString(), name, locationString, isPublic);
+        mySQL.updateAsync("INSERT INTO homes (uuid, name, location, is_public) VALUES (?, ?, ?, ?)", ownerUUID.toString(), name, locationString, isPublic);
     }
 
     @Override
     public void deleteHome(Player player, int homeID) {
         UUID uuid = player.getUniqueId();
-        mySQL.update("DELETE FROM homes WHERE id = ? AND uuid = ?", homeID, uuid.toString());
+        mySQL.updateAsync("DELETE FROM homes WHERE id = ? AND uuid = ?", homeID, uuid.toString());
     }
 
     @Override
@@ -64,7 +64,7 @@ public class HomeAPIImpl implements IHomeAPI {
     @Override
     public void setHomePublic(Player player, int homeID, boolean isPublic) {
         UUID uuid = player.getUniqueId();
-        mySQL.update("UPDATE homes SET is_public = ? WHERE id = ? AND uuid = ?", isPublic, homeID, uuid.toString());
+        mySQL.updateAsync("UPDATE homes SET is_public = ? WHERE id = ? AND uuid = ?", isPublic, homeID, uuid.toString());
     }
 
     @Override

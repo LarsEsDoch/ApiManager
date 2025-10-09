@@ -14,26 +14,26 @@ public class ChunkAPIImpl implements IChunkAPI {
     @Override
     public void claimChunk(Player player, String playerName, String chunk, String friends) {
         UUID uuid = player.getUniqueId();
-        mySQL.update("INSERT INTO chunks (uuid, location, friends, spawning) VALUES (?, ?, ?, ?)", uuid.toString(), chunk, friends, true);
-        mySQL.update("UPDATE players SET free_chunks = ? WHERE uuid = ?", getFreeChunks(player) - 1, uuid.toString());
+        mySQL.updateAsync("INSERT INTO chunks (uuid, location, friends, spawning) VALUES (?, ?, ?, ?)", uuid.toString(), chunk, friends, true);
+        mySQL.updateAsync("UPDATE players SET free_chunks = ? WHERE uuid = ?", getFreeChunks(player) - 1, uuid.toString());
     }
 
     @Override
     public void addFree(Player player, Integer add) {
         UUID uuid = player.getUniqueId();
-        mySQL.update("UPDATE players SET free_chunks = ? WHERE uuid = ?", getFreeChunks(player) + add, uuid.toString());
+        mySQL.updateAsync("UPDATE players SET free_chunks = ? WHERE uuid = ?", getFreeChunks(player) + add, uuid.toString());
     }
 
     @Override
     public void removeFree(Player player, Integer remove) {
         UUID uuid =player.getUniqueId();
-        mySQL.update("UPDATE players SET free_chunks = ? WHERE uuid = ?", getFreeChunks(player) - remove, uuid.toString());
+        mySQL.updateAsync("UPDATE players SET free_chunks = ? WHERE uuid = ?", getFreeChunks(player) - remove, uuid.toString());
     }
 
     @Override
     public void setEntitySpawning(Player player, String chunk, Boolean spawning) {
         UUID uuid = player.getUniqueId();
-        mySQL.update("UPDATE chunks SET spawning = ? WHERE uuid = ? AND location=?", spawning, uuid.toString(), chunk);
+        mySQL.updateAsync("UPDATE chunks SET spawning = ? WHERE uuid = ? AND location=?", spawning, uuid.toString(), chunk);
     }
 
     @Override
@@ -45,7 +45,7 @@ public class ChunkAPIImpl implements IChunkAPI {
         String friendsString = String.join(",", currentFriends);
 
         String qry = "UPDATE chunks SET friends=? WHERE uuid=? AND location=?";
-        mySQL.update(qry, friendsString, playerUUID.toString(), chunk);
+        mySQL.updateAsync(qry, friendsString, playerUUID.toString(), chunk);
     }
 
     @Override
@@ -57,7 +57,7 @@ public class ChunkAPIImpl implements IChunkAPI {
         String friendsString = String.join(",", currentFriends);
 
         String qry = "UPDATE chunks SET friends=? WHERE uuid=? AND location=?";
-        mySQL.update(qry, friendsString, playerUUID.toString(), chunk);
+        mySQL.updateAsync(qry, friendsString, playerUUID.toString(), chunk);
     }
 
     @Override
@@ -111,8 +111,8 @@ public class ChunkAPIImpl implements IChunkAPI {
         UUID uuid = player.getUniqueId();
         int chunkId = getChunkId(player, chunk);
         if (chunkId != -1) {
-            mySQL.update("DELETE FROM chunks WHERE id=?", chunkId);
-            mySQL.update("UPDATE players SET free_chunks = ? WHERE uuid = ?", getFreeChunks(player) + 1, uuid.toString());
+            mySQL.updateAsync("DELETE FROM chunks WHERE id=?", chunkId);
+            mySQL.updateAsync("UPDATE players SET free_chunks = ? WHERE uuid = ?", getFreeChunks(player) + 1, uuid.toString());
         }
     }
 

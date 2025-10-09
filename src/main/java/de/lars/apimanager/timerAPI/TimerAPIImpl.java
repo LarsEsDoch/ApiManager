@@ -14,31 +14,31 @@ public class TimerAPIImpl implements ITimerAPI {
     @Override
     public void setTime(Player player, int time) {
         UUID playerUUID = player.getUniqueId();
-        mySQL.update("UPDATE timers SET time = ? WHERE uuid = ?", time, playerUUID.toString());
+        mySQL.updateAsync("UPDATE timers SET time = ? WHERE uuid = ?", time, playerUUID.toString());
     }
 
     @Override
     public void setOff(Player player, boolean off) {
         UUID playerUUID = player.getUniqueId();
-        mySQL.update("UPDATE timers SET off = ? WHERE uuid = ?", off, playerUUID.toString());
+        mySQL.updateAsync("UPDATE timers SET off = ? WHERE uuid = ?", off, playerUUID.toString());
     }
 
     @Override
     public void setRunning(Player player, boolean running) {
         UUID playerUUID = player.getUniqueId();
-        mySQL.update("UPDATE timers SET running = ? WHERE uuid = ?", running, playerUUID.toString());
+        mySQL.updateAsync("UPDATE timers SET running = ? WHERE uuid = ?", running, playerUUID.toString());
     }
 
     @Override
     public void setTimer(Player player, boolean timer) {
         UUID playerUUID = player.getUniqueId();
-        mySQL.update("UPDATE timers SET timer = ? WHERE uuid = ?", timer, playerUUID.toString());
+        mySQL.updateAsync("UPDATE timers SET timer = ? WHERE uuid = ?", timer, playerUUID.toString());
     }
 
     @Override
     public void setPublic(Player player, boolean isPublic) {
         UUID playerUUID = player.getUniqueId();
-        mySQL.update("UPDATE timers SET public = ? WHERE uuid = ?", isPublic, playerUUID.toString());
+        mySQL.updateAsync("UPDATE timers SET public = ? WHERE uuid = ?", isPublic, playerUUID.toString());
     }
 
     @Override
@@ -128,7 +128,7 @@ public class TimerAPIImpl implements ITimerAPI {
 
     public void initPlayer(Player player) {
         UUID uuid = player.getUniqueId();
-        mySQL.update("INSERT INTO timers (uuid, time, off, public, running, timer) VALUES (?,?,?,?,?,?)", uuid.toString(), 0, true, false, false, false);
+        mySQL.updateAsync("INSERT INTO timers (uuid, time, off, public, running, timer) VALUES (?,?,?,?,?,?)", uuid.toString(), 0, true, false, false, false);
     }
 
     public boolean doesUserExist(Player player) {

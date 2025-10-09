@@ -15,9 +15,9 @@ public class ToggleAPIImpl implements IToggleAPI {
     public void setBedToggle(Player player, boolean toggle) {
         UUID uuid = player.getUniqueId();
         if (toggle) {
-            mySQL.update("UPDATE togglelist SET bedtoggle=? WHERE uuid=?", 1, uuid.toString());
+            mySQL.updateAsync("UPDATE togglelist SET bedtoggle=? WHERE uuid=?", 1, uuid.toString());
         } else {
-            mySQL.update("UPDATE togglelist SET bedtoggle=? WHERE uuid=?", 0, uuid.toString());
+            mySQL.updateAsync("UPDATE togglelist SET bedtoggle=? WHERE uuid=?", 0, uuid.toString());
         }
     }
 
@@ -25,9 +25,9 @@ public class ToggleAPIImpl implements IToggleAPI {
     public void setScoreboardToggle(Player player, boolean toggle) {
         UUID uuid = player.getUniqueId();
         if (toggle) {
-            mySQL.update("UPDATE togglelist SET scoreboardtoggle=? WHERE uuid=?", 1, uuid.toString());
+            mySQL.updateAsync("UPDATE togglelist SET scoreboardtoggle=? WHERE uuid=?", 1, uuid.toString());
         } else {
-            mySQL.update("UPDATE togglelist SET scoreboardtoggle=? WHERE uuid=?", 0, uuid.toString());
+            mySQL.updateAsync("UPDATE togglelist SET scoreboardtoggle=? WHERE uuid=?", 0, uuid.toString());
         }
     }
 
@@ -65,7 +65,7 @@ public class ToggleAPIImpl implements IToggleAPI {
 
     public void initPlayer(Player player) {
         UUID uuid = player.getUniqueId();
-        mySQL.update("INSERT INTO togglelist (uuid, bedtoggle, scoreboardtoggle) VALUES (?,?,?)", uuid.toString(), 1, 1);
+        mySQL.updateAsync("INSERT INTO togglelist (uuid, bedtoggle, scoreboardtoggle) VALUES (?,?,?)", uuid.toString(), 1, 1);
     }
 
     @Override

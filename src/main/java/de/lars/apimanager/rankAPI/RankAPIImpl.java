@@ -15,35 +15,35 @@ public class RankAPIImpl implements IRankAPI {
     @Override
     public void setRankID(Player player, int rang, int time, Calendar date) {
         UUID uuid = player.getUniqueId();
-        mySQL.update("UPDATE raenge SET rang=? WHERE uuid=?", rang, uuid.toString());
-        mySQL.update("UPDATE raenge SET time=? WHERE uuid=?", time, uuid.toString());
-        mySQL.update("UPDATE raenge SET dated=? WHERE uuid=?", date.get(Calendar.DAY_OF_MONTH), uuid.toString());
-        mySQL.update("UPDATE raenge SET datem=? WHERE uuid=?", date.get(Calendar.MONTH) + 1, uuid.toString());
-        mySQL.update("UPDATE raenge SET datey=? WHERE uuid=?", date.get(Calendar.YEAR), uuid.toString());
+        mySQL.updateAsync("UPDATE raenge SET rang=? WHERE uuid=?", rang, uuid.toString());
+        mySQL.updateAsync("UPDATE raenge SET time=? WHERE uuid=?", time, uuid.toString());
+        mySQL.updateAsync("UPDATE raenge SET dated=? WHERE uuid=?", date.get(Calendar.DAY_OF_MONTH), uuid.toString());
+        mySQL.updateAsync("UPDATE raenge SET datem=? WHERE uuid=?", date.get(Calendar.MONTH) + 1, uuid.toString());
+        mySQL.updateAsync("UPDATE raenge SET datey=? WHERE uuid=?", date.get(Calendar.YEAR), uuid.toString());
     }
 
     @Override
     public void addRankDays(Player player, int days) {
         UUID uuid = player.getUniqueId();
-        mySQL.update("UPDATE raenge SET time=? WHERE uuid=?", days, uuid.toString());
+        mySQL.updateAsync("UPDATE raenge SET time=? WHERE uuid=?", days, uuid.toString());
     }
 
     @Override
     public void setPrefix(Player player, int count) {
         UUID uuid = player.getUniqueId();
-        mySQL.update("UPDATE raenge SET prefix=? WHERE uuid=?", count, uuid.toString());
+        mySQL.updateAsync("UPDATE raenge SET prefix=? WHERE uuid=?", count, uuid.toString());
     }
 
     @Override
     public void setPrefixType(Player player, int count) {
         UUID uuid = player.getUniqueId();
-        mySQL.update("UPDATE raenge SET prefixtype=? WHERE uuid=?", count, uuid.toString());
+        mySQL.updateAsync("UPDATE raenge SET prefixtype=? WHERE uuid=?", count, uuid.toString());
     }
 
     @Override
     public void setStatus(Player player, String status) {
         UUID uuid = player.getUniqueId();
-        mySQL.update("UPDATE raenge SET status=? WHERE uuid=?", status, uuid.toString());
+        mySQL.updateAsync("UPDATE raenge SET status=? WHERE uuid=?", status, uuid.toString());
     }
 
 
@@ -152,7 +152,7 @@ public class RankAPIImpl implements IRankAPI {
 
     public void initPlayer(Player player) {
         UUID uuid = player.getUniqueId();
-        mySQL.update("INSERT INTO raenge (uuid, rang, time, dated, datem, datey, prefix, prefixtype, status) VALUES (?,?,?,?,?,?,?,?,?)", uuid.toString(), 0, 0, 0, 0, 0, 0, 0, "00-00");
+        mySQL.updateAsync("INSERT INTO raenge (uuid, rang, time, dated, datem, datey, prefix, prefixtype, status) VALUES (?,?,?,?,?,?,?,?,?)", uuid.toString(), 0, 0, 0, 0, 0, 0, 0, "");
     }
 
     @Override

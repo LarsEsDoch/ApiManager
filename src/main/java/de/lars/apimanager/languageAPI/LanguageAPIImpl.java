@@ -14,7 +14,7 @@ public class LanguageAPIImpl implements ILanguageAPI {
     @Override
     public void setLanguage(Player player, Integer languageId) {
         UUID uuid = player.getUniqueId();
-        mySQL.update("UPDATE languages SET language_id=? WHERE uuid=?", languageId, uuid.toString());
+        mySQL.updateAsync("UPDATE languages SET language_id=? WHERE uuid=?", languageId, uuid.toString());
     }
 
     @Override
@@ -33,7 +33,7 @@ public class LanguageAPIImpl implements ILanguageAPI {
 
     public void initPlayer(Player player) {
         UUID uuid = player.getUniqueId();
-        mySQL.update("INSERT INTO languages (uuid, language_id) VALUES (?,?)", uuid.toString(), 1);
+        mySQL.updateAsync("INSERT INTO languages (uuid, language_id) VALUES (?,?)", uuid.toString(), 1);
     }
 
     @Override
