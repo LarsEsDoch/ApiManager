@@ -1,26 +1,25 @@
 package de.lars.apiManager.backpackAPI;
 
 import org.bukkit.OfflinePlayer;
-import org.bukkit.entity.Player;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 public interface IBackpackAPI {
-    void setSlots(Player player, int slots);
+
+    void setSlots(OfflinePlayer player, int slots);
+
+    CompletableFuture<Void> setSlotsAsync(OfflinePlayer player, int slots);
+
+    Integer getSlots(OfflinePlayer player);
+
+    CompletableFuture<Integer> getSlotsAsync(OfflinePlayer player);
 
     void setBackpack(OfflinePlayer player, String data);
 
-    int getSlots(OfflinePlayer player);
+    CompletableFuture<Void> setBackpackAsync(OfflinePlayer player, String data);
 
     String getBackpack(OfflinePlayer player);
 
-    List<String> getUUIDs();
-
-    void initPlayer(Player player);
-
-    boolean doesUserExist(Player player);
-
-    boolean doesUserExist(OfflinePlayer player);
-
-    void createTables();
+    CompletableFuture<String> getBackpackAsync(OfflinePlayer player);
 }

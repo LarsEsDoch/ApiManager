@@ -10,6 +10,7 @@ import de.lars.apiManager.questAPI.QuestAPIImpl;
 import de.lars.apiManager.rankAPI.RankAPIImpl;
 import de.lars.apiManager.timerAPI.TimerAPIImpl;
 import de.lars.apiManager.toggleAPI.ToggleAPIImpl;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -29,35 +30,34 @@ public class JoinListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onJoin(PlayerJoinEvent e) {
-        if (!playerAPI.doesUserExist(e.getPlayer())) {
-            playerAPI.initPlayer(e.getPlayer());
+        Player player = e.getPlayer();
+
+           if (!playerAPI.doesUserExist(player)) {
+            playerAPI.initPlayer(player);
         }
-        if (!coinAPI.doesUserExist(e.getPlayer())) {
-            coinAPI.initPlayer(e.getPlayer());
+        if (!coinAPI.doesUserExist(player)) {
+            coinAPI.initPlayer(player);
         }
-        if (!languageAPI.doesUserExist(e.getPlayer())) {
-            languageAPI.initPlayer(e.getPlayer());
+        if (!languageAPI.doesUserExist(player)) {
+            languageAPI.initPlayer(player);
         }
-        if (!rankAPI.doesUserExist(e.getPlayer())) {
-            rankAPI.initPlayer(e.getPlayer());
+        if (!rankAPI.doesUserExist(player)) {
+            rankAPI.initPlayer(player);
         }
-        if (!toggleAPI.doesUserExist(e.getPlayer())) {
-            toggleAPI.initPlayer(e.getPlayer());
+        if (!toggleAPI.doesUserExist(player)) {
+            toggleAPI.initPlayer(player);
         }
-        if (!questAPI.doesUserExist(e.getPlayer())) {
-            questAPI.initPlayer(e.getPlayer());
+        if (!questAPI.doesUserExist(player)) {
+            questAPI.initPlayer(player);
         }
-        if (!banAPI.doesUserExist(e.getPlayer())) {
-            banAPI.initPlayer(e.getPlayer());
+        if (!banAPI.doesUserExist(player)) {
+            banAPI.initPlayer(player);
         }
-        if (!banAPI.doesCriminalUserExist(e.getPlayer())) {
-            banAPI.initPlayerC(e.getPlayer());
+        if (!timerAPI.doesUserExist(player)) {
+            timerAPI.initPlayer(player);
         }
-        if (!timerAPI.doesUserExist(e.getPlayer())) {
-            timerAPI.initPlayer(e.getPlayer());
-        }
-        if (!backpackAPI.doesUserExist(e.getPlayer())) {
-            backpackAPI.initPlayer(e.getPlayer());
+        if (!backpackAPI.doesUserExist(player)) {
+            backpackAPI.initPlayer(player);
         }
     }
 }
