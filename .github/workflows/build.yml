@@ -1,0 +1,41 @@
+name: Build Paper Plugin
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 🔹 1. Repo auschecken
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 🔹 2. Java 21 installieren (Temurin = OpenJDK)
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+          cache: 'gradle'
+
+      # 🔹 3. Rechte für Gradle-Wrapper setzen
+      - name: Grant execute permission for Gradle wrapper
+        run: chmod +x gradlew
+
+      # 🔹 4. Projekt bauen & Tests ausführen
+      - name: Build with Gradle
+        uses: gradle/gradle-build-action@v3
+        with:
+          arguments: clean build
+
+      # 🔹 5. Artefakt (JAR) hochladen
+      - name: Upload plugin jar
+        uses: actions/upload-artifact@v4
+        with:
+          name: ApiManager
+          path: build/libs/*.jar
