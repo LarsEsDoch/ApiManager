@@ -1,8 +1,7 @@
-package de.lars.apiManager.backpackAPI;
+package de.lars.apimanager.apis.backpackAPI;
 
 import org.bukkit.OfflinePlayer;
 
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public interface IBackpackAPI {
@@ -11,13 +10,16 @@ public interface IBackpackAPI {
 
     CompletableFuture<Void> setSlotsAsync(OfflinePlayer player, int slots);
 
+
     Integer getSlots(OfflinePlayer player);
 
     CompletableFuture<Integer> getSlotsAsync(OfflinePlayer player);
 
+
     void setBackpack(OfflinePlayer player, String data);
 
     CompletableFuture<Void> setBackpackAsync(OfflinePlayer player, String data);
+
 
     String getBackpack(OfflinePlayer player);
 

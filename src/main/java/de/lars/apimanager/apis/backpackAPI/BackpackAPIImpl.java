@@ -1,12 +1,11 @@
-package de.lars.apiManager.backpackAPI;
+package de.lars.apimanager.apis.backpackAPI;
 
-import de.lars.apiManager.Main;
-import de.lars.apiManager.database.DatabaseManager;
+import de.lars.apimanager.Main;
+import de.lars.apimanager.database.DatabaseManager;
 import org.bukkit.OfflinePlayer;
 
 import java.io.*;
 import java.sql.*;
-import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.zip.*;
 import java.util.Base64;
@@ -23,7 +22,7 @@ public class BackpackAPIImpl implements IBackpackAPI {
     public void createTables() {
         db.update("""
             CREATE TABLE IF NOT EXISTS player_backpacks (
-                uuid CHAR(36) FOREIGN KEY REFERENCES players(uuid),
+                uuid CHAR(36) NOT NULL FOREIGN KEY REFERENCES players(uuid),
                 slots INT NOT NULL DEFAULT 9,
                 data LONGBLOB,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
