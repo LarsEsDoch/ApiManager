@@ -1,12 +1,13 @@
-package de.lars.apiManager.database;
+package de.lars.apimanager.database;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import de.lars.apiManager.Main;
+import de.lars.apimanager.Main;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionException;
 import java.util.concurrent.Executor;
 import java.util.logging.Level;
 
