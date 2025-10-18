@@ -33,7 +33,9 @@ public class JoinListener implements Listener {
         Player player = e.getPlayer();
 
            if (!playerAPI.doesUserExist(player)) {
+        if (!playerAPI.doesUserExist(player)) {
             playerAPI.initPlayer(player);
+            playerAPI.setOnlineAsync(player, true);
         }
         if (!coinAPI.doesUserExist(player)) {
             coinAPI.initPlayer(player);
