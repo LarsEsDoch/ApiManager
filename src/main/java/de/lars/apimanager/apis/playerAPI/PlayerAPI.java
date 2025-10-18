@@ -1,7 +1,6 @@
-package de.lars.apiManager.playersAPI;
+package de.lars.apimanager.apis.playerAPI;
 
 public class PlayerAPI {
-
     private static IPlayerAPI api;
 
     public static IPlayerAPI getApi() {
