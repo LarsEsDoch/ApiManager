@@ -1,4 +1,4 @@
-package de.lars.apiManager.languageAPI;
+package de.lars.apimanager.apis.languageAPI;
 
 public class LanguageAPI {
 
