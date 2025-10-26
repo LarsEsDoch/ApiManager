@@ -4,15 +4,19 @@ import de.lars.apimanager.Main;
 import de.lars.apimanager.database.DatabaseManager;
 import org.bukkit.OfflinePlayer;
 
-import java.io.*;
-import java.sql.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.zip.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.util.Base64;
+import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
+import java.util.zip.DeflaterOutputStream;
+import java.util.zip.InflaterInputStream;
 
 public class BackpackAPIImpl implements IBackpackAPI {
-
     private final DatabaseManager db;
 
     public BackpackAPIImpl() {
@@ -22,18 +26,19 @@ public class BackpackAPIImpl implements IBackpackAPI {
     public void createTables() {
         db.update("""
             CREATE TABLE IF NOT EXISTS player_backpacks (
-                uuid CHAR(36) NOT NULL FOREIGN KEY REFERENCES players(uuid),
+                uuid CHAR(36) NOT NULL PRIMARY KEY,
                 slots INT NOT NULL DEFAULT 9,
                 data LONGBLOB,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                FOREIGN KEY (uuid) REFERENCES players(uuid) ON DELETE CASCADE
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
         """);
     }
 
     public void initPlayer(OfflinePlayer player) {
         if (!doesUserExist(player)) {
-            db.update("INSERT INTO player_backpacks (uuid, slots, data) VALUES (?, ?, ?)",
+            db.update("INSERT IGNORE INTO player_backpacks (uuid, slots, data) VALUES (?, ?, ?)",
                     player.getUniqueId().toString(), 9, null);
         }
     }
@@ -51,12 +56,14 @@ public class BackpackAPIImpl implements IBackpackAPI {
 
     @Override
     public void setSlots(OfflinePlayer player, int slots) {
+        if (slots < 0) slots = 0;
         db.update("UPDATE player_backpacks SET slots = ? WHERE uuid = ?",
                 slots, player.getUniqueId().toString());
     }
 
     @Override
     public CompletableFuture<Void> setSlotsAsync(OfflinePlayer player, int slots) {
+        if (slots < 0) slots = 0;
         return db.updateAsync("UPDATE player_backpacks SET slots = ? WHERE uuid = ?",
                         slots, player.getUniqueId().toString());
     }
@@ -145,7 +152,7 @@ public class BackpackAPIImpl implements IBackpackAPI {
         if (input == null || input.isEmpty()) return "";
         try (ByteArrayOutputStream bos = new ByteArrayOutputStream();
              DeflaterOutputStream dos = new DeflaterOutputStream(bos)) {
-            dos.write(input.getBytes());
+            dos.write(input.getBytes(StandardCharsets.UTF_8));
             dos.finish();
             return Base64.getEncoder().encodeToString(bos.toByteArray());
         } catch (IOException e) {
@@ -165,7 +172,7 @@ public class BackpackAPIImpl implements IBackpackAPI {
             while ((len = iis.read(buffer)) != -1) {
                 bos.write(buffer, 0, len);
             }
-            return bos.toString();
+            return bos.toString(StandardCharsets.UTF_8);
         } catch (IOException e) {
             Main.getInstance().getLogger().log(Level.WARNING, "Failed to decompress backpack data", e);
             return "";

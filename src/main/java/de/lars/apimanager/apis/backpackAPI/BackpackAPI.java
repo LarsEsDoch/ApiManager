@@ -1,7 +1,6 @@
 package de.lars.apimanager.apis.backpackAPI;
 
 public class BackpackAPI {
-
     private static IBackpackAPI api;
 
     public static IBackpackAPI getApi() {

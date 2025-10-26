@@ -5,7 +5,6 @@ import org.bukkit.OfflinePlayer;
 import java.util.concurrent.CompletableFuture;
 
 public interface IBackpackAPI {
-
     void setSlots(OfflinePlayer player, int slots);
 
     CompletableFuture<Void> setSlotsAsync(OfflinePlayer player, int slots);
