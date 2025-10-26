@@ -130,8 +130,12 @@ public class LanguageAPIImpl implements ILanguageAPI {
             try (PreparedStatement ps = conn.prepareStatement("SELECT language_id FROM languages WHERE uuid = ?")) {
                 ps.setString(1, player.getUniqueId().toString());
                 try (ResultSet rs = ps.executeQuery()) {
-                    int value = rs.getInt("language_id");
-                    return rs.wasNull() ? null : value;
+                    if (rs.next()) {
+                        int value = rs.getInt("language_id");
+                        return rs.wasNull() ? null : value;
+                    } else {
+                        return null;
+                    }
                 }
             }
         });
@@ -143,8 +147,12 @@ public class LanguageAPIImpl implements ILanguageAPI {
             try (PreparedStatement ps = conn.prepareStatement("SELECT language_id FROM languages WHERE uuid = ?")) {
                 ps.setString(1, player.getUniqueId().toString());
                 try (ResultSet rs = ps.executeQuery()) {
-                    int value = rs.getInt("language_id");
-                    return rs.wasNull() ? null : value;
+                    if (rs.next()) {
+                        int value = rs.getInt("language_id");
+                        return rs.wasNull() ? null : value;
+                    } else {
+                        return null;
+                    }
                 }
             }
         });
