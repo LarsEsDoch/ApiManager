@@ -1,9 +1,9 @@
-package de.lars.apimanager.apis.dataAPI;
+package de.lars.apimanager.apis.serverSettingsAPI;
 
 import java.sql.Timestamp;
 import java.util.concurrent.CompletableFuture;
 
-public interface IDataAPI {
+public interface IServerSettingsAPI {
     Timestamp getCreatedAt();
 
     CompletableFuture<Timestamp> getCreatedAtAsync();
@@ -60,7 +60,7 @@ public interface IDataAPI {
 
     CompletableFuture<Void> setMaxPlayersAsync(int maxPlayers);
 
-    int getMaxPlayers();
+    Integer getMaxPlayers();
 
     CompletableFuture<Integer> getMaxPlayersAsync();
 

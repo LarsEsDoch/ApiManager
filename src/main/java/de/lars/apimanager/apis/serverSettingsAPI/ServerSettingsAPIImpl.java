@@ -1,4 +1,4 @@
-package de.lars.apimanager.apis.dataAPI;
+package de.lars.apimanager.apis.serverSettingsAPI;
 
 import de.lars.apimanager.Main;
 import de.lars.apimanager.database.DatabaseManager;
@@ -8,17 +8,17 @@ import java.sql.ResultSet;
 import java.sql.Timestamp;
 import java.util.concurrent.CompletableFuture;
 
-public class DataAPIImpl implements IDataAPI {
+public class ServerSettingsAPIImpl implements IServerSettingsAPI {
     private final DatabaseManager db;
 
-    public DataAPIImpl() {
+    public ServerSettingsAPIImpl() {
         this.db = Main.getInstance().getDatabaseManager();
     }
 
     public void createTables() {
         db.update("""
             CREATE TABLE IF NOT EXISTS server_settings (
-                id INT PRIMARY KEY,
+                id INT PRIMARY KEY CHECK (id = 1),
                 real_time_enabled BOOLEAN DEFAULT TRUE,
                 real_weather_enabled BOOLEAN DEFAULT TRUE,
                 maintenance_active BOOLEAN DEFAULT FALSE,
@@ -98,6 +98,7 @@ public class DataAPIImpl implements IDataAPI {
         db.update("""
             UPDATE server_settings
             SET real_time_enabled = ?
+            WHERE id = 1
         """, enabled);
     }
 
@@ -106,6 +107,7 @@ public class DataAPIImpl implements IDataAPI {
         return db.updateAsync("""
             UPDATE server_settings
             SET real_time_enabled = ?
+            WHERE id = 1
         """, enabled);
     }
 
@@ -136,6 +138,7 @@ public class DataAPIImpl implements IDataAPI {
         db.update("""
             UPDATE server_settings
             SET real_weather_enabled = ?
+            WHERE id = 1
         """, enabled);
     }
 
@@ -144,6 +147,7 @@ public class DataAPIImpl implements IDataAPI {
         return db.updateAsync("""
             UPDATE server_settings
             SET real_weather_enabled = ?
+            WHERE id = 1
         """, enabled);
     }
 
@@ -176,6 +180,7 @@ public class DataAPIImpl implements IDataAPI {
             SET maintenance_active = ?,
                 maintenance_reason = ?,
                 maintenance_end = ?
+            WHERE id = 1
         """, true, reason, endTime);
     }
 
@@ -186,6 +191,7 @@ public class DataAPIImpl implements IDataAPI {
             SET maintenance_active = ?,
                 maintenance_reason = ?,
                 maintenance_end = ?
+            WHERE id = 1
         """, true, reason, endTime);
     }
 
@@ -196,6 +202,7 @@ public class DataAPIImpl implements IDataAPI {
             SET maintenance_active = ?,
                 maintenance_reason = ?,
                 maintenance_end = ?
+            WHERE id = 1
         """, false, "", null);
     }
 
@@ -206,6 +213,7 @@ public class DataAPIImpl implements IDataAPI {
             SET maintenance_active = ?,
                 maintenance_reason = ?,
                 maintenance_end = ?
+            WHERE id = 1
         """, false, "", null);
     }
 
@@ -236,6 +244,7 @@ public class DataAPIImpl implements IDataAPI {
         db.update("""
             UPDATE server_settings
             SET maintenance_reason = ?
+            WHERE id = 1
         """, reason);
     }
 
@@ -244,6 +253,7 @@ public class DataAPIImpl implements IDataAPI {
         return db.updateAsync("""
             UPDATE server_settings
             SET maintenance_reason = ?
+            WHERE id = 1
         """, reason);
     }
 
@@ -276,6 +286,7 @@ public class DataAPIImpl implements IDataAPI {
         db.update("""
             UPDATE server_settings
             SET maintenance_end = ?
+            WHERE id = 1
         """, endTime);
     }
 
@@ -284,6 +295,7 @@ public class DataAPIImpl implements IDataAPI {
         return db.updateAsync("""
             UPDATE server_settings
             SET maintenance_end = ?
+            WHERE id = 1
         """, endTime);
     }
 
@@ -316,6 +328,7 @@ public class DataAPIImpl implements IDataAPI {
         db.update("""
             UPDATE server_settings
             SET max_players = ?
+            WHERE id = 1
         """, maxPlayers);
     }
 
@@ -324,11 +337,12 @@ public class DataAPIImpl implements IDataAPI {
         return db.updateAsync("""
             UPDATE server_settings
             SET max_players = ?
+            WHERE id = 1
         """, maxPlayers);
     }
 
     @Override
-    public int getMaxPlayers() {
+    public Integer getMaxPlayers() {
         return db.query(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT max_players FROM server_settings WHERE id = 1")) {
                 try (ResultSet rs = ps.executeQuery()) {
@@ -356,6 +370,7 @@ public class DataAPIImpl implements IDataAPI {
         db.update("""
             UPDATE server_settings
             SET server_name = ?
+            WHERE id = 1
         """, serverName);
     }
 
@@ -364,6 +379,7 @@ public class DataAPIImpl implements IDataAPI {
         return db.updateAsync("""
             UPDATE server_settings
             SET server_name = ?
+            WHERE id = 1
         """, serverName);
     }
 
@@ -396,6 +412,7 @@ public class DataAPIImpl implements IDataAPI {
         db.update("""
             UPDATE server_settings
             SET server_version = ?
+            WHERE id = 1
         """, serverVersion);
     }
 
@@ -404,6 +421,7 @@ public class DataAPIImpl implements IDataAPI {
         return db.updateAsync("""
             UPDATE server_settings
             SET server_version = ?
+            WHERE id = 1
         """, serverVersion);
     }
 
