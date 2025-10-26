@@ -22,8 +22,6 @@ public class PlayerAPIImpl implements IPlayerAPI {
                 uuid CHAR(36) NOT NULL PRIMARY KEY,
                 name VARCHAR(16) NOT NULL,
                 playtime BIGINT DEFAULT 0,
-                chunk_limit INT DEFAULT 32,
-                home_limit INT DEFAULT 32,
                 is_online BOOLEAN DEFAULT FALSE,
                 first_join TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 last_seen TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -35,9 +33,9 @@ public class PlayerAPIImpl implements IPlayerAPI {
 
     public void initPlayer(OfflinePlayer player) {
         db.update("""
-            INSERT IGNORE INTO players (uuid, name, playtime, chunk_limit, home_limit, is_online)
+            INSERT IGNORE INTO players (uuid, name, playtime, is_online)
             VALUES (?, ?, ?, ?, ?, ?)
-        """, player.getUniqueId().toString(), player.getName(), 0, 32, 32, true);
+        """, player.getUniqueId().toString(), player.getName(), 0, false);
     }
 
     public boolean doesUserExist(OfflinePlayer player) {
@@ -52,53 +50,61 @@ public class PlayerAPIImpl implements IPlayerAPI {
     }
 
     @Override
-    public Timestamp getCreatedAt() {
+    public Timestamp getCreatedAt(OfflinePlayer player) {
         return db.query(conn -> {
             try (PreparedStatement ps = conn.prepareStatement(
-                     "SELECT created_at FROM server_settings WHERE id = 1"
-                 );
-                 ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) return rs.getTimestamp("created_at");
-                return null;
+                     "SELECT created_at FROM players WHERE uuid = ?"
+                 )) {
+                ps.setString(1, player.getUniqueId().toString());
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) return rs.getTimestamp("created_at");
+                    return null;
+                }
             }
         });
     }
 
     @Override
-    public CompletableFuture<Timestamp> getCreatedAtAsync() {
+    public CompletableFuture<Timestamp> getCreatedAtAsync(OfflinePlayer player) {
         return db.queryAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement(
-                     "SELECT created_at FROM server_settings WHERE id = 1"
-                 );
-                 ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) return rs.getTimestamp("created_at");
-                return null;
+                     "SELECT created_at FROM players WHERE uuid = ?"
+                 )) {
+                ps.setString(1, player.getUniqueId().toString());
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) return rs.getTimestamp("created_at");
+                    return null;
+                }
             }
         });
     }
 
     @Override
-    public Timestamp getUpdatedAt() {
+    public Timestamp getUpdatedAt(OfflinePlayer player) {
         return db.query(conn -> {
             try (PreparedStatement ps = conn.prepareStatement(
-                     "SELECT updated_at FROM server_settings WHERE id = 1"
-                 );
-                 ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) return rs.getTimestamp("updated_at");
-                return null;
+                     "SELECT updated_at FROM players WHERE uuid = ?"
+                 )) {
+                ps.setString(1, player.getUniqueId().toString());
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) return rs.getTimestamp("updated_at");
+                    return null;
+                }
             }
         });
     }
 
     @Override
-    public CompletableFuture<Timestamp> getUpdatedAtAsync() {
+    public CompletableFuture<Timestamp> getUpdatedAtAsync(OfflinePlayer player) {
         return db.queryAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement(
-                     "SELECT updated_at FROM server_settings WHERE id = 1"
-                 );
-                 ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) return rs.getTimestamp("updated_at");
-                return null;
+                     "SELECT updated_at FROM players WHERE uuid = ?"
+                 )) {
+                ps.setString(1, player.getUniqueId().toString());
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) return rs.getTimestamp("updated_at");
+                    return null;
+                }
             }
         });
     }
@@ -130,7 +136,7 @@ public class PlayerAPIImpl implements IPlayerAPI {
     }
 
     @Override
-    public void setPlaytime(OfflinePlayer player, Integer playtime) {
+    public void setPlaytime(OfflinePlayer player, Long playtime) {
         db.update("""
             UPDATE players
             SET playtime = ?
@@ -139,7 +145,7 @@ public class PlayerAPIImpl implements IPlayerAPI {
     }
 
     @Override
-    public CompletableFuture<Void> setPlaytimeAsync(OfflinePlayer player, Integer playtime) {
+    public CompletableFuture<Void> setPlaytimeAsync(OfflinePlayer player, Long playtime) {
         return db.updateAsync("""
             UPDATE players
             SET playtime = ?
@@ -148,126 +154,30 @@ public class PlayerAPIImpl implements IPlayerAPI {
     }
 
     @Override
-    public Integer getPlaytime(OfflinePlayer player) {
+    public Long getPlaytime(OfflinePlayer player) {
         return db.query(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT playtime FROM players WHERE uuid = ?")) {
                 ps.setString(1, player.getUniqueId().toString());
                 try (ResultSet rs = ps.executeQuery()) {
-                    int value = rs.getInt("playtime");
-                    return rs.wasNull() ? null : value;
+                    if (rs.next()) {
+                        long value = rs.getLong("playtime");
+                        return rs.wasNull() ? null : value;
+                    } else {
+                        return null;
+                    }
                 }
             }
         });
     }
 
     @Override
-    public CompletableFuture<Integer> getPlaytimeAsync(OfflinePlayer player) {
+    public CompletableFuture<Long> getPlaytimeAsync(OfflinePlayer player) {
         return db.queryAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT playtime FROM players WHERE uuid = ?")) {
                 ps.setString(1, player.getUniqueId().toString());
                 try (ResultSet rs = ps.executeQuery()) {
-                    int value = rs.getInt("playtime");
-                    return rs.wasNull() ? null : value;
-                }
-            }
-        });
-    }
-
-    @Override
-    public void setChunkLimit(OfflinePlayer player, Integer chunk_limit) {
-        db.update("""
-            UPDATE players
-            SET chunk_limit = ?
-            WHERE uuid = ?
-        """, chunk_limit, player.getUniqueId().toString());
-    }
-
-    @Override
-    public CompletableFuture<Void> setChunkLimitAsync(OfflinePlayer player, Integer chunk_limit) {
-        return db.updateAsync("""
-            UPDATE players
-            SET chunk_limit = ?
-            WHERE uuid = ?
-        """, chunk_limit, player.getUniqueId().toString());
-    }
-
-    @Override
-    public Integer getChunkLimit(OfflinePlayer player) {
-        return db.query(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT chunk_limit FROM players WHERE uuid = ?")) {
-                ps.setString(1, player.getUniqueId().toString());
-                try (ResultSet rs = ps.executeQuery()) {
                     if (rs.next()) {
-                        int value = rs.getInt("chunk_limit");
-                        return rs.wasNull() ? null : value;
-                    } else {
-                        return null;
-                    }
-                }
-            }
-        });
-    }
-
-    @Override
-    public CompletableFuture<Integer> getChunkLimitAsync(OfflinePlayer player) {
-        return db.queryAsync(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT chunk_limit FROM players WHERE uuid = ?")) {
-                ps.setString(1, player.getUniqueId().toString());
-                try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) {
-                        int value = rs.getInt("chunk_limit");
-                        return rs.wasNull() ? null : value;
-                    } else {
-                        return null;
-                    }
-                }
-            }
-        });
-    }
-
-    @Override
-    public void setHomeLimit(OfflinePlayer player, Integer home_limit) {
-        db.update("""
-            UPDATE players
-            SET home_limit = ?
-            WHERE uuid = ?
-        """, home_limit, player.getUniqueId().toString());
-    }
-
-    @Override
-    public CompletableFuture<Void> setHomeLimitAsync(OfflinePlayer player, Integer home_limit) {
-        return db.updateAsync("""
-            UPDATE players
-            SET home_limit = ?
-            WHERE uuid = ?
-        """, home_limit, player.getUniqueId().toString());
-    }
-
-    @Override
-    public Integer getHomeLimit(OfflinePlayer player) {
-        return db.query(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT home_limit FROM players WHERE uuid = ?")) {
-                ps.setString(1, player.getUniqueId().toString());
-                try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) {
-                        int value = rs.getInt("home_limit");
-                        return rs.wasNull() ? null : value;
-                    } else {
-                        return null;
-                    }
-                }
-            }
-        });
-    }
-
-    @Override
-    public CompletableFuture<Integer> getHomeLimitAsync(OfflinePlayer player) {
-        return db.queryAsync(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT home_limit FROM players WHERE uuid = ?")) {
-                ps.setString(1, player.getUniqueId().toString());
-                try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) {
-                        int value = rs.getInt("home_limit");
+                        long value = rs.getLong("playtime");
                         return rs.wasNull() ? null : value;
                     } else {
                         return null;

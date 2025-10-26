@@ -6,45 +6,29 @@ import java.sql.Timestamp;
 import java.util.concurrent.CompletableFuture;
 
 public interface IPlayerAPI {
-    Timestamp getCreatedAt();
+    Timestamp getCreatedAt(OfflinePlayer player);
 
-    CompletableFuture<Timestamp> getCreatedAtAsync();
+    CompletableFuture<Timestamp> getCreatedAtAsync(OfflinePlayer player);
 
-    Timestamp getUpdatedAt();
+    Timestamp getUpdatedAt(OfflinePlayer player);
 
-    CompletableFuture<Timestamp> getUpdatedAtAsync();
+    CompletableFuture<Timestamp> getUpdatedAtAsync(OfflinePlayer player);
 
     String getName(OfflinePlayer player);
 
     CompletableFuture<String> getNameAsync(OfflinePlayer player);
 
-    void setPlaytime(OfflinePlayer player, Integer playtime);
+    void setPlaytime(OfflinePlayer player, Long playtime);
 
-    CompletableFuture<Void> setPlaytimeAsync(OfflinePlayer player, Integer playtime);
+    CompletableFuture<Void> setPlaytimeAsync(OfflinePlayer player, Long playtime);
 
-    Integer getPlaytime(OfflinePlayer player);
+    Long getPlaytime(OfflinePlayer player);
 
-    CompletableFuture<Integer> getPlaytimeAsync(OfflinePlayer player);
-
-    void setChunkLimit(OfflinePlayer player, Integer chunk_limit);
-
-    CompletableFuture<Void> setChunkLimitAsync(OfflinePlayer player, Integer chunk_limit);
-
-    Integer getChunkLimit(OfflinePlayer player);
-
-    CompletableFuture<Integer> getChunkLimitAsync(OfflinePlayer player);
-
-    void setHomeLimit(OfflinePlayer player, Integer home_limit);
+    CompletableFuture<Long> getPlaytimeAsync(OfflinePlayer player);
 
     void setOnline(OfflinePlayer player, Boolean online);
 
-    CompletableFuture<Void> setHomeLimitAsync(OfflinePlayer player, Integer home_limit);
-
     CompletableFuture<Void> setOnlineAsync(OfflinePlayer player, Boolean online);
-
-    Integer getHomeLimit(OfflinePlayer player);
-
-    CompletableFuture<Integer> getHomeLimitAsync(OfflinePlayer player);
 
     boolean isOnline(OfflinePlayer player);
 
