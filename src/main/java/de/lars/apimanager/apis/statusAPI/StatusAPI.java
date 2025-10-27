@@ -1,7 +1,6 @@
 package de.lars.apimanager.apis.statusAPI;
 
 public class StatusAPI {
-
     private static IStatusAPI api;
 
     public static IStatusAPI getApi() {

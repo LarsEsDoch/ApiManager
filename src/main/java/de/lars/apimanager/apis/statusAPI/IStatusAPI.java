@@ -2,7 +2,6 @@ package de.lars.apimanager.apis.statusAPI;
 
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.entity.Player;
 
 import java.sql.Timestamp;
 import java.util.concurrent.CompletableFuture;
