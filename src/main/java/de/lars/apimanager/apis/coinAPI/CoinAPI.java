@@ -1,7 +1,6 @@
-package de.lars.apiManager.coinAPI;
+package de.lars.apimanager.apis.coinAPI;
 
 public class CoinAPI {
-
     private static ICoinAPI api;
 
     public static ICoinAPI getApi() {
