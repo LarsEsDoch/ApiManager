@@ -14,6 +14,14 @@ public interface ILimitAPI {
 
     CompletableFuture<Timestamp> getUpdatedAtAsync(OfflinePlayer player);
 
+    void setSlots(OfflinePlayer player, int slots);
+
+    CompletableFuture<Void> setSlotsAsync(OfflinePlayer player, int slots);
+
+    Integer getSlots(OfflinePlayer player);
+
+    CompletableFuture<Integer> getSlotsAsync(OfflinePlayer player);
+
     void setChunkLimit(OfflinePlayer player, Integer chunk_limit);
 
     CompletableFuture<Void> setChunkLimitAsync(OfflinePlayer player, Integer chunk_limit);

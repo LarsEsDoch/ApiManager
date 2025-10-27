@@ -20,6 +20,7 @@ public class LimitAPIImpl implements ILimitAPI {
         db.update("""
             CREATE TABLE IF NOT EXISTS player_limits (
                 uuid CHAR(36) NOT NULL PRIMARY KEY,
+                slots INT NOT NULL DEFAULT 9,
                 chunk_limit INT DEFAULT 32,
                 home_limit INT DEFAULT 32,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -31,9 +32,9 @@ public class LimitAPIImpl implements ILimitAPI {
 
     public void initPlayer(OfflinePlayer player) {
         db.update("""
-            INSERT IGNORE INTO player_limits (uuid, chunk_limit, home_limit)
-            VALUES (?, ?, ?)
-        """, player.getUniqueId().toString(), 32, 32);
+            INSERT IGNORE INTO player_limits (uuid, slots, chunk_limit, home_limit)
+            VALUES (?, ?, ?, ?)
+        """, player.getUniqueId().toString(), 9, 32, 32);
     }
 
     public boolean doesUserExist(OfflinePlayer player) {
@@ -102,6 +103,54 @@ public class LimitAPIImpl implements ILimitAPI {
                 try (ResultSet rs = ps.executeQuery()) {
                     if (rs.next()) return rs.getTimestamp("updated_at");
                     return null;
+                }
+            }
+        });
+    }
+
+    @Override
+    public void setSlots(OfflinePlayer player, int slots) {
+        if (slots < 0) slots = 0;
+        db.update("UPDATE player_limits SET slots = ? WHERE uuid = ?",
+                slots, player.getUniqueId().toString());
+    }
+
+    @Override
+    public CompletableFuture<Void> setSlotsAsync(OfflinePlayer player, int slots) {
+        if (slots < 0) slots = 0;
+        return db.updateAsync("UPDATE player_limits SET slots = ? WHERE uuid = ?",
+                        slots, player.getUniqueId().toString());
+    }
+
+    @Override
+    public Integer getSlots(OfflinePlayer player) {
+        return db.query(conn -> {
+            try (PreparedStatement ps = conn.prepareStatement("SELECT slots FROM player_limits WHERE uuid = ?")) {
+                ps.setString(1, player.getUniqueId().toString());
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        int slots = rs.getInt("slots");
+                        return rs.wasNull() ? null : slots;
+                    } else {
+                        return null;
+                    }
+                }
+            }
+        });
+    }
+
+    @Override
+    public CompletableFuture<Integer> getSlotsAsync(OfflinePlayer player) {
+        return db.queryAsync(conn -> {
+            try (PreparedStatement ps = conn.prepareStatement("SELECT slots FROM player_limits WHERE uuid = ?")) {
+                ps.setString(1, player.getUniqueId().toString());
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        int slots = rs.getInt("slots");
+                        return rs.wasNull() ? null : slots;
+                    } else {
+                        return null;
+                    }
                 }
             }
         });
