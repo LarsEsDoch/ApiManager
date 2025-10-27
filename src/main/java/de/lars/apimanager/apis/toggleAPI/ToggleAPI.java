@@ -1,7 +1,6 @@
-package de.lars.apiManager.toggleAPI;
+package de.lars.apimanager.apis.toggleAPI;
 
 public class ToggleAPI {
-
     private static IToggleAPI api;
 
     public static IToggleAPI getApi() {
