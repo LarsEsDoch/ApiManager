@@ -1,7 +1,6 @@
 package de.lars.apimanager.apis.banAPI;
 
 public class BanAPI {
-
     private static IBanAPI api;
 
     public static IBanAPI getApi() {
