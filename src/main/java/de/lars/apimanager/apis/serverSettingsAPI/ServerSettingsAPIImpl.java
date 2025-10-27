@@ -21,7 +21,7 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
                 id INT PRIMARY KEY CHECK (id = 1),
                 real_time_enabled BOOLEAN DEFAULT TRUE,
                 real_weather_enabled BOOLEAN DEFAULT TRUE,
-                maintenance_active BOOLEAN DEFAULT FALSE,
+                maintenance_enabled BOOLEAN DEFAULT FALSE,
                 maintenance_reason VARCHAR(255) DEFAULT '',
                 maintenance_end TIMESTAMP DEFAULT NULL,
                 max_players INT DEFAULT 100,
@@ -35,7 +35,7 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
         if (countRowsInTable() < 1) {
             db.update("""
                 INSERT INTO server_settings
-                (id, real_time_enabled, real_weather_enabled, maintenance_active, maintenance_reason, maintenance_end, max_players, server_name, server_version)
+                (id, real_time_enabled, real_weather_enabled, maintenance_enabled, maintenance_reason, maintenance_end, max_players, server_name, server_version)
                 VALUES (1, ?, ?, ?, ?, ?, ?, ?, ?)
             """, true, true, false, "", null, 1000000000, "A Server", "1.21.10");
         }
@@ -174,10 +174,10 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
     }
 
     @Override
-    public void activateMaintenance(String reason, Timestamp endTime) {
+    public void enableMaintenance(String reason, Timestamp endTime) {
         db.update("""
             UPDATE server_settings
-            SET maintenance_active = ?,
+            SET maintenance_enabled = ?,
                 maintenance_reason = ?,
                 maintenance_end = ?
             WHERE id = 1
@@ -185,10 +185,10 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
     }
 
     @Override
-    public CompletableFuture<Void> activateMaintenanceAsync(String reason, Timestamp endTime) {
+    public CompletableFuture<Void> enableMaintenanceAsync(String reason, Timestamp endTime) {
         return db.updateAsync("""
             UPDATE server_settings
-            SET maintenance_active = ?,
+            SET maintenance_enabled = ?,
                 maintenance_reason = ?,
                 maintenance_end = ?
             WHERE id = 1
@@ -196,10 +196,10 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
     }
 
     @Override
-    public void deactivateMaintenance() {
+    public void disableMaintenance() {
         db.update("""
             UPDATE server_settings
-            SET maintenance_active = ?,
+            SET maintenance_enabled = ?,
                 maintenance_reason = ?,
                 maintenance_end = ?
             WHERE id = 1
@@ -207,10 +207,10 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
     }
 
     @Override
-    public CompletableFuture<Void> deactivateMaintenanceAsync() {
+    public CompletableFuture<Void> disableMaintenanceAsync() {
         return db.updateAsync("""
             UPDATE server_settings
-            SET maintenance_active = ?,
+            SET maintenance_enabled = ?,
                 maintenance_reason = ?,
                 maintenance_end = ?
             WHERE id = 1
@@ -218,22 +218,22 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
     }
 
     @Override
-    public boolean isMaintenanceActive() {
+    public boolean isMaintenanceEnabled() {
         return db.query(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT maintenance_active FROM server_settings WHERE id = 1")) {
+            try (PreparedStatement ps = conn.prepareStatement("SELECT maintenance_enabled FROM server_settings WHERE id = 1")) {
                 try (ResultSet rs = ps.executeQuery()) {
-                    return rs.next() && rs.getBoolean("maintenance_active");
+                    return rs.next() && rs.getBoolean("maintenance_enabled");
                 }
             }
         });
     }
 
     @Override
-    public CompletableFuture<Boolean> isMaintenanceActiveAsync() {
+    public CompletableFuture<Boolean> isMaintenanceEnabledAsync() {
         return db.queryAsync(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT maintenance_active FROM server_settings WHERE id = 1")) {
+            try (PreparedStatement ps = conn.prepareStatement("SELECT maintenance_enabled FROM server_settings WHERE id = 1")) {
                 try (ResultSet rs = ps.executeQuery()) {
-                    return rs.next() && rs.getBoolean("maintenance_active");
+                    return rs.next() && rs.getBoolean("maintenance_enabled");
                 }
             }
         });

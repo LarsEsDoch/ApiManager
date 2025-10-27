@@ -28,17 +28,17 @@ public interface IServerSettingsAPI {
 
     CompletableFuture<Boolean> isRealWeatherActivatedAsync();
 
-    void activateMaintenance(String reason, Timestamp endTime);
+    void enableMaintenance(String reason, Timestamp endTime);
 
-    CompletableFuture<Void> activateMaintenanceAsync(String reason, Timestamp endTime);
+    CompletableFuture<Void> enableMaintenanceAsync(String reason, Timestamp endTime);
 
-    void deactivateMaintenance();
+    void disableMaintenance();
 
-    CompletableFuture<Void> deactivateMaintenanceAsync();
+    CompletableFuture<Void> disableMaintenanceAsync();
 
-    boolean isMaintenanceActive();
+    boolean isMaintenanceEnabled();
 
-    CompletableFuture<Boolean> isMaintenanceActiveAsync();
+    CompletableFuture<Boolean> isMaintenanceEnabledAsync();
 
     void setMaintenanceReason(String reason);
 
