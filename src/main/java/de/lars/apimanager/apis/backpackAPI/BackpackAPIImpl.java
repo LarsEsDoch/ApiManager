@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.Timestamp;
 import java.util.Base64;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
@@ -27,7 +28,6 @@ public class BackpackAPIImpl implements IBackpackAPI {
         db.update("""
             CREATE TABLE IF NOT EXISTS player_backpacks (
                 uuid CHAR(36) NOT NULL PRIMARY KEY,
-                slots INT NOT NULL DEFAULT 9,
                 data LONGBLOB,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -38,8 +38,8 @@ public class BackpackAPIImpl implements IBackpackAPI {
 
     public void initPlayer(OfflinePlayer player) {
         if (!doesUserExist(player)) {
-            db.update("INSERT IGNORE INTO player_backpacks (uuid, slots, data) VALUES (?, ?, ?)",
-                    player.getUniqueId().toString(), 9, null);
+            db.update("INSERT IGNORE INTO player_backpacks (uuid, data) VALUES (?, ?)",
+                    player.getUniqueId().toString(), null);
         }
     }
 
@@ -55,48 +55,60 @@ public class BackpackAPIImpl implements IBackpackAPI {
     }
 
     @Override
-    public void setSlots(OfflinePlayer player, int slots) {
-        if (slots < 0) slots = 0;
-        db.update("UPDATE player_backpacks SET slots = ? WHERE uuid = ?",
-                slots, player.getUniqueId().toString());
-    }
-
-    @Override
-    public CompletableFuture<Void> setSlotsAsync(OfflinePlayer player, int slots) {
-        if (slots < 0) slots = 0;
-        return db.updateAsync("UPDATE player_backpacks SET slots = ? WHERE uuid = ?",
-                        slots, player.getUniqueId().toString());
-    }
-
-    @Override
-    public Integer getSlots(OfflinePlayer player) {
+    public Timestamp getCreatedAt(OfflinePlayer player) {
         return db.query(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT slots FROM player_backpacks WHERE uuid = ?")) {
+            try (PreparedStatement ps = conn.prepareStatement(
+                     "SELECT created_at FROM player_backpacks WHERE uuid = ?"
+                 )) {
                 ps.setString(1, player.getUniqueId().toString());
                 try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) {
-                        int slots = rs.getInt("slots");
-                        return rs.wasNull() ? null : slots;
-                    } else {
-                        return null;
-                    }
+                    if (rs.next()) return rs.getTimestamp("created_at");
+                    return null;
                 }
             }
         });
     }
 
     @Override
-    public CompletableFuture<Integer> getSlotsAsync(OfflinePlayer player) {
+    public CompletableFuture<Timestamp> getCreatedAtAsync(OfflinePlayer player) {
         return db.queryAsync(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT slots FROM player_backpacks WHERE uuid = ?")) {
+            try (PreparedStatement ps = conn.prepareStatement(
+                     "SELECT created_at FROM player_backpacks WHERE uuid = ?"
+                 )) {
                 ps.setString(1, player.getUniqueId().toString());
                 try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) {
-                        int slots = rs.getInt("slots");
-                        return rs.wasNull() ? null : slots;
-                    } else {
-                        return null;
-                    }
+                    if (rs.next()) return rs.getTimestamp("created_at");
+                    return null;
+                }
+            }
+        });
+    }
+
+    @Override
+    public Timestamp getUpdatedAt(OfflinePlayer player) {
+        return db.query(conn -> {
+            try (PreparedStatement ps = conn.prepareStatement(
+                     "SELECT updated_at FROM player_backpacks WHERE uuid = ?"
+                 )) {
+                ps.setString(1, player.getUniqueId().toString());
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) return rs.getTimestamp("updated_at");
+                    return null;
+                }
+            }
+        });
+    }
+
+    @Override
+    public CompletableFuture<Timestamp> getUpdatedAtAsync(OfflinePlayer player) {
+        return db.queryAsync(conn -> {
+            try (PreparedStatement ps = conn.prepareStatement(
+                     "SELECT updated_at FROM player_backpacks WHERE uuid = ?"
+                 )) {
+                ps.setString(1, player.getUniqueId().toString());
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) return rs.getTimestamp("updated_at");
+                    return null;
                 }
             }
         });

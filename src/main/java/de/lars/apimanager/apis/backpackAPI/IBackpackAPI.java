@@ -2,23 +2,21 @@ package de.lars.apimanager.apis.backpackAPI;
 
 import org.bukkit.OfflinePlayer;
 
+import java.sql.Timestamp;
 import java.util.concurrent.CompletableFuture;
 
 public interface IBackpackAPI {
-    void setSlots(OfflinePlayer player, int slots);
+    Timestamp getCreatedAt(OfflinePlayer player);
 
-    CompletableFuture<Void> setSlotsAsync(OfflinePlayer player, int slots);
+    CompletableFuture<Timestamp> getCreatedAtAsync(OfflinePlayer player);
 
+    Timestamp getUpdatedAt(OfflinePlayer player);
 
-    Integer getSlots(OfflinePlayer player);
-
-    CompletableFuture<Integer> getSlotsAsync(OfflinePlayer player);
-
+    CompletableFuture<Timestamp> getUpdatedAtAsync(OfflinePlayer player);
 
     void setBackpack(OfflinePlayer player, String data);
 
     CompletableFuture<Void> setBackpackAsync(OfflinePlayer player, String data);
-
 
     String getBackpack(OfflinePlayer player);
 
