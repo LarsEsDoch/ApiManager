@@ -2,6 +2,7 @@ package de.lars.apimanager.apis.statusAPI;
 
 import de.lars.apimanager.Main;
 import de.lars.apimanager.database.DatabaseManager;
+import de.lars.apimanager.utils.TextFormation;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.OfflinePlayer;
 
@@ -144,18 +145,18 @@ public class StatusAPIImpl implements IStatusAPI {
     @Override
     public void setColor(OfflinePlayer player, NamedTextColor color) {
         db.update("UPDATE player_status SET color = ? WHERE uuid = ?",
-                getColorId(color), player.getUniqueId().toString());
+                TextFormation.getColorId(color), player.getUniqueId().toString());
     }
 
     @Override
     public CompletableFuture<Void> setColorAsync(OfflinePlayer player, NamedTextColor color) {
         return db.updateAsync("UPDATE player_status SET color = ? WHERE uuid = ?",
-                        getColorId(color), player.getUniqueId().toString());
+                        TextFormation.getColorId(color), player.getUniqueId().toString());
     }
 
     @Override
     public NamedTextColor getColor(OfflinePlayer player) {
-        return getNamedTextColor(Objects.requireNonNull(db.query(conn -> {
+        return TextFormation.getNamedTextColor(Objects.requireNonNull(db.query(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT color FROM player_status WHERE uuid = ?")) {
                 ps.setString(1, player.getUniqueId().toString());
                 try (ResultSet rs = ps.executeQuery()) {
@@ -183,46 +184,6 @@ public class StatusAPIImpl implements IStatusAPI {
                     return null;
                 }
             }
-        }).thenApply(prefixID -> prefixID != null ? getNamedTextColor(prefixID) : null);
-    }
-
-    private static NamedTextColor getNamedTextColor(Integer prefixID) {
-        return switch (prefixID) {
-            case 0 -> BLACK;
-            case 1 -> DARK_BLUE;
-            case 2 -> DARK_GREEN;
-            case 3 -> DARK_AQUA;
-            case 4 -> DARK_RED;
-            case 5 -> DARK_PURPLE;
-            case 6 -> GOLD;
-            case 7 -> GRAY;
-            case 8 -> DARK_GRAY;
-            case 9 -> BLUE;
-            case 10 -> GREEN;
-            case 11 -> AQUA;
-            case 12 -> RED;
-            case 13 -> LIGHT_PURPLE;
-            case 14 -> YELLOW;
-            default -> WHITE;
-        };
-    }
-
-    private static Integer getColorId(NamedTextColor color) {
-        if (color == NamedTextColor.BLACK) return 0;
-        if (color == NamedTextColor.DARK_BLUE) return 1;
-        if (color == NamedTextColor.DARK_GREEN) return 2;
-        if (color == NamedTextColor.DARK_AQUA) return 3;
-        if (color == NamedTextColor.DARK_RED) return 4;
-        if (color == NamedTextColor.DARK_PURPLE) return 5;
-        if (color == NamedTextColor.GOLD) return 6;
-        if (color == NamedTextColor.GRAY) return 7;
-        if (color == NamedTextColor.DARK_GRAY) return 8;
-        if (color == NamedTextColor.BLUE) return 9;
-        if (color == NamedTextColor.GREEN) return 10;
-        if (color == NamedTextColor.AQUA) return 11;
-        if (color == NamedTextColor.RED) return 12;
-        if (color == NamedTextColor.LIGHT_PURPLE) return 13;
-        if (color == NamedTextColor.YELLOW) return 14;
-        return 15;
+        }).thenApply(prefixID -> prefixID != null ? TextFormation.getNamedTextColor(prefixID) : null);
     }
 }
