@@ -1,7 +1,6 @@
-package de.lars.apiManager.rankAPI;
+package de.lars.apimanager.apis.rankAPI;
 
 public class RankAPI {
-
     private static IRankAPI api;
 
     public static IRankAPI getApi() {

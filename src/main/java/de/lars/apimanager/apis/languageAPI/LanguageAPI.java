@@ -1,7 +1,6 @@
 package de.lars.apimanager.apis.languageAPI;
 
 public class LanguageAPI {
-
     private static ILanguageAPI api;
 
     public static ILanguageAPI getApi() {
