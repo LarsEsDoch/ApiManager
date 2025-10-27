@@ -18,6 +18,14 @@ public interface ILimitAPI {
 
     CompletableFuture<Void> setSlotsAsync(OfflinePlayer player, int slots);
 
+    void addSlots(OfflinePlayer player, int amount);
+
+    CompletableFuture<Void> addSlotsAsync(OfflinePlayer player, int amount);
+
+    void removeSlots(OfflinePlayer player, int amount);
+
+    CompletableFuture<Void> removeSlotsAsync(OfflinePlayer player, int amount);
+
     Integer getSlots(OfflinePlayer player);
 
     CompletableFuture<Integer> getSlotsAsync(OfflinePlayer player);
@@ -26,6 +34,14 @@ public interface ILimitAPI {
 
     CompletableFuture<Void> setChunkLimitAsync(OfflinePlayer player, Integer chunk_limit);
 
+    void addChunkLimit(OfflinePlayer player, int amount);
+
+    CompletableFuture<Void> addChunkLimitAsync(OfflinePlayer player, int amount);
+
+    void removeChunkLimit(OfflinePlayer player, int amount);
+
+    CompletableFuture<Void> removeChunkLimitAsync(OfflinePlayer player, int amount);
+
     Integer getChunkLimit(OfflinePlayer player);
 
     CompletableFuture<Integer> getChunkLimitAsync(OfflinePlayer player);
@@ -33,6 +49,14 @@ public interface ILimitAPI {
     void setHomeLimit(OfflinePlayer player, Integer home_limit);
 
     CompletableFuture<Void> setHomeLimitAsync(OfflinePlayer player, Integer home_limit);
+
+    void addHomeLimit(OfflinePlayer player, int amount);
+
+    CompletableFuture<Void> addHomeLimitAsync(OfflinePlayer player, int amount);
+
+    void removeHomeLimit(OfflinePlayer player, int amount);
+
+    CompletableFuture<Void> removeHomeLimitAsync(OfflinePlayer player, int amount);
 
     Integer getHomeLimit(OfflinePlayer player);
 

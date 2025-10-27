@@ -123,6 +123,36 @@ public class LimitAPIImpl implements ILimitAPI {
     }
 
     @Override
+    public void addSlots(OfflinePlayer player, int amount) {
+        Integer current = getSlots(player);
+        if (current == null) current = 0;
+        setSlots(player, current + amount);
+    }
+
+    @Override
+    public CompletableFuture<Void> addSlotsAsync(OfflinePlayer player, int amount) {
+        return getSlotsAsync(player).thenCompose(current -> {
+            if (current == null) current = 0;
+            return setSlotsAsync(player, current + amount);
+        });
+    }
+
+    @Override
+    public void removeSlots(OfflinePlayer player, int amount) {
+        Integer current = getSlots(player);
+        if (current == null) current = 0;
+        setSlots(player, Math.max(0, current - amount));
+    }
+
+    @Override
+    public CompletableFuture<Void> removeSlotsAsync(OfflinePlayer player, int amount) {
+        return getSlotsAsync(player).thenCompose(current -> {
+            if (current == null) current = 0;
+            return setSlotsAsync(player, Math.max(0, current - amount));
+        });
+    }
+
+    @Override
     public Integer getSlots(OfflinePlayer player) {
         return db.query(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT slots FROM player_limits WHERE uuid = ?")) {
@@ -175,6 +205,36 @@ public class LimitAPIImpl implements ILimitAPI {
     }
 
     @Override
+    public void addChunkLimit(OfflinePlayer player, int amount) {
+        Integer current = getChunkLimit(player);
+        if (current == null) current = 0;
+        setChunkLimit(player, current + amount);
+    }
+
+    @Override
+    public CompletableFuture<Void> addChunkLimitAsync(OfflinePlayer player, int amount) {
+        return getChunkLimitAsync(player).thenCompose(current -> {
+            if (current == null) current = 0;
+            return setChunkLimitAsync(player, current + amount);
+        });
+    }
+
+    @Override
+    public void removeChunkLimit(OfflinePlayer player, int amount) {
+        Integer current = getChunkLimit(player);
+        if (current == null) current = 0;
+        setChunkLimit(player, Math.max(0, current - amount));
+    }
+
+    @Override
+    public CompletableFuture<Void> removeChunkLimitAsync(OfflinePlayer player, int amount) {
+        return getChunkLimitAsync(player).thenCompose(current -> {
+            if (current == null) current = 0;
+            return setChunkLimitAsync(player, Math.max(0, current - amount));
+        });
+    }
+
+    @Override
     public Integer getChunkLimit(OfflinePlayer player) {
         return db.query(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT chunk_limit FROM player_limits WHERE uuid = ?")) {
@@ -224,6 +284,36 @@ public class LimitAPIImpl implements ILimitAPI {
             SET home_limit = ?
             WHERE uuid = ?
         """, home_limit, player.getUniqueId().toString());
+    }
+
+    @Override
+    public void addHomeLimit(OfflinePlayer player, int amount) {
+        Integer current = getHomeLimit(player);
+        if (current == null) current = 0;
+        setHomeLimit(player, current + amount);
+    }
+
+    @Override
+    public CompletableFuture<Void> addHomeLimitAsync(OfflinePlayer player, int amount) {
+        return getHomeLimitAsync(player).thenCompose(current -> {
+            if (current == null) current = 0;
+            return setHomeLimitAsync(player, current + amount);
+        });
+    }
+
+    @Override
+    public void removeHomeLimit(OfflinePlayer player, int amount) {
+        Integer current = getHomeLimit(player);
+        if (current == null) current = 0;
+        setHomeLimit(player, Math.max(0, current - amount));
+    }
+
+    @Override
+    public CompletableFuture<Void> removeHomeLimitAsync(OfflinePlayer player, int amount) {
+        return getHomeLimitAsync(player).thenCompose(current -> {
+            if (current == null) current = 0;
+            return setHomeLimitAsync(player, Math.max(0, current - amount));
+        });
     }
 
     @Override
