@@ -1,7 +1,6 @@
-package de.lars.apiManager.chunkAPI;
+package de.lars.apimanager.apis.chunkAPI;
 
 public class ChunkAPI {
-
     private static IChunkAPI api;
 
     public static IChunkAPI getApi() {
