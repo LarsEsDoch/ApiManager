@@ -157,7 +157,7 @@ public class ChunkAPIImpl implements IChunkAPI {
                 updated_at = CURRENT_TIMESTAMP
         """, uuid, world, x, z);
 
-        Main.getInstance().getLimitAPI().removeChunkLimit(player, 1);
+        Main.getInstance().getLimitAPI().decreaseChunkLimit(player, 1);
     }
 
     @Override
@@ -174,7 +174,7 @@ public class ChunkAPIImpl implements IChunkAPI {
                 uuid = VALUES(uuid),
                 claimed_at = CURRENT_TIMESTAMP,
                 updated_at = CURRENT_TIMESTAMP
-        """, uuid, world, x, z).thenCompose(v -> Main.getInstance().getLimitAPI().removeChunkLimitAsync(player, 1));
+        """, uuid, world, x, z).thenCompose(v -> Main.getInstance().getLimitAPI().decreaseChunkLimitAsync(player, 1));
     }
 
     @Override
@@ -188,7 +188,7 @@ public class ChunkAPIImpl implements IChunkAPI {
             WHERE world = ? AND x = ? AND z = ?
         """, world, x, z);
 
-        Main.getInstance().getLimitAPI().addChunkLimit(player, 1);
+        Main.getInstance().getLimitAPI().increaseChunkLimit(player, 1);
     }
 
     @Override
@@ -202,7 +202,7 @@ public class ChunkAPIImpl implements IChunkAPI {
             WHERE world = ? AND x = ? AND z = ?
         """, world, x, z).thenCompose(v -> {
             try {
-                return Main.getInstance().getLimitAPI().addChunkLimitAsync(player, 1);
+                return Main.getInstance().getLimitAPI().increaseChunkLimitAsync(player, 1);
             } catch (Exception ex) {
                 return CompletableFuture.completedFuture(null);
             }

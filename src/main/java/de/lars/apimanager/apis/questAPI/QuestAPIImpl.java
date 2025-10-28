@@ -310,25 +310,25 @@ public class QuestAPIImpl implements IQuestAPI {
     }
 
     @Override
-    public void addProgress(OfflinePlayer player, int amount) {
+    public void increaseProgress(OfflinePlayer player, int amount) {
         if (player == null || amount == 0) return;
         db.update("UPDATE player_quests SET progress = COALESCE(progress,0) + ? WHERE uuid = ?", amount, player.getUniqueId().toString());
     }
 
     @Override
-    public CompletableFuture<Void> addProgressAsync(OfflinePlayer player, int amount) {
+    public CompletableFuture<Void> increaseProgressAsync(OfflinePlayer player, int amount) {
         if (player == null || amount == 0) return CompletableFuture.completedFuture(null);
         return db.updateAsync("UPDATE player_quests SET progress = COALESCE(progress,0) + ? WHERE uuid = ?", amount, player.getUniqueId().toString());
     }
 
     @Override
-    public void removeProgress(OfflinePlayer player, int amount) {
+    public void decreaseProgress(OfflinePlayer player, int amount) {
         if (player == null || amount == 0) return;
         db.update("UPDATE player_quests SET progress = GREATEST(COALESCE(progress,0) - ?, 0) WHERE uuid = ?", amount, player.getUniqueId().toString());
     }
 
     @Override
-    public CompletableFuture<Void> removeProgressAsync(OfflinePlayer player, int amount) {
+    public CompletableFuture<Void> decreaseProgressAsync(OfflinePlayer player, int amount) {
         if (player == null || amount == 0) return CompletableFuture.completedFuture(null);
         return db.updateAsync("UPDATE player_quests SET progress = GREATEST(COALESCE(progress,0) - ?, 0) WHERE uuid = ?", amount, player.getUniqueId().toString());
     }

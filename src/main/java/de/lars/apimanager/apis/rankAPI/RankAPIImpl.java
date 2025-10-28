@@ -136,23 +136,23 @@ public class RankAPIImpl implements IRankAPI {
     }
 
     @Override
-    public void addRankDays(OfflinePlayer player, int daysToAdd) {
+    public void increaseRankDays(OfflinePlayer player, int daysToAdd) {
         if (daysToAdd > 0) shiftRankDays(player, daysToAdd);
     }
 
     @Override
-    public CompletableFuture<Void> addRankDaysAsync(OfflinePlayer player, int daysToAdd) {
+    public CompletableFuture<Void> increaseRankDaysAsync(OfflinePlayer player, int daysToAdd) {
         if (daysToAdd <= 0) return CompletableFuture.completedFuture(null);
         return shiftRankDaysAsync(player, daysToAdd);
     }
 
     @Override
-    public void removeRankDays(OfflinePlayer player, int daysToRemove) {
+    public void decreaseRankDays(OfflinePlayer player, int daysToRemove) {
         if (daysToRemove > 0) shiftRankDays(player, -daysToRemove);
     }
 
     @Override
-    public CompletableFuture<Void> removeRankDaysAsync(OfflinePlayer player, int daysToRemove) {
+    public CompletableFuture<Void> decreaseRankDaysAsync(OfflinePlayer player, int daysToRemove) {
         if (daysToRemove <= 0) return CompletableFuture.completedFuture(null);
         return shiftRankDaysAsync(player, -daysToRemove);
     }

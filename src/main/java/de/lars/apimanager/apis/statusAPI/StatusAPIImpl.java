@@ -12,8 +12,6 @@ import java.sql.Timestamp;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
-import static net.kyori.adventure.text.format.NamedTextColor.*;
-
 public class StatusAPIImpl implements IStatusAPI {
     private final DatabaseManager db;
 

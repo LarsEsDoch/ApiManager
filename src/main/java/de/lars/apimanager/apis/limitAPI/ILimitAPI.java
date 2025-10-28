@@ -18,13 +18,13 @@ public interface ILimitAPI {
 
     CompletableFuture<Void> setSlotsAsync(OfflinePlayer player, int slots);
 
-    void addSlots(OfflinePlayer player, int amount);
+    void increaseSlots(OfflinePlayer player, int amount);
 
-    CompletableFuture<Void> addSlotsAsync(OfflinePlayer player, int amount);
+    CompletableFuture<Void> increaseSlotsAsync(OfflinePlayer player, int amount);
 
-    void removeSlots(OfflinePlayer player, int amount);
+    void decreaseSlots(OfflinePlayer player, int amount);
 
-    CompletableFuture<Void> removeSlotsAsync(OfflinePlayer player, int amount);
+    CompletableFuture<Void> decreaseSlotsAsync(OfflinePlayer player, int amount);
 
     Integer getSlots(OfflinePlayer player);
 
@@ -34,13 +34,13 @@ public interface ILimitAPI {
 
     CompletableFuture<Void> setChunkLimitAsync(OfflinePlayer player, Integer chunk_limit);
 
-    void addChunkLimit(OfflinePlayer player, int amount);
+    void increaseChunkLimit(OfflinePlayer player, int amount);
 
-    CompletableFuture<Void> addChunkLimitAsync(OfflinePlayer player, int amount);
+    CompletableFuture<Void> increaseChunkLimitAsync(OfflinePlayer player, int amount);
 
-    void removeChunkLimit(OfflinePlayer player, int amount);
+    void decreaseChunkLimit(OfflinePlayer player, int amount);
 
-    CompletableFuture<Void> removeChunkLimitAsync(OfflinePlayer player, int amount);
+    CompletableFuture<Void> decreaseChunkLimitAsync(OfflinePlayer player, int amount);
 
     Integer getChunkLimit(OfflinePlayer player);
 
@@ -50,13 +50,13 @@ public interface ILimitAPI {
 
     CompletableFuture<Void> setHomeLimitAsync(OfflinePlayer player, Integer home_limit);
 
-    void addHomeLimit(OfflinePlayer player, int amount);
+    void increaseHomeLimit(OfflinePlayer player, int amount);
 
-    CompletableFuture<Void> addHomeLimitAsync(OfflinePlayer player, int amount);
+    CompletableFuture<Void> increaseHomeLimitAsync(OfflinePlayer player, int amount);
 
-    void removeHomeLimit(OfflinePlayer player, int amount);
+    void decreaseHomeLimit(OfflinePlayer player, int amount);
 
-    CompletableFuture<Void> removeHomeLimitAsync(OfflinePlayer player, int amount);
+    CompletableFuture<Void> decreaseHomeLimitAsync(OfflinePlayer player, int amount);
 
     Integer getHomeLimit(OfflinePlayer player);
 

@@ -18,13 +18,13 @@ public interface IRankAPI {
 
     CompletableFuture<Void> setRankAsync(OfflinePlayer player, Integer rankId, Integer days);
 
-    void addRankDays(OfflinePlayer player, int daysToAdd);
+    void increaseRankDays(OfflinePlayer player, int daysToAdd);
 
-    CompletableFuture<Void> addRankDaysAsync(OfflinePlayer player, int daysToAdd);
+    CompletableFuture<Void> increaseRankDaysAsync(OfflinePlayer player, int daysToAdd);
 
-    void removeRankDays(OfflinePlayer player, int daysToRemove);
+    void decreaseRankDays(OfflinePlayer player, int daysToRemove);
 
-    CompletableFuture<Void> removeRankDaysAsync(OfflinePlayer player, int daysToRemove);
+    CompletableFuture<Void> decreaseRankDaysAsync(OfflinePlayer player, int daysToRemove);
 
     Integer getRankId(OfflinePlayer player);
 

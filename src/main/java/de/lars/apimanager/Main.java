@@ -14,6 +14,8 @@ import de.lars.apimanager.apis.limitAPI.LimitAPI;
 import de.lars.apimanager.apis.limitAPI.LimitAPIImpl;
 import de.lars.apimanager.apis.nickAPI.NickAPI;
 import de.lars.apimanager.apis.nickAPI.NickAPIImpl;
+import de.lars.apimanager.apis.playerAPI.PlayerAPI;
+import de.lars.apimanager.apis.playerAPI.PlayerAPIImpl;
 import de.lars.apimanager.apis.prefixAPI.PrefixAPI;
 import de.lars.apimanager.apis.prefixAPI.PrefixAPIImpl;
 import de.lars.apimanager.apis.questAPI.QuestAPI;
@@ -22,8 +24,6 @@ import de.lars.apimanager.apis.rankAPI.RankAPI;
 import de.lars.apimanager.apis.rankAPI.RankAPIImpl;
 import de.lars.apimanager.apis.serverSettingsAPI.ServerSettingsAPI;
 import de.lars.apimanager.apis.serverSettingsAPI.ServerSettingsAPIImpl;
-import de.lars.apimanager.apis.playerAPI.PlayerAPI;
-import de.lars.apimanager.apis.playerAPI.PlayerAPIImpl;
 import de.lars.apimanager.apis.statusAPI.StatusAPI;
 import de.lars.apimanager.apis.statusAPI.StatusAPIImpl;
 import de.lars.apimanager.apis.timerAPI.TimerAPI;
@@ -169,10 +169,6 @@ public final class Main extends JavaPlugin {
 
     public DatabaseManager getDatabaseManager() {
         return databaseManager;
-    }
-
-    public ServerSettingsAPIImpl getServerSettingsAPI() {
-        return serverSettingsAPI;
     }
 
     public PlayerAPIImpl getPlayerAPI() {

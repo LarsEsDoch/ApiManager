@@ -54,13 +54,13 @@ public interface IQuestAPI {
 
     CompletableFuture<Integer> getProgressAsync(OfflinePlayer player);
 
-    void addProgress(OfflinePlayer player, int amount);
+    void increaseProgress(OfflinePlayer player, int amount);
 
-    CompletableFuture<Void> addProgressAsync(OfflinePlayer player, int amount);
+    CompletableFuture<Void> increaseProgressAsync(OfflinePlayer player, int amount);
 
-    void removeProgress(OfflinePlayer player, int amount);
+    void decreaseProgress(OfflinePlayer player, int amount);
 
-    CompletableFuture<Void> removeProgressAsync(OfflinePlayer player, int amount);
+    CompletableFuture<Void> decreaseProgressAsync(OfflinePlayer player, int amount);
 
     void setProgress(OfflinePlayer player, int amount);
 

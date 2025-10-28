@@ -7,7 +7,9 @@ import org.bukkit.OfflinePlayer;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Timestamp;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public class CoinAPIImpl implements ICoinAPI {

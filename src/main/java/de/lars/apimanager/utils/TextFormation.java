@@ -7,19 +7,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static net.kyori.adventure.text.format.NamedTextColor.*;
-import static net.kyori.adventure.text.format.NamedTextColor.AQUA;
-import static net.kyori.adventure.text.format.NamedTextColor.BLUE;
-import static net.kyori.adventure.text.format.NamedTextColor.DARK_AQUA;
-import static net.kyori.adventure.text.format.NamedTextColor.DARK_GRAY;
-import static net.kyori.adventure.text.format.NamedTextColor.DARK_PURPLE;
-import static net.kyori.adventure.text.format.NamedTextColor.DARK_RED;
-import static net.kyori.adventure.text.format.NamedTextColor.GOLD;
-import static net.kyori.adventure.text.format.NamedTextColor.GRAY;
-import static net.kyori.adventure.text.format.NamedTextColor.GREEN;
-import static net.kyori.adventure.text.format.NamedTextColor.LIGHT_PURPLE;
-import static net.kyori.adventure.text.format.NamedTextColor.RED;
-import static net.kyori.adventure.text.format.NamedTextColor.WHITE;
-import static net.kyori.adventure.text.format.NamedTextColor.YELLOW;
 
 public class TextFormation {
     public static NamedTextColor getNamedTextColor(Integer prefixID) {

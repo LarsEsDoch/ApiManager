@@ -2,7 +2,6 @@ package de.lars.apimanager.apis.homeAPI;
 
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.entity.Player;
 
 import java.sql.Timestamp;
 import java.util.List;
