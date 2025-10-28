@@ -1,7 +1,6 @@
-package de.lars.apiManager.questAPI;
+package de.lars.apimanager.apis.questAPI;
 
 public class QuestAPI {
-
     private static IQuestAPI api;
 
     public static IQuestAPI getApi() {
