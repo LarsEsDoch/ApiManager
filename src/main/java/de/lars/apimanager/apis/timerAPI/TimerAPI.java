@@ -1,7 +1,6 @@
-package de.lars.apiManager.timerAPI;
+package de.lars.apimanager.apis.timerAPI;
 
 public class TimerAPI {
-
     private static ITimerAPI api;
 
     public static ITimerAPI getApi() {
