@@ -2,6 +2,7 @@ package de.lars.apimanager.apis.backpackAPI;
 
 import de.lars.apimanager.Main;
 import de.lars.apimanager.database.DatabaseManager;
+import de.lars.apimanager.utils.ValidateParameter;
 import org.bukkit.OfflinePlayer;
 
 import java.io.ByteArrayInputStream;
@@ -56,6 +57,7 @@ public class BackpackAPIImpl implements IBackpackAPI {
 
     @Override
     public Timestamp getCreatedAt(OfflinePlayer player) {
+        ValidateParameter.validatePlayer(player);
         return db.query(conn -> {
             try (PreparedStatement ps = conn.prepareStatement(
                      "SELECT created_at FROM player_backpacks WHERE uuid = ?"
@@ -71,6 +73,7 @@ public class BackpackAPIImpl implements IBackpackAPI {
 
     @Override
     public CompletableFuture<Timestamp> getCreatedAtAsync(OfflinePlayer player) {
+        ValidateParameter.validatePlayer(player);
         return db.queryAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement(
                      "SELECT created_at FROM player_backpacks WHERE uuid = ?"
@@ -86,6 +89,7 @@ public class BackpackAPIImpl implements IBackpackAPI {
 
     @Override
     public Timestamp getUpdatedAt(OfflinePlayer player) {
+        ValidateParameter.validatePlayer(player);
         return db.query(conn -> {
             try (PreparedStatement ps = conn.prepareStatement(
                      "SELECT updated_at FROM player_backpacks WHERE uuid = ?"
@@ -101,6 +105,7 @@ public class BackpackAPIImpl implements IBackpackAPI {
 
     @Override
     public CompletableFuture<Timestamp> getUpdatedAtAsync(OfflinePlayer player) {
+        ValidateParameter.validatePlayer(player);
         return db.queryAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement(
                      "SELECT updated_at FROM player_backpacks WHERE uuid = ?"
@@ -116,6 +121,7 @@ public class BackpackAPIImpl implements IBackpackAPI {
 
     @Override
     public void setBackpack(OfflinePlayer player, String data) {
+        ValidateParameter.validatePlayer(player);
         String compressed = compressToBase64(data);
         db.update("UPDATE player_backpacks SET data = ? WHERE uuid = ?",
                 compressed, player.getUniqueId().toString());
@@ -123,6 +129,7 @@ public class BackpackAPIImpl implements IBackpackAPI {
 
     @Override
     public CompletableFuture<Void> setBackpackAsync(OfflinePlayer player, String data) {
+        ValidateParameter.validatePlayer(player);
         String compressed = compressToBase64(data);
         return db.updateAsync("UPDATE player_backpacks SET data = ? WHERE uuid = ?",
                     compressed, player.getUniqueId().toString());
@@ -130,6 +137,7 @@ public class BackpackAPIImpl implements IBackpackAPI {
 
     @Override
     public String getBackpack(OfflinePlayer player) {
+        ValidateParameter.validatePlayer(player);
         return db.query(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT data FROM player_backpacks WHERE uuid = ?")) {
                 ps.setString(1, player.getUniqueId().toString());
@@ -146,6 +154,7 @@ public class BackpackAPIImpl implements IBackpackAPI {
 
     @Override
     public CompletableFuture<String> getBackpackAsync(OfflinePlayer player) {
+        ValidateParameter.validatePlayer(player);
         return db.queryAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT data FROM player_backpacks WHERE uuid = ?")) {
                 ps.setString(1, player.getUniqueId().toString());

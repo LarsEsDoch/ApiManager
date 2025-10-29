@@ -2,6 +2,7 @@ package de.lars.apimanager.apis.languageAPI;
 
 import de.lars.apimanager.Main;
 import de.lars.apimanager.database.DatabaseManager;
+import de.lars.apimanager.utils.ValidateParameter;
 import org.bukkit.OfflinePlayer;
 
 import java.sql.PreparedStatement;
@@ -48,6 +49,7 @@ public class LanguageAPIImpl implements ILanguageAPI {
 
     @Override
     public Timestamp getCreatedAt(OfflinePlayer player) {
+        ValidateParameter.validatePlayer(player);
         return db.query(conn -> {
             try (PreparedStatement ps = conn.prepareStatement(
                      "SELECT created_at FROM languages WHERE uuid = ?"
@@ -63,6 +65,7 @@ public class LanguageAPIImpl implements ILanguageAPI {
 
     @Override
     public CompletableFuture<Timestamp> getCreatedAtAsync(OfflinePlayer player) {
+        ValidateParameter.validatePlayer(player);
         return db.queryAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement(
                      "SELECT created_at FROM languages WHERE uuid = ?"
@@ -78,6 +81,7 @@ public class LanguageAPIImpl implements ILanguageAPI {
 
     @Override
     public Timestamp getUpdatedAt(OfflinePlayer player) {
+        ValidateParameter.validatePlayer(player);
         return db.query(conn -> {
             try (PreparedStatement ps = conn.prepareStatement(
                      "SELECT updated_at FROM languages WHERE uuid = ?"
@@ -93,6 +97,7 @@ public class LanguageAPIImpl implements ILanguageAPI {
 
     @Override
     public CompletableFuture<Timestamp> getUpdatedAtAsync(OfflinePlayer player) {
+        ValidateParameter.validatePlayer(player);
         return db.queryAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement(
                      "SELECT updated_at FROM languages WHERE uuid = ?"
@@ -126,6 +131,7 @@ public class LanguageAPIImpl implements ILanguageAPI {
 
     @Override
     public Integer getLanguage(OfflinePlayer player) {
+        ValidateParameter.validatePlayer(player);
         return db.query(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT language_id FROM languages WHERE uuid = ?")) {
                 ps.setString(1, player.getUniqueId().toString());
@@ -143,6 +149,7 @@ public class LanguageAPIImpl implements ILanguageAPI {
 
     @Override
     public CompletableFuture<Integer> getLanguageAsync(OfflinePlayer player) {
+        ValidateParameter.validatePlayer(player);
         return db.queryAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT language_id FROM languages WHERE uuid = ?")) {
                 ps.setString(1, player.getUniqueId().toString());

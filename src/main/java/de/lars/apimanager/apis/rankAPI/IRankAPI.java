@@ -14,9 +14,9 @@ public interface IRankAPI {
 
     CompletableFuture<Timestamp> getUpdatedAtAsync(OfflinePlayer player);
 
-    void setRank(OfflinePlayer player, Integer rankId, Integer days);
+    void setRank(OfflinePlayer player, int rankId, Integer days);
 
-    CompletableFuture<Void> setRankAsync(OfflinePlayer player, Integer rankId, Integer days);
+    CompletableFuture<Void> setRankAsync(OfflinePlayer player, int rankId, Integer days);
 
     void increaseRankDays(OfflinePlayer player, int daysToAdd);
 

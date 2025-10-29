@@ -18,17 +18,17 @@ public interface IPlayerAPI {
 
     CompletableFuture<String> getNameAsync(OfflinePlayer player);
 
-    void setPlaytime(OfflinePlayer player, Long playtime);
+    void setPlaytime(OfflinePlayer player, long playtime);
 
-    CompletableFuture<Void> setPlaytimeAsync(OfflinePlayer player, Long playtime);
+    CompletableFuture<Void> setPlaytimeAsync(OfflinePlayer player, long playtime);
 
     Long getPlaytime(OfflinePlayer player);
 
     CompletableFuture<Long> getPlaytimeAsync(OfflinePlayer player);
 
-    void setOnline(OfflinePlayer player, Boolean online);
+    void setOnline(OfflinePlayer player, boolean online);
 
-    CompletableFuture<Void> setOnlineAsync(OfflinePlayer player, Boolean online);
+    CompletableFuture<Void> setOnlineAsync(OfflinePlayer player, boolean online);
 
     boolean isOnline(OfflinePlayer player);
 

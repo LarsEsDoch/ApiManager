@@ -2,6 +2,7 @@ package de.lars.apimanager.apis.playerAPI;
 
 import de.lars.apimanager.Main;
 import de.lars.apimanager.database.DatabaseManager;
+import de.lars.apimanager.utils.ValidateParameter;
 import org.bukkit.OfflinePlayer;
 
 import java.sql.PreparedStatement;
@@ -51,6 +52,7 @@ public class PlayerAPIImpl implements IPlayerAPI {
 
     @Override
     public Timestamp getCreatedAt(OfflinePlayer player) {
+        ValidateParameter.validatePlayer(player);
         return db.query(conn -> {
             try (PreparedStatement ps = conn.prepareStatement(
                      "SELECT created_at FROM players WHERE uuid = ?"
@@ -66,6 +68,7 @@ public class PlayerAPIImpl implements IPlayerAPI {
 
     @Override
     public CompletableFuture<Timestamp> getCreatedAtAsync(OfflinePlayer player) {
+        ValidateParameter.validatePlayer(player);
         return db.queryAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement(
                      "SELECT created_at FROM players WHERE uuid = ?"
@@ -81,6 +84,7 @@ public class PlayerAPIImpl implements IPlayerAPI {
 
     @Override
     public Timestamp getUpdatedAt(OfflinePlayer player) {
+        ValidateParameter.validatePlayer(player);
         return db.query(conn -> {
             try (PreparedStatement ps = conn.prepareStatement(
                      "SELECT updated_at FROM players WHERE uuid = ?"
@@ -96,6 +100,7 @@ public class PlayerAPIImpl implements IPlayerAPI {
 
     @Override
     public CompletableFuture<Timestamp> getUpdatedAtAsync(OfflinePlayer player) {
+        ValidateParameter.validatePlayer(player);
         return db.queryAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement(
                      "SELECT updated_at FROM players WHERE uuid = ?"
@@ -111,6 +116,7 @@ public class PlayerAPIImpl implements IPlayerAPI {
 
     @Override
     public String getName(OfflinePlayer player) {
+        ValidateParameter.validatePlayer(player);
         return db.query(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT name FROM players WHERE uuid = ?")) {
                 ps.setString(1, player.getUniqueId().toString());
@@ -124,6 +130,7 @@ public class PlayerAPIImpl implements IPlayerAPI {
 
     @Override
     public CompletableFuture<String> getNameAsync(OfflinePlayer player) {
+        ValidateParameter.validatePlayer(player);
         return db.queryAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT name FROM players WHERE uuid = ?")) {
                 ps.setString(1, player.getUniqueId().toString());
@@ -136,7 +143,8 @@ public class PlayerAPIImpl implements IPlayerAPI {
     }
 
     @Override
-    public void setPlaytime(OfflinePlayer player, Long playtime) {
+    public void setPlaytime(OfflinePlayer player, long playtime) {
+        ValidateParameter.validatePlayer(player);
         db.update("""
             UPDATE players
             SET playtime = ?
@@ -145,7 +153,8 @@ public class PlayerAPIImpl implements IPlayerAPI {
     }
 
     @Override
-    public CompletableFuture<Void> setPlaytimeAsync(OfflinePlayer player, Long playtime) {
+    public CompletableFuture<Void> setPlaytimeAsync(OfflinePlayer player, long playtime) {
+        ValidateParameter.validatePlayer(player);
         return db.updateAsync("""
             UPDATE players
             SET playtime = ?
@@ -155,6 +164,7 @@ public class PlayerAPIImpl implements IPlayerAPI {
 
     @Override
     public Long getPlaytime(OfflinePlayer player) {
+        ValidateParameter.validatePlayer(player);
         return db.query(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT playtime FROM players WHERE uuid = ?")) {
                 ps.setString(1, player.getUniqueId().toString());
@@ -172,6 +182,7 @@ public class PlayerAPIImpl implements IPlayerAPI {
 
     @Override
     public CompletableFuture<Long> getPlaytimeAsync(OfflinePlayer player) {
+        ValidateParameter.validatePlayer(player);
         return db.queryAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT playtime FROM players WHERE uuid = ?")) {
                 ps.setString(1, player.getUniqueId().toString());
@@ -188,7 +199,8 @@ public class PlayerAPIImpl implements IPlayerAPI {
     }
 
     @Override
-    public void setOnline(OfflinePlayer player, Boolean online) {
+    public void setOnline(OfflinePlayer player, boolean online) {
+        ValidateParameter.validatePlayer(player);
         db.update("""
             UPDATE players
             SET is_online = ?,
@@ -198,7 +210,8 @@ public class PlayerAPIImpl implements IPlayerAPI {
     }
 
     @Override
-    public CompletableFuture<Void> setOnlineAsync(OfflinePlayer player, Boolean online) {
+    public CompletableFuture<Void> setOnlineAsync(OfflinePlayer player, boolean online) {
+        ValidateParameter.validatePlayer(player);
         return db.updateAsync("""
             UPDATE players
             SET is_online = ?,
@@ -209,6 +222,7 @@ public class PlayerAPIImpl implements IPlayerAPI {
 
     @Override
     public boolean isOnline(OfflinePlayer player) {
+        ValidateParameter.validatePlayer(player);
         return db.query(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT is_online FROM players WHERE uuid = ?")) {
                 ps.setString(1, player.getUniqueId().toString());
@@ -222,6 +236,7 @@ public class PlayerAPIImpl implements IPlayerAPI {
 
     @Override
     public CompletableFuture<Boolean> isOnlineAsync(OfflinePlayer player) {
+        ValidateParameter.validatePlayer(player);
         return db.queryAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT is_online FROM players WHERE uuid = ?")) {
                 ps.setString(1, player.getUniqueId().toString());
@@ -235,6 +250,7 @@ public class PlayerAPIImpl implements IPlayerAPI {
 
     @Override
     public Timestamp getLastSeen(OfflinePlayer player) {
+        ValidateParameter.validatePlayer(player);
         return db.query(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT last_seen FROM players WHERE uuid = ?")) {
                 ps.setString(1, player.getUniqueId().toString());
@@ -248,6 +264,7 @@ public class PlayerAPIImpl implements IPlayerAPI {
 
     @Override
     public CompletableFuture<Timestamp> getLastSeenAsync(OfflinePlayer player) {
+        ValidateParameter.validatePlayer(player);
         return db.queryAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT last_seen FROM players WHERE uuid = ?")) {
                 ps.setString(1, player.getUniqueId().toString());

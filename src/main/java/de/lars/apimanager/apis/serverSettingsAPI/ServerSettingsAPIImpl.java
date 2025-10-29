@@ -2,6 +2,7 @@ package de.lars.apimanager.apis.serverSettingsAPI;
 
 import de.lars.apimanager.Main;
 import de.lars.apimanager.database.DatabaseManager;
+import de.lars.apimanager.utils.ValidateParameter;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -241,6 +242,7 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
 
     @Override
     public void setMaintenanceReason(String reason) {
+        ValidateParameter.validateReason(reason);
         db.update("""
             UPDATE server_settings
             SET maintenance_reason = ?
@@ -250,6 +252,7 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
 
     @Override
     public CompletableFuture<Void> setMaintenanceReasonAsync(String reason) {
+        ValidateParameter.validateReason(reason);
         return db.updateAsync("""
             UPDATE server_settings
             SET maintenance_reason = ?
@@ -283,6 +286,7 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
 
     @Override
     public void setMaintenanceEnd(Timestamp endTime) {
+        ValidateParameter.validateTimestamp(endTime);
         db.update("""
             UPDATE server_settings
             SET maintenance_end = ?
@@ -292,6 +296,7 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
 
     @Override
     public CompletableFuture<Void> setMaintenanceEndAsync(Timestamp endTime) {
+        ValidateParameter.validateTimestamp(endTime);
         return db.updateAsync("""
             UPDATE server_settings
             SET maintenance_end = ?
@@ -367,6 +372,7 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
 
     @Override
     public void setServerName(String serverName) {
+        ValidateParameter.validateServerName(serverName);
         db.update("""
             UPDATE server_settings
             SET server_name = ?
@@ -376,6 +382,7 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
 
     @Override
     public CompletableFuture<Void> setServerNameAsync(String serverName) {
+        ValidateParameter.validateServerName(serverName);
         return db.updateAsync("""
             UPDATE server_settings
             SET server_name = ?
@@ -409,6 +416,7 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
 
     @Override
     public void setServerVersion(String serverVersion) {
+       ValidateParameter.validateServerVersion(serverVersion);
         db.update("""
             UPDATE server_settings
             SET server_version = ?
@@ -418,6 +426,7 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
 
     @Override
     public CompletableFuture<Void> setServerVersionAsync(String serverVersion) {
+        ValidateParameter.validateServerVersion(serverVersion);
         return db.updateAsync("""
             UPDATE server_settings
             SET server_version = ?

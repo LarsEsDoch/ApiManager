@@ -33,13 +33,13 @@ public interface ICoinAPI {
 
     List<String> getGifts(OfflinePlayer player);
 
-    void addGift(OfflinePlayer player, String gift);
+    void addGift(OfflinePlayer player, int gift);
 
-    CompletableFuture<Void> addGiftAsync(OfflinePlayer player, String gift);
+    CompletableFuture<Void> addGiftAsync(OfflinePlayer player, int gift);
 
-    void removeGift(OfflinePlayer player, String gift);
+    void removeGift(OfflinePlayer player, int gift);
 
-    CompletableFuture<Void> removeGiftAsync(OfflinePlayer player, String gift);
+    CompletableFuture<Void> removeGiftAsync(OfflinePlayer player, int gift);
 
     CompletableFuture<List<String>> getGiftsAsync(OfflinePlayer player);
 }

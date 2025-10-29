@@ -2,6 +2,7 @@ package de.lars.apimanager.apis.questAPI;
 
 import de.lars.apimanager.Main;
 import de.lars.apimanager.database.DatabaseManager;
+import de.lars.apimanager.utils.ValidateParameter;
 import org.bukkit.OfflinePlayer;
 
 import java.sql.PreparedStatement;
@@ -34,7 +35,6 @@ public class QuestAPIImpl implements IQuestAPI {
     }
 
     public void initPlayer(OfflinePlayer player) {
-        if (player == null) return;
         db.update("""
             INSERT IGNORE INTO player_quests (uuid, streak, quest, quest_complete, target, progress, last_quest_at)
             VALUES (?, ?, ?, ?, ?, ?, ?)
@@ -42,7 +42,6 @@ public class QuestAPIImpl implements IQuestAPI {
     }
 
     public boolean doesUserExist(OfflinePlayer player) {
-        if (player == null) return false;
         return db.query(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT 1 FROM player_quests WHERE uuid = ? LIMIT 1")) {
                 ps.setString(1, player.getUniqueId().toString());
@@ -55,6 +54,7 @@ public class QuestAPIImpl implements IQuestAPI {
 
     @Override
     public Timestamp getCreatedAt(OfflinePlayer player) {
+        ValidateParameter.validatePlayer(player);
         return db.query(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT created_at FROM player_quests WHERE uuid = ? LIMIT 1")) {
                 ps.setString(1, player.getUniqueId().toString());
@@ -68,6 +68,7 @@ public class QuestAPIImpl implements IQuestAPI {
 
     @Override
     public CompletableFuture<Timestamp> getCreatedAtAsync(OfflinePlayer player) {
+        ValidateParameter.validatePlayer(player);
         return db.queryAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT created_at FROM player_quests WHERE uuid = ? LIMIT 1")) {
                 ps.setString(1, player.getUniqueId().toString());
@@ -81,6 +82,7 @@ public class QuestAPIImpl implements IQuestAPI {
 
     @Override
     public Timestamp getUpdatedAt(OfflinePlayer player) {
+        ValidateParameter.validatePlayer(player);
         return db.query(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT updated_at FROM player_quests WHERE uuid = ? LIMIT 1")) {
                 ps.setString(1, player.getUniqueId().toString());
@@ -94,6 +96,7 @@ public class QuestAPIImpl implements IQuestAPI {
 
     @Override
     public CompletableFuture<Timestamp> getUpdatedAtAsync(OfflinePlayer player) {
+        ValidateParameter.validatePlayer(player);
         return db.queryAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT updated_at FROM player_quests WHERE uuid = ? LIMIT 1")) {
                 ps.setString(1, player.getUniqueId().toString());
@@ -107,42 +110,47 @@ public class QuestAPIImpl implements IQuestAPI {
 
     @Override
     public void setStreak(OfflinePlayer player, int amount) {
-        if (player == null) return;
+        ValidateParameter.validatePlayer(player);
         db.update("UPDATE player_quests SET streak = ? WHERE uuid = ?", Math.max(0, amount), player.getUniqueId().toString());
     }
 
     @Override
     public CompletableFuture<Void> setStreakAsync(OfflinePlayer player, int amount) {
-        if (player == null) return CompletableFuture.completedFuture(null);
+        ValidateParameter.validatePlayer(player);
         return db.updateAsync("UPDATE player_quests SET streak = ? WHERE uuid = ?", Math.max(0, amount), player.getUniqueId().toString());
     }
 
     @Override
     public void increaseStreak(OfflinePlayer player, int amount) {
-        if (player == null || amount == 0) return;
+        ValidateParameter.validatePlayer(player);
+        if (amount == 0) return;
         db.update("UPDATE player_quests SET streak = COALESCE(streak,0) + ? WHERE uuid = ?", amount, player.getUniqueId().toString());
     }
 
     @Override
     public CompletableFuture<Void> increaseStreakAsync(OfflinePlayer player, int amount) {
-        if (player == null || amount == 0) return CompletableFuture.completedFuture(null);
+        ValidateParameter.validatePlayer(player);
+        if (amount == 0) return CompletableFuture.completedFuture(null);
         return db.updateAsync("UPDATE player_quests SET streak = COALESCE(streak,0) + ? WHERE uuid = ?", amount, player.getUniqueId().toString());
     }
 
     @Override
     public void decreaseStreak(OfflinePlayer player, int amount) {
-        if (player == null || amount == 0) return;
+        ValidateParameter.validatePlayer(player);
+        if (amount == 0) return;
         db.update("UPDATE player_quests SET streak = GREATEST(COALESCE(streak,0) - ?, 0) WHERE uuid = ?", amount, player.getUniqueId().toString());
     }
 
     @Override
     public CompletableFuture<Void> decreaseStreakAsync(OfflinePlayer player, int amount) {
-        if (player == null || amount == 0) return CompletableFuture.completedFuture(null);
+        ValidateParameter.validatePlayer(player);
+        if (amount == 0) return CompletableFuture.completedFuture(null);
         return db.updateAsync("UPDATE player_quests SET streak = GREATEST(COALESCE(streak,0) - ?, 0) WHERE uuid = ?", amount, player.getUniqueId().toString());
     }
 
     @Override
     public Integer getStreak(OfflinePlayer player) {
+        ValidateParameter.validatePlayer(player);
         return db.query(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT streak FROM player_quests WHERE uuid = ? LIMIT 1")) {
                 ps.setString(1, player.getUniqueId().toString());
@@ -156,6 +164,7 @@ public class QuestAPIImpl implements IQuestAPI {
 
     @Override
     public CompletableFuture<Integer> getStreakAsync(OfflinePlayer player) {
+        ValidateParameter.validatePlayer(player);
         return db.queryAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT streak FROM player_quests WHERE uuid = ? LIMIT 1")) {
                 ps.setString(1, player.getUniqueId().toString());
@@ -169,7 +178,7 @@ public class QuestAPIImpl implements IQuestAPI {
 
     @Override
     public void setQuest(OfflinePlayer player, int questId, Integer target) {
-        if (player == null) return;
+        ValidateParameter.validatePlayer(player);
         db.update("""
             UPDATE player_quests
             SET quest = ?, quest_complete = FALSE, progress = 0, target = ?
@@ -179,7 +188,7 @@ public class QuestAPIImpl implements IQuestAPI {
 
     @Override
     public CompletableFuture<Void> setQuestAsync(OfflinePlayer player, int questId, Integer target) {
-        if (player == null) return CompletableFuture.completedFuture(null);
+        ValidateParameter.validatePlayer(player);
         return db.updateAsync("""
             UPDATE player_quests
             SET quest = ?, quest_complete = FALSE, progress = 0, target = ?
@@ -189,18 +198,19 @@ public class QuestAPIImpl implements IQuestAPI {
 
     @Override
     public void setQuestComplete(OfflinePlayer player, boolean complete) {
-        if (player == null) return;
+        ValidateParameter.validatePlayer(player);
         db.update("UPDATE player_quests SET quest_complete = ? WHERE uuid = ?", complete, player.getUniqueId().toString());
     }
 
     @Override
     public CompletableFuture<Void> setQuestCompleteAsync(OfflinePlayer player, boolean complete) {
-        if (player == null) return CompletableFuture.completedFuture(null);
+        ValidateParameter.validatePlayer(player);
         return db.updateAsync("UPDATE player_quests SET quest_complete = ? WHERE uuid = ?", complete, player.getUniqueId().toString());
     }
 
     @Override
     public boolean getDailyQuestComplete(OfflinePlayer player) {
+        ValidateParameter.validatePlayer(player);
         return db.query(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT quest_complete FROM player_quests WHERE uuid = ? LIMIT 1")) {
                 ps.setString(1, player.getUniqueId().toString());
@@ -214,6 +224,7 @@ public class QuestAPIImpl implements IQuestAPI {
 
     @Override
     public CompletableFuture<Boolean> getDailyQuestCompleteAsync(OfflinePlayer player) {
+        ValidateParameter.validatePlayer(player);
         return db.queryAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT quest_complete FROM player_quests WHERE uuid = ? LIMIT 1")) {
                 ps.setString(1, player.getUniqueId().toString());
@@ -227,6 +238,7 @@ public class QuestAPIImpl implements IQuestAPI {
 
     @Override
     public Integer getDailyQuest(OfflinePlayer player) {
+        ValidateParameter.validatePlayer(player);
         return db.query(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT quest FROM player_quests WHERE uuid = ? LIMIT 1")) {
                 ps.setString(1, player.getUniqueId().toString());
@@ -240,6 +252,7 @@ public class QuestAPIImpl implements IQuestAPI {
 
     @Override
     public CompletableFuture<Integer> getDailyQuestAsync(OfflinePlayer player) {
+        ValidateParameter.validatePlayer(player);
         return db.queryAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT quest FROM player_quests WHERE uuid = ? LIMIT 1")) {
                 ps.setString(1, player.getUniqueId().toString());
@@ -253,6 +266,7 @@ public class QuestAPIImpl implements IQuestAPI {
 
     @Override
     public Integer getTargetAmount(OfflinePlayer player) {
+        ValidateParameter.validatePlayer(player);
         return db.query(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT target FROM player_quests WHERE uuid = ? LIMIT 1")) {
                 ps.setString(1, player.getUniqueId().toString());
@@ -269,6 +283,7 @@ public class QuestAPIImpl implements IQuestAPI {
 
     @Override
     public CompletableFuture<Integer> getTargetAmountAsync(OfflinePlayer player) {
+        ValidateParameter.validatePlayer(player);
         return db.queryAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT target FROM player_quests WHERE uuid = ? LIMIT 1")) {
                 ps.setString(1, player.getUniqueId().toString());
@@ -285,6 +300,7 @@ public class QuestAPIImpl implements IQuestAPI {
 
     @Override
     public Integer getProgress(OfflinePlayer player) {
+        ValidateParameter.validatePlayer(player);
         return db.query(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT progress FROM player_quests WHERE uuid = ? LIMIT 1")) {
                 ps.setString(1, player.getUniqueId().toString());
@@ -298,6 +314,7 @@ public class QuestAPIImpl implements IQuestAPI {
 
     @Override
     public CompletableFuture<Integer> getProgressAsync(OfflinePlayer player) {
+        ValidateParameter.validatePlayer(player);
         return db.queryAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT progress FROM player_quests WHERE uuid = ? LIMIT 1")) {
                 ps.setString(1, player.getUniqueId().toString());
@@ -311,42 +328,43 @@ public class QuestAPIImpl implements IQuestAPI {
 
     @Override
     public void increaseProgress(OfflinePlayer player, int amount) {
-        if (player == null || amount == 0) return;
+        ValidateParameter.validatePlayer(player);
         db.update("UPDATE player_quests SET progress = COALESCE(progress,0) + ? WHERE uuid = ?", amount, player.getUniqueId().toString());
     }
 
     @Override
     public CompletableFuture<Void> increaseProgressAsync(OfflinePlayer player, int amount) {
-        if (player == null || amount == 0) return CompletableFuture.completedFuture(null);
+        ValidateParameter.validatePlayer(player);
         return db.updateAsync("UPDATE player_quests SET progress = COALESCE(progress,0) + ? WHERE uuid = ?", amount, player.getUniqueId().toString());
     }
 
     @Override
     public void decreaseProgress(OfflinePlayer player, int amount) {
-        if (player == null || amount == 0) return;
+        ValidateParameter.validatePlayer(player);
         db.update("UPDATE player_quests SET progress = GREATEST(COALESCE(progress,0) - ?, 0) WHERE uuid = ?", amount, player.getUniqueId().toString());
     }
 
     @Override
     public CompletableFuture<Void> decreaseProgressAsync(OfflinePlayer player, int amount) {
-        if (player == null || amount == 0) return CompletableFuture.completedFuture(null);
+        ValidateParameter.validatePlayer(player);
         return db.updateAsync("UPDATE player_quests SET progress = GREATEST(COALESCE(progress,0) - ?, 0) WHERE uuid = ?", amount, player.getUniqueId().toString());
     }
 
     @Override
     public void setProgress(OfflinePlayer player, int amount) {
-        if (player == null) return;
+        ValidateParameter.validatePlayer(player);
         db.update("UPDATE player_quests SET progress = ? WHERE uuid = ?", Math.max(0, amount), player.getUniqueId().toString());
     }
 
     @Override
     public CompletableFuture<Void> setProgressAsync(OfflinePlayer player, int amount) {
-        if (player == null) return CompletableFuture.completedFuture(null);
+        ValidateParameter.validatePlayer(player);
         return db.updateAsync("UPDATE player_quests SET progress = ? WHERE uuid = ?", Math.max(0, amount), player.getUniqueId().toString());
     }
 
     @Override
     public Timestamp getQuestDate(OfflinePlayer player) {
+        ValidateParameter.validatePlayer(player);
         return db.query(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT last_quest_at FROM player_quests WHERE uuid = ? LIMIT 1")) {
                 ps.setString(1, player.getUniqueId().toString());
@@ -360,6 +378,7 @@ public class QuestAPIImpl implements IQuestAPI {
 
     @Override
     public CompletableFuture<Timestamp> getQuestDateAsync(OfflinePlayer player) {
+        ValidateParameter.validatePlayer(player);
         return db.queryAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT last_quest_at FROM player_quests WHERE uuid = ? LIMIT 1")) {
                 ps.setString(1, player.getUniqueId().toString());
@@ -373,7 +392,7 @@ public class QuestAPIImpl implements IQuestAPI {
 
     @Override
     public void resetQuest(OfflinePlayer player) {
-        if (player == null) return;
+        ValidateParameter.validatePlayer(player);
         db.update("""
             UPDATE player_quests
             SET quest = -1,
@@ -387,7 +406,7 @@ public class QuestAPIImpl implements IQuestAPI {
 
     @Override
     public CompletableFuture<Void> resetQuestAsync(OfflinePlayer player) {
-        if (player == null) return CompletableFuture.completedFuture(null);
+        ValidateParameter.validatePlayer(player);
         return db.updateAsync("""
             UPDATE player_quests
             SET quest = -1,

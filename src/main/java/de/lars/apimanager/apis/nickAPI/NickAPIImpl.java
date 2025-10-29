@@ -2,6 +2,7 @@ package de.lars.apimanager.apis.nickAPI;
 
 import de.lars.apimanager.Main;
 import de.lars.apimanager.database.DatabaseManager;
+import de.lars.apimanager.utils.ValidateParameter;
 import org.bukkit.OfflinePlayer;
 
 import java.sql.PreparedStatement;
@@ -21,7 +22,7 @@ public class NickAPIImpl implements INickAPI {
             CREATE TABLE IF NOT EXISTS player_nicknames (
                 uuid CHAR(36) NOT NULL PRIMARY KEY,
                 nickname VARCHAR(32) DEFAULT NULL,
-                fake_rank VARCHAR(16) DEFAULT NULL,
+                fake_rank INT(16) DEFAULT NULL,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                 FOREIGN KEY (uuid) REFERENCES players(uuid) ON DELETE CASCADE
@@ -49,6 +50,7 @@ public class NickAPIImpl implements INickAPI {
 
     @Override
     public Timestamp getCreatedAt(OfflinePlayer player) {
+        ValidateParameter.validatePlayer(player);
         return db.query(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT created_at FROM player_nicknames WHERE uuid = ?")) {
                 ps.setString(1, player.getUniqueId().toString());
@@ -62,6 +64,7 @@ public class NickAPIImpl implements INickAPI {
 
     @Override
     public CompletableFuture<Timestamp> getCreatedAtAsync(OfflinePlayer player) {
+        ValidateParameter.validatePlayer(player);
         return db.queryAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT created_at FROM player_nicknames WHERE uuid = ?")) {
                 ps.setString(1, player.getUniqueId().toString());
@@ -75,6 +78,7 @@ public class NickAPIImpl implements INickAPI {
 
     @Override
     public Timestamp getUpdatedAt(OfflinePlayer player) {
+        ValidateParameter.validatePlayer(player);
         return db.query(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT updated_at FROM player_nicknames WHERE uuid = ?")) {
                 ps.setString(1, player.getUniqueId().toString());
@@ -88,6 +92,7 @@ public class NickAPIImpl implements INickAPI {
 
     @Override
     public CompletableFuture<Timestamp> getUpdatedAtAsync(OfflinePlayer player) {
+        ValidateParameter.validatePlayer(player);
         return db.queryAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT updated_at FROM player_nicknames WHERE uuid = ?")) {
                 ps.setString(1, player.getUniqueId().toString());
@@ -101,16 +106,33 @@ public class NickAPIImpl implements INickAPI {
 
     @Override
     public void setNickname(OfflinePlayer player, String nickname) {
+        ValidateParameter.validatePlayer(player);
+        ValidateParameter.validateNickName(nickname);
         db.update("UPDATE player_nicknames SET nickname=? WHERE uuid=?", nickname, player.getUniqueId().toString());
     }
 
     @Override
     public CompletableFuture<Void> setNicknameAsync(OfflinePlayer player, String nickname) {
+        ValidateParameter.validatePlayer(player);
+        ValidateParameter.validateNickName(nickname);
         return db.updateAsync("UPDATE player_nicknames SET nickname=? WHERE uuid=?", nickname, player.getUniqueId().toString());
     }
 
     @Override
+    public void resetNickname(OfflinePlayer player) {
+        ValidateParameter.validatePlayer(player);
+        db.update("UPDATE player_nicknames SET nickname=?,fake_rank=? WHERE uuid=?", null, null, player.getUniqueId().toString());
+    }
+
+    @Override
+    public CompletableFuture<Void> resetNicknameAsync(OfflinePlayer player) {
+        ValidateParameter.validatePlayer(player);
+        return db.updateAsync("UPDATE player_nicknames SET nickname=?,fake_rank=? WHERE uuid=?", null, null, player.getUniqueId().toString());
+    }
+
+    @Override
     public String getNickname(OfflinePlayer player) {
+        ValidateParameter.validatePlayer(player);
         return db.query(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT nickname FROM player_nicknames WHERE uuid=?")) {
                 ps.setString(1, player.getUniqueId().toString());
@@ -124,6 +146,7 @@ public class NickAPIImpl implements INickAPI {
 
     @Override
     public CompletableFuture<String> getNicknameAsync(OfflinePlayer player) {
+        ValidateParameter.validatePlayer(player);
         return db.queryAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT nickname FROM player_nicknames WHERE uuid=?")) {
                 ps.setString(1, player.getUniqueId().toString());
@@ -136,22 +159,26 @@ public class NickAPIImpl implements INickAPI {
     }
 
     @Override
-    public void setFakeRank(OfflinePlayer player, String rankId) {
+    public void setFakeRank(OfflinePlayer player, Integer rankId) {
         db.update("UPDATE player_nicknames SET fake_rank=? WHERE uuid=?", rankId, player.getUniqueId().toString());
     }
 
     @Override
-    public CompletableFuture<Void> setFakeRankAsync(OfflinePlayer player, String rankId) {
+    public CompletableFuture<Void> setFakeRankAsync(OfflinePlayer player, Integer rankId) {
         return db.updateAsync("UPDATE player_nicknames SET fake_rank=? WHERE uuid=?", rankId, player.getUniqueId().toString());
     }
 
     @Override
-    public String getFakeRank(OfflinePlayer player) {
+    public Integer getFakeRank(OfflinePlayer player) {
+        ValidateParameter.validatePlayer(player);
         return db.query(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT fake_rank FROM player_nicknames WHERE uuid=?")) {
                 ps.setString(1, player.getUniqueId().toString());
                 try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) return rs.getString("fake_rank");
+                    if (rs.next()) {
+                        int v = rs.getInt("fake_rank");
+                        return rs.wasNull() ? null : v;
+                    }
                 }
             }
             return null;
@@ -159,12 +186,16 @@ public class NickAPIImpl implements INickAPI {
     }
 
     @Override
-    public CompletableFuture<String> getFakeRankAsync(OfflinePlayer player) {
+    public CompletableFuture<Integer> getFakeRankAsync(OfflinePlayer player) {
+        ValidateParameter.validatePlayer(player);
         return db.queryAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT fake_rank FROM player_nicknames WHERE uuid=?")) {
                 ps.setString(1, player.getUniqueId().toString());
                 try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) return rs.getString("fake_rank");
+                    if (rs.next()) {
+                        int v = rs.getInt("fake_rank");
+                        return rs.wasNull() ? null : v;
+                    }
                 }
             }
             return null;

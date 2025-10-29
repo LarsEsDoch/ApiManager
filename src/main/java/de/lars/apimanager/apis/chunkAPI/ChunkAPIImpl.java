@@ -2,6 +2,7 @@ package de.lars.apimanager.apis.chunkAPI;
 
 import de.lars.apimanager.Main;
 import de.lars.apimanager.database.DatabaseManager;
+import de.lars.apimanager.utils.ValidateParameter;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.OfflinePlayer;
@@ -41,7 +42,7 @@ public class ChunkAPIImpl implements IChunkAPI {
 
     @Override
     public Timestamp getCreated(Chunk chunk) {
-        if (chunk == null) return null;
+        ValidateParameter.validateChunk(chunk);
         return db.query(conn -> {
             try (PreparedStatement ps = conn.prepareStatement(
                     "SELECT created_at FROM claimed_chunks WHERE world = ? AND x = ? AND z = ? LIMIT 1")) {
@@ -58,7 +59,7 @@ public class ChunkAPIImpl implements IChunkAPI {
 
     @Override
     public CompletableFuture<Timestamp> getCreatedAsync(Chunk chunk) {
-        if (chunk == null) return CompletableFuture.completedFuture(null);
+        ValidateParameter.validateChunk(chunk);
         return db.queryAsync(conn -> {
                 try (PreparedStatement ps = conn.prepareStatement(
                     "SELECT created_at FROM claimed_chunks WHERE world = ? AND x = ? AND z = ? LIMIT 1")) {
@@ -75,7 +76,7 @@ public class ChunkAPIImpl implements IChunkAPI {
 
     @Override
     public Timestamp getUpdated(Chunk chunk) {
-        if (chunk == null) return null;
+        ValidateParameter.validateChunk(chunk);
         return db.query(conn -> {
             try (PreparedStatement ps = conn.prepareStatement(
                     "SELECT updated_at FROM claimed_chunks WHERE world = ? AND x = ? AND z = ? LIMIT 1")) {
@@ -92,7 +93,7 @@ public class ChunkAPIImpl implements IChunkAPI {
 
     @Override
     public CompletableFuture<Timestamp> getUpdatedAsync(Chunk chunk) {
-        if (chunk == null) return CompletableFuture.completedFuture(null);
+        ValidateParameter.validateChunk(chunk);
         return db.queryAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement(
                     "SELECT updated_at FROM claimed_chunks WHERE world = ? AND x = ? AND z = ? LIMIT 1")) {
@@ -109,7 +110,7 @@ public class ChunkAPIImpl implements IChunkAPI {
 
     @Override
     public Timestamp getClaimed(Chunk chunk) {
-        if (chunk == null) return null;
+        ValidateParameter.validateChunk(chunk);
         return db.query(conn -> {
             try (PreparedStatement ps = conn.prepareStatement(
                     "SELECT claimed_at FROM claimed_chunks WHERE world = ? AND x = ? AND z = ? LIMIT 1")) {
@@ -126,7 +127,7 @@ public class ChunkAPIImpl implements IChunkAPI {
 
     @Override
     public CompletableFuture<Timestamp> getClaimedAsync(Chunk chunk) {
-        if (chunk == null) return CompletableFuture.completedFuture(null);
+        ValidateParameter.validateChunk(chunk);
         return db.queryAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement(
                     "SELECT claimed_at FROM claimed_chunks WHERE world = ? AND x = ? AND z = ? LIMIT 1")) {
@@ -143,6 +144,8 @@ public class ChunkAPIImpl implements IChunkAPI {
 
     @Override
     public void claimChunk(OfflinePlayer player, Chunk chunk) {
+        ValidateParameter.validatePlayer(player);
+        ValidateParameter.validateChunk(chunk);
         String world = chunk.getWorld().getName();
         int x = chunk.getX();
         int z = chunk.getZ();
@@ -162,6 +165,8 @@ public class ChunkAPIImpl implements IChunkAPI {
 
     @Override
     public CompletableFuture<Void> claimChunkAsync(OfflinePlayer player, Chunk chunk) {
+        ValidateParameter.validatePlayer(player);
+        ValidateParameter.validateChunk(chunk);
         String world = chunk.getWorld().getName();
         int x = chunk.getX();
         int z = chunk.getZ();
@@ -179,6 +184,8 @@ public class ChunkAPIImpl implements IChunkAPI {
 
     @Override
     public void unclaimChunk(OfflinePlayer player, Chunk chunk) {
+        ValidateParameter.validatePlayer(player);
+        ValidateParameter.validateChunk(chunk);
         String world = chunk.getWorld().getName();
         int x = chunk.getX();
         int z = chunk.getZ();
@@ -193,6 +200,8 @@ public class ChunkAPIImpl implements IChunkAPI {
 
     @Override
     public CompletableFuture<Void> unclaimChunkAsync(OfflinePlayer player, Chunk chunk) {
+        ValidateParameter.validatePlayer(player);
+        ValidateParameter.validateChunk(chunk);
         String world = chunk.getWorld().getName();
         int x = chunk.getX();
         int z = chunk.getZ();
@@ -210,37 +219,36 @@ public class ChunkAPIImpl implements IChunkAPI {
     }
 
     @Override
-    public void setFlags(OfflinePlayer player, Chunk chunk, String flagsJson) {
+    public void setFlags(Chunk chunk, String flagsJson) {
+        ValidateParameter.validateChunk(chunk);
         String world = chunk.getWorld().getName();
         int x = chunk.getX();
         int z = chunk.getZ();
 
         db.update("""
-            INSERT INTO claimed_chunks (uuid, world, x, z, flags)
-            VALUES (?, ?, ?, ?, ?)
-            ON DUPLICATE KEY UPDATE
-                flags = VALUES(flags),
-                updated_at = CURRENT_TIMESTAMP
-        """, player.getUniqueId().toString(), world, x, z, flagsJson == null ? "{}" : flagsJson);
+                    UPDATE claimed_chunks
+                    SET flags = ?
+                    WHERE world = ? AND x = ? AND z = ?
+                """, flagsJson == null ? "{}" : flagsJson, world, x, z);
     }
 
     @Override
-    public CompletableFuture<Void> setFlagsAsync(OfflinePlayer player, Chunk chunk, String flagsJson) {
+    public CompletableFuture<Void> setFlagsAsync(Chunk chunk, String flagsJson) {
+        ValidateParameter.validateChunk(chunk);
         String world = chunk.getWorld().getName();
         int x = chunk.getX();
         int z = chunk.getZ();
 
         return db.updateAsync("""
-            INSERT INTO claimed_chunks (uuid, world, x, z, flags)
-            VALUES (?, ?, ?, ?, ?)
-            ON DUPLICATE KEY UPDATE
-                flags = VALUES(flags),
-                updated_at = CURRENT_TIMESTAMP
-        """, player.getUniqueId().toString(), world, x, z, flagsJson == null ? "{}" : flagsJson);
+                    UPDATE claimed_chunks
+                    SET flags = ?
+                    WHERE world = ? AND x = ? AND z = ?
+                """, flagsJson == null ? "{}" : flagsJson, world, x, z);
     }
 
     @Override
     public List<OfflinePlayer> getFriendPlayers(Chunk chunk) {
+        ValidateParameter.validateChunk(chunk);
         return getFriends(chunk).stream()
             .map(uuid -> Bukkit.getOfflinePlayer(UUID.fromString(uuid)))
             .collect(Collectors.toList());
@@ -248,7 +256,7 @@ public class ChunkAPIImpl implements IChunkAPI {
 
     @Override
     public CompletableFuture<List<OfflinePlayer>> getFriendPlayersAsync(Chunk chunk) {
-        if (chunk == null) return CompletableFuture.completedFuture(Collections.emptyList());
+        ValidateParameter.validateChunk(chunk);
 
         return getFriendsAsync(chunk).thenApply(uuids ->
             uuids.stream()
@@ -266,6 +274,7 @@ public class ChunkAPIImpl implements IChunkAPI {
 
     @Override
     public List<String> getFriends(Chunk chunk) {
+        ValidateParameter.validateChunk(chunk);
         String world = chunk.getWorld().getName();
         int x = chunk.getX();
         int z = chunk.getZ();
@@ -291,6 +300,7 @@ public class ChunkAPIImpl implements IChunkAPI {
 
     @Override
     public CompletableFuture<List<String>> getFriendsAsync(Chunk chunk) {
+        ValidateParameter.validateChunk(chunk);
         String world = chunk.getWorld().getName();
         int x = chunk.getX();
         int z = chunk.getZ();
@@ -303,20 +313,21 @@ public class ChunkAPIImpl implements IChunkAPI {
                 try (ResultSet rs = ps.executeQuery()) {
                     if (rs.next()) {
                         String s = rs.getString("friends");
-                        if (s == null || s.isEmpty()) return new ArrayList<String>();
+                        if (s == null || s.isEmpty()) return new ArrayList<>();
                         return Arrays.stream(s.split(","))
                                 .filter(tok -> !tok.isBlank())
                                 .collect(Collectors.toList());
                     }
-                    return new ArrayList<String>();
+                    return new ArrayList<>();
                 }
             }
         });
     }
 
     @Override
-    public void addFriend(OfflinePlayer owner, Chunk chunk, OfflinePlayer friend) {
-        if (friend == null || chunk == null) return;
+    public void addFriend(Chunk chunk, OfflinePlayer friend) {
+        ValidateParameter.validateChunk(chunk);
+        ValidateParameter.validatePlayer(friend);
         String friendUuid = friend.getUniqueId().toString();
 
         List<String> friends = new ArrayList<>(getFriends(chunk));
@@ -329,8 +340,9 @@ public class ChunkAPIImpl implements IChunkAPI {
     }
 
     @Override
-    public CompletableFuture<Void> addFriendAsync(OfflinePlayer owner, Chunk chunk, OfflinePlayer friend) {
-        if (friend == null || chunk == null) return CompletableFuture.completedFuture(null);
+    public CompletableFuture<Void> addFriendAsync(Chunk chunk, OfflinePlayer friend) {
+        ValidateParameter.validateChunk(chunk);
+        ValidateParameter.validatePlayer(friend);
         String friendUuid = friend.getUniqueId().toString();
 
         return getFriendsAsync(chunk).thenCompose(list -> {
@@ -342,8 +354,9 @@ public class ChunkAPIImpl implements IChunkAPI {
     }
 
     @Override
-    public void removeFriend(OfflinePlayer owner, Chunk chunk, OfflinePlayer friend) {
-        if (friend == null || chunk == null) return;
+    public void removeFriend(Chunk chunk, OfflinePlayer friend) {
+        ValidateParameter.validateChunk(chunk);
+        ValidateParameter.validatePlayer(friend);
         String friendUuid = friend.getUniqueId().toString();
 
         List<String> friends = new ArrayList<>(getFriends(chunk));
@@ -355,8 +368,9 @@ public class ChunkAPIImpl implements IChunkAPI {
     }
 
     @Override
-    public CompletableFuture<Void> removeFriendAsync(OfflinePlayer owner, Chunk chunk, OfflinePlayer friend) {
-        if (friend == null || chunk == null) return CompletableFuture.completedFuture(null);
+    public CompletableFuture<Void> removeFriendAsync(Chunk chunk, OfflinePlayer friend) {
+        ValidateParameter.validateChunk(chunk);
+        ValidateParameter.validatePlayer(friend);
         String friendUuid = friend.getUniqueId().toString();
 
         return getFriendsAsync(chunk).thenCompose(list -> {
@@ -369,7 +383,8 @@ public class ChunkAPIImpl implements IChunkAPI {
 
     @Override
     public boolean isFriend(Chunk chunk, OfflinePlayer friend) {
-        if (friend == null || chunk == null) return false;
+        ValidateParameter.validateChunk(chunk);
+        ValidateParameter.validatePlayer(friend);
         String friendUuid = friend.getUniqueId().toString();
         List<String> friends = getFriends(chunk);
         return friends.contains(friendUuid);
@@ -377,13 +392,15 @@ public class ChunkAPIImpl implements IChunkAPI {
 
     @Override
     public CompletableFuture<Boolean> isFriendAsync(Chunk chunk, OfflinePlayer friend) {
-        if (friend == null || chunk == null) return CompletableFuture.completedFuture(false);
+        ValidateParameter.validateChunk(chunk);
+        ValidateParameter.validatePlayer(friend);
         String friendUuid = friend.getUniqueId().toString();
         return getFriendsAsync(chunk).thenApply(list -> list.contains(friendUuid));
     }
 
     @Override
     public UUID getChunkOwner(Chunk chunk) {
+        ValidateParameter.validateChunk(chunk);
         String world = chunk.getWorld().getName();
         int x = chunk.getX();
         int z = chunk.getZ();
@@ -407,6 +424,7 @@ public class ChunkAPIImpl implements IChunkAPI {
 
     @Override
     public CompletableFuture<UUID> getChunkOwnerAsync(Chunk chunk) {
+        ValidateParameter.validateChunk(chunk);
         String world = chunk.getWorld().getName();
         int x = chunk.getX();
         int z = chunk.getZ();
@@ -430,6 +448,7 @@ public class ChunkAPIImpl implements IChunkAPI {
 
     @Override
     public List<String> getChunks(OfflinePlayer player) {
+        ValidateParameter.validatePlayer(player);
         String uuid = player.getUniqueId().toString();
         return db.query(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT world, x, z FROM claimed_chunks WHERE uuid = ?")) {
@@ -447,6 +466,7 @@ public class ChunkAPIImpl implements IChunkAPI {
 
     @Override
     public CompletableFuture<List<String>> getChunksAsync(OfflinePlayer player) {
+        ValidateParameter.validatePlayer(player);
         String uuid = player.getUniqueId().toString();
         return db.queryAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT world, x, z FROM claimed_chunks WHERE uuid = ?")) {

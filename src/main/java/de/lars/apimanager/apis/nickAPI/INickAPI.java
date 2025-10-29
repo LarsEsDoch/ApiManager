@@ -18,15 +18,19 @@ public interface INickAPI {
 
     CompletableFuture<Void> setNicknameAsync(OfflinePlayer player, String nickname);
 
+    void resetNickname(OfflinePlayer player);
+
+    CompletableFuture<Void> resetNicknameAsync(OfflinePlayer player);
+
     String getNickname(OfflinePlayer player);
 
     CompletableFuture<String> getNicknameAsync(OfflinePlayer player);
 
-    void setFakeRank(OfflinePlayer player, String prefix);
+    void setFakeRank(OfflinePlayer player, Integer rankID);
 
-    CompletableFuture<Void> setFakeRankAsync(OfflinePlayer player, String prefix);
+    CompletableFuture<Void> setFakeRankAsync(OfflinePlayer player, Integer rankID);
 
-    String getFakeRank(OfflinePlayer player);
+    Integer getFakeRank(OfflinePlayer player);
 
-    CompletableFuture<String> getFakeRankAsync(OfflinePlayer player);
+    CompletableFuture<Integer> getFakeRankAsync(OfflinePlayer player);
 }

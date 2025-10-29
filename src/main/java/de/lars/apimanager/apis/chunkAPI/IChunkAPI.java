@@ -29,9 +29,9 @@ public interface IChunkAPI {
 
     CompletableFuture<Void> unclaimChunkAsync(OfflinePlayer player, Chunk chunk);
 
-    void setFlags(OfflinePlayer player, Chunk chunk, String flagsJson);
+    void setFlags(Chunk chunk, String flagsJson);
 
-    CompletableFuture<Void> setFlagsAsync(OfflinePlayer player, Chunk chunk, String flagsJson);
+    CompletableFuture<Void> setFlagsAsync(Chunk chunk, String flagsJson);
 
     List<OfflinePlayer> getFriendPlayers(Chunk chunk);
 
@@ -41,13 +41,13 @@ public interface IChunkAPI {
 
     CompletableFuture<List<String>> getFriendsAsync(Chunk chunk);
 
-    void addFriend(OfflinePlayer owner, Chunk chunk, OfflinePlayer friend);
+    void addFriend(Chunk chunk, OfflinePlayer friend);
 
-    CompletableFuture<Void> addFriendAsync(OfflinePlayer owner, Chunk chunk, OfflinePlayer friend);
+    CompletableFuture<Void> addFriendAsync(Chunk chunk, OfflinePlayer friend);
 
-    void removeFriend(OfflinePlayer owner, Chunk chunk, OfflinePlayer friend);
+    void removeFriend(Chunk chunk, OfflinePlayer friend);
 
-    CompletableFuture<Void> removeFriendAsync(OfflinePlayer owner, Chunk chunk, OfflinePlayer friend);
+    CompletableFuture<Void> removeFriendAsync(Chunk chunk, OfflinePlayer friend);
 
     boolean isFriend(Chunk chunk, OfflinePlayer friend);
 

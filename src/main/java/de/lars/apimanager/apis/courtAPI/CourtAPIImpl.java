@@ -2,6 +2,7 @@ package de.lars.apimanager.apis.courtAPI;
 
 import de.lars.apimanager.Main;
 import de.lars.apimanager.database.DatabaseManager;
+import de.lars.apimanager.utils.ValidateParameter;
 import org.bukkit.OfflinePlayer;
 
 import java.sql.PreparedStatement;
@@ -60,6 +61,7 @@ public class CourtAPIImpl implements ICourtAPI {
 
     @Override
     public Timestamp getCreatedAt(OfflinePlayer player) {
+        ValidateParameter.validatePlayer(player);
         return db.query(conn -> {
             try (PreparedStatement ps = conn.prepareStatement(
                      "SELECT created_at FROM player_court WHERE uuid = ?"
@@ -75,6 +77,7 @@ public class CourtAPIImpl implements ICourtAPI {
 
     @Override
     public CompletableFuture<Timestamp> getCreatedAtAsync(OfflinePlayer player) {
+        ValidateParameter.validatePlayer(player);
         return db.queryAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement(
                      "SELECT created_at FROM player_court WHERE uuid = ?"
@@ -90,6 +93,7 @@ public class CourtAPIImpl implements ICourtAPI {
 
     @Override
     public Timestamp getUpdatedAt(OfflinePlayer player) {
+        ValidateParameter.validatePlayer(player);
         return db.query(conn -> {
             try (PreparedStatement ps = conn.prepareStatement(
                      "SELECT updated_at FROM player_court WHERE uuid = ?"
@@ -105,6 +109,7 @@ public class CourtAPIImpl implements ICourtAPI {
 
     @Override
     public CompletableFuture<Timestamp> getUpdatedAtAsync(OfflinePlayer player) {
+        ValidateParameter.validatePlayer(player);
         return db.queryAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement(
                      "SELECT updated_at FROM player_court WHERE uuid = ?"
@@ -120,6 +125,8 @@ public class CourtAPIImpl implements ICourtAPI {
 
     @Override
     public void report(OfflinePlayer target, OfflinePlayer prosecutor, String reason) {
+        ValidateParameter.validatePlayer(target);
+        ValidateParameter.validateReason(reason);
         db.update("""
             UPDATE player_court
             SET prosecutor = ?, reason = ?, status = ?, updated_at = CURRENT_TIMESTAMP
@@ -133,6 +140,8 @@ public class CourtAPIImpl implements ICourtAPI {
 
     @Override
     public CompletableFuture<Void> reportAsync(OfflinePlayer target, OfflinePlayer prosecutor, String reason) {
+        ValidateParameter.validatePlayer(target);
+        ValidateParameter.validateReason(reason);
         return db.updateAsync("""
             UPDATE player_court
             SET prosecutor = ?, reason = ?, status = ?, updated_at = CURRENT_TIMESTAMP
@@ -146,16 +155,19 @@ public class CourtAPIImpl implements ICourtAPI {
 
     @Override
     public void setStatus(OfflinePlayer player, int status) {
+        ValidateParameter.validatePlayer(player);
         db.update("UPDATE player_court SET status = ? WHERE uuid = ?", status, player.getUniqueId().toString());
     }
 
     @Override
     public CompletableFuture<Void> setStatusAsync(OfflinePlayer player, int status) {
+        ValidateParameter.validatePlayer(player);
         return db.updateAsync("UPDATE player_court SET status = ? WHERE uuid = ?", status, player.getUniqueId().toString());
     }
 
     @Override
     public Integer getStatus(OfflinePlayer player) {
+        ValidateParameter.validatePlayer(player);
         return db.query(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT status FROM player_court WHERE uuid = ?")) {
                 ps.setString(1, player.getUniqueId().toString());
@@ -169,6 +181,7 @@ public class CourtAPIImpl implements ICourtAPI {
 
     @Override
     public CompletableFuture<Integer> getStatusAsync(OfflinePlayer player) {
+        ValidateParameter.validatePlayer(player);
         return db.queryAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT status FROM player_court WHERE uuid = ?")) {
                 ps.setString(1, player.getUniqueId().toString());
@@ -182,16 +195,21 @@ public class CourtAPIImpl implements ICourtAPI {
 
     @Override
     public void setReason(OfflinePlayer player, String reason) {
+        ValidateParameter.validatePlayer(player);
+        ValidateParameter.validateReason(reason);
         db.update("UPDATE player_court SET reason = ? WHERE uuid = ?", reason, player.getUniqueId().toString());
     }
 
     @Override
     public CompletableFuture<Void> setReasonAsync(OfflinePlayer player, String reason) {
+        ValidateParameter.validatePlayer(player);
+        ValidateParameter.validateReason(reason);
         return db.updateAsync("UPDATE player_court SET reason = ? WHERE uuid = ?", reason, player.getUniqueId().toString());
     }
 
     @Override
     public String getReason(OfflinePlayer player) {
+        ValidateParameter.validatePlayer(player);
         return db.query(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT reason FROM player_court WHERE uuid = ?")) {
                 ps.setString(1, player.getUniqueId().toString());
@@ -205,6 +223,7 @@ public class CourtAPIImpl implements ICourtAPI {
 
     @Override
     public CompletableFuture<String> getReasonAsync(OfflinePlayer player) {
+        ValidateParameter.validatePlayer(player);
         return db.queryAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT reason FROM player_court WHERE uuid = ?")) {
                 ps.setString(1, player.getUniqueId().toString());
@@ -218,6 +237,7 @@ public class CourtAPIImpl implements ICourtAPI {
 
     @Override
     public void setProsecutor(OfflinePlayer player, OfflinePlayer prosecutor) {
+        ValidateParameter.validatePlayer(player);
         db.update("UPDATE player_court SET prosecutor = ? WHERE uuid = ?",
                 prosecutor != null ? prosecutor.getUniqueId().toString() : null,
                 player.getUniqueId().toString());
@@ -225,6 +245,7 @@ public class CourtAPIImpl implements ICourtAPI {
 
     @Override
     public CompletableFuture<Void> setProsecutorAsync(OfflinePlayer player, OfflinePlayer prosecutor) {
+        ValidateParameter.validatePlayer(player);
         return db.updateAsync("UPDATE player_court SET prosecutor = ? WHERE uuid = ?",
                 prosecutor != null ? prosecutor.getUniqueId().toString() : null,
                 player.getUniqueId().toString());
@@ -232,6 +253,7 @@ public class CourtAPIImpl implements ICourtAPI {
 
     @Override
     public String getProsecutor(OfflinePlayer player) {
+        ValidateParameter.validatePlayer(player);
         return db.query(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT prosecutor FROM player_court WHERE uuid = ?")) {
                 ps.setString(1, player.getUniqueId().toString());
@@ -245,6 +267,7 @@ public class CourtAPIImpl implements ICourtAPI {
 
     @Override
     public CompletableFuture<String> getProsecutorAsync(OfflinePlayer player) {
+        ValidateParameter.validatePlayer(player);
         return db.queryAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT prosecutor FROM player_court WHERE uuid = ?")) {
                 ps.setString(1, player.getUniqueId().toString());
@@ -258,16 +281,19 @@ public class CourtAPIImpl implements ICourtAPI {
 
     @Override
     public void setTime(OfflinePlayer player, int time) {
+        ValidateParameter.validatePlayer(player);
         db.update("UPDATE player_court SET time = ? WHERE uuid = ?", time, player.getUniqueId().toString());
     }
 
     @Override
     public CompletableFuture<Void> setTimeAsync(OfflinePlayer player, int time) {
+        ValidateParameter.validatePlayer(player);
         return db.updateAsync("UPDATE player_court SET time = ? WHERE uuid = ?", time, player.getUniqueId().toString());
     }
 
     @Override
     public Integer getTime(OfflinePlayer player) {
+        ValidateParameter.validatePlayer(player);
         return db.query(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT time FROM player_court WHERE uuid = ?")) {
                 ps.setString(1, player.getUniqueId().toString());
@@ -281,6 +307,7 @@ public class CourtAPIImpl implements ICourtAPI {
 
     @Override
     public CompletableFuture<Integer> getTimeAsync(OfflinePlayer player) {
+        ValidateParameter.validatePlayer(player);
         return db.queryAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT time FROM player_court WHERE uuid = ?")) {
                 ps.setString(1, player.getUniqueId().toString());
@@ -294,16 +321,19 @@ public class CourtAPIImpl implements ICourtAPI {
 
     @Override
     public void setCell(OfflinePlayer player, int cell) {
+        ValidateParameter.validatePlayer(player);
         db.update("UPDATE player_court SET cell = ? WHERE uuid = ?", cell, player.getUniqueId().toString());
     }
 
     @Override
     public CompletableFuture<Void> setCellAsync(OfflinePlayer player, int cell) {
+        ValidateParameter.validatePlayer(player);
         return db.updateAsync("UPDATE player_court SET cell = ? WHERE uuid = ?", cell, player.getUniqueId().toString());
     }
 
     @Override
     public Integer getCell(OfflinePlayer player) {
+        ValidateParameter.validatePlayer(player);
         return db.query(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT cell FROM player_court WHERE uuid = ?")) {
                 ps.setString(1, player.getUniqueId().toString());
@@ -317,6 +347,7 @@ public class CourtAPIImpl implements ICourtAPI {
 
     @Override
     public CompletableFuture<Integer> getCellAsync(OfflinePlayer player) {
+        ValidateParameter.validatePlayer(player);
         return db.queryAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT cell FROM player_court WHERE uuid = ?")) {
                 ps.setString(1, player.getUniqueId().toString());
@@ -330,6 +361,7 @@ public class CourtAPIImpl implements ICourtAPI {
 
     @Override
     public void resetPlayer(OfflinePlayer player) {
+        ValidateParameter.validatePlayer(player);
         db.update("""
             UPDATE player_court
             SET status = 0, reason = NULL, prosecutor = NULL, time = 0, cell = 0
@@ -339,6 +371,7 @@ public class CourtAPIImpl implements ICourtAPI {
 
     @Override
     public CompletableFuture<Void> resetPlayerAsync(OfflinePlayer player) {
+        ValidateParameter.validatePlayer(player);
         return db.updateAsync("""
             UPDATE player_court
             SET status = 0, reason = NULL, prosecutor = NULL, time = 0, cell = 0

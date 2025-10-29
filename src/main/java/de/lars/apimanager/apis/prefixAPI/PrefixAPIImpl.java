@@ -3,6 +3,7 @@ package de.lars.apimanager.apis.prefixAPI;
 import de.lars.apimanager.Main;
 import de.lars.apimanager.database.DatabaseManager;
 import de.lars.apimanager.utils.TextFormation;
+import de.lars.apimanager.utils.ValidateParameter;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.OfflinePlayer;
@@ -55,6 +56,7 @@ public class PrefixAPIImpl implements IPrefixAPI {
 
     @Override
     public Timestamp getCreatedAt(OfflinePlayer player) {
+        ValidateParameter.validatePlayer(player);
         return db.query(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT created_at FROM player_prefixes WHERE uuid = ?")) {
                 ps.setString(1, player.getUniqueId().toString());
@@ -68,6 +70,7 @@ public class PrefixAPIImpl implements IPrefixAPI {
 
     @Override
     public CompletableFuture<Timestamp> getCreatedAtAsync(OfflinePlayer player) {
+        ValidateParameter.validatePlayer(player);
         return db.queryAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT created_at FROM player_prefixes WHERE uuid = ?")) {
                 ps.setString(1, player.getUniqueId().toString());
@@ -81,6 +84,7 @@ public class PrefixAPIImpl implements IPrefixAPI {
 
     @Override
     public Timestamp getUpdatedAt(OfflinePlayer player) {
+        ValidateParameter.validatePlayer(player);
         return db.query(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT updated_at FROM player_prefixes WHERE uuid = ?")) {
                 ps.setString(1, player.getUniqueId().toString());
@@ -94,6 +98,7 @@ public class PrefixAPIImpl implements IPrefixAPI {
 
     @Override
     public CompletableFuture<Timestamp> getUpdatedAtAsync(OfflinePlayer player) {
+        ValidateParameter.validatePlayer(player);
         return db.queryAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT updated_at FROM player_prefixes WHERE uuid = ?")) {
                 ps.setString(1, player.getUniqueId().toString());
@@ -107,18 +112,23 @@ public class PrefixAPIImpl implements IPrefixAPI {
 
     @Override
     public void setColor(OfflinePlayer player, NamedTextColor color) {
+        ValidateParameter.validatePlayer(player);
+        ValidateParameter.validateNamedTextColor(color);
         db.update("UPDATE player_prefixes SET color = ? WHERE uuid = ?",
                 TextFormation.getColorId(color), player.getUniqueId().toString());
     }
 
     @Override
     public CompletableFuture<Void> setColorAsync(OfflinePlayer player, NamedTextColor color) {
+        ValidateParameter.validatePlayer(player);
+        ValidateParameter.validateNamedTextColor(color);
         return db.updateAsync("UPDATE player_prefixes SET color = ? WHERE uuid = ?",
                         TextFormation.getColorId(color), player.getUniqueId().toString());
     }
 
     @Override
     public NamedTextColor getColor(OfflinePlayer player) {
+        ValidateParameter.validatePlayer(player);
         return TextFormation.getNamedTextColor(Objects.requireNonNull(db.query(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT color FROM player_prefixes WHERE uuid = ?")) {
                 ps.setString(1, player.getUniqueId().toString());
@@ -136,6 +146,7 @@ public class PrefixAPIImpl implements IPrefixAPI {
 
     @Override
     public CompletableFuture<NamedTextColor> getColorAsync(OfflinePlayer player) {
+        ValidateParameter.validatePlayer(player);
         return db.queryAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT color FROM player_prefixes WHERE uuid = ?")) {
                 ps.setString(1, player.getUniqueId().toString());
@@ -152,28 +163,37 @@ public class PrefixAPIImpl implements IPrefixAPI {
 
     @Override
     public void setDecoration(OfflinePlayer player, TextDecoration decoration) {
+        ValidateParameter.validatePlayer(player);
+        ValidateParameter.validateTextDecoration(decoration);
         setDecoration(player, Set.of(decoration));
     }
 
     @Override
     public CompletableFuture<Void> setDecorationAsync(OfflinePlayer player, TextDecoration decoration) {
+        ValidateParameter.validatePlayer(player);
+        ValidateParameter.validateTextDecoration(decoration);
         return setDecorationAsync(player, Set.of(decoration));
     }
 
     @Override
     public void setDecoration(OfflinePlayer player, Set<TextDecoration> decorations) {
+        ValidateParameter.validatePlayer(player);
         int bitmask = TextFormation.combineDecorations(decorations);
         db.update("UPDATE player_prefixes SET decoration=? WHERE uuid=?", bitmask, player.getUniqueId().toString());
     }
 
     @Override
     public CompletableFuture<Void> setDecorationAsync(OfflinePlayer player, Set<TextDecoration> decorations) {
+        ValidateParameter.validatePlayer(player);
+        ValidateParameter.validateTextDecorations(decorations);
         int bitmask = TextFormation.combineDecorations(decorations);
         return db.updateAsync("UPDATE player_prefixes SET decoration=? WHERE uuid=?", bitmask, player.getUniqueId().toString());
     }
 
     @Override
     public void addDecoration(OfflinePlayer player, TextDecoration decoration) {
+        ValidateParameter.validatePlayer(player);
+        ValidateParameter.validateTextDecoration(decoration);
         Set<TextDecoration> current = getDecoration(player);
         if (current == null) current = new HashSet<>();
 
@@ -185,6 +205,8 @@ public class PrefixAPIImpl implements IPrefixAPI {
 
     @Override
     public CompletableFuture<Void> addDecorationAsync(OfflinePlayer player, TextDecoration decoration) {
+        ValidateParameter.validatePlayer(player);
+        ValidateParameter.validateTextDecoration(decoration);
         return getDecorationAsync(player).thenCompose(current -> {
             if (current == null) current = new HashSet<>();
             current.add(decoration);
@@ -195,6 +217,8 @@ public class PrefixAPIImpl implements IPrefixAPI {
 
     @Override
     public void removeDecoration(OfflinePlayer player, TextDecoration decoration) {
+        ValidateParameter.validatePlayer(player);
+        ValidateParameter.validateTextDecoration(decoration);
         Set<TextDecoration> current = getDecoration(player);
         if (current == null) current = new HashSet<>();
 
@@ -206,6 +230,8 @@ public class PrefixAPIImpl implements IPrefixAPI {
 
     @Override
     public CompletableFuture<Void> removeDecorationAsync(OfflinePlayer player, TextDecoration decoration) {
+        ValidateParameter.validatePlayer(player);
+        ValidateParameter.validateTextDecoration(decoration);
         return getDecorationAsync(player).thenCompose(current -> {
             if (current == null) current = new HashSet<>();
             current.remove(decoration);
@@ -216,6 +242,7 @@ public class PrefixAPIImpl implements IPrefixAPI {
 
     @Override
     public Set<TextDecoration> getDecoration(OfflinePlayer player) {
+        ValidateParameter.validatePlayer(player);
         return db.query(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT decoration FROM player_prefixes WHERE uuid = ?")) {
                 ps.setString(1, player.getUniqueId().toString());
@@ -232,6 +259,7 @@ public class PrefixAPIImpl implements IPrefixAPI {
 
     @Override
     public CompletableFuture<Set<TextDecoration>> getDecorationAsync(OfflinePlayer player) {
+        ValidateParameter.validatePlayer(player);
         return db.queryAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT decoration FROM player_prefixes WHERE uuid = ?")) {
                 ps.setString(1, player.getUniqueId().toString());

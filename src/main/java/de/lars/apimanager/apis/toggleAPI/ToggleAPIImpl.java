@@ -2,6 +2,7 @@ package de.lars.apimanager.apis.toggleAPI;
 
 import de.lars.apimanager.Main;
 import de.lars.apimanager.database.DatabaseManager;
+import de.lars.apimanager.utils.ValidateParameter;
 import org.bukkit.OfflinePlayer;
 
 import java.sql.PreparedStatement;
@@ -47,6 +48,7 @@ public class ToggleAPIImpl implements IToggleAPI {
 
     @Override
     public Timestamp getCreatedAt(OfflinePlayer player) {
+        ValidateParameter.validatePlayer(player);
         return db.query(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT created_at FROM player_toggles WHERE uuid = ?")) {
                 ps.setString(1, player.getUniqueId().toString());
@@ -60,6 +62,7 @@ public class ToggleAPIImpl implements IToggleAPI {
 
     @Override
     public CompletableFuture<Timestamp> getCreatedAtAsync(OfflinePlayer player) {
+        ValidateParameter.validatePlayer(player);
         return db.queryAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT created_at FROM player_toggles WHERE uuid = ?")) {
                 ps.setString(1, player.getUniqueId().toString());
@@ -73,6 +76,7 @@ public class ToggleAPIImpl implements IToggleAPI {
 
     @Override
     public Timestamp getUpdatedAt(OfflinePlayer player) {
+        ValidateParameter.validatePlayer(player);
         return db.query(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT updated_at FROM player_toggles WHERE uuid = ?")) {
                 ps.setString(1, player.getUniqueId().toString());
@@ -86,6 +90,7 @@ public class ToggleAPIImpl implements IToggleAPI {
 
     @Override
     public CompletableFuture<Timestamp> getUpdatedAtAsync(OfflinePlayer player) {
+        ValidateParameter.validatePlayer(player);
         return db.queryAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT updated_at FROM player_toggles WHERE uuid = ?")) {
                 ps.setString(1, player.getUniqueId().toString());
@@ -99,16 +104,19 @@ public class ToggleAPIImpl implements IToggleAPI {
 
     @Override
     public void setBedToggle(OfflinePlayer player, boolean toggle) {
+        ValidateParameter.validatePlayer(player);
         db.update("UPDATE player_toggles SET bed_toggle=? WHERE uuid=?", toggle ? 1 : 0, player.getUniqueId().toString());
     }
 
     @Override
     public CompletableFuture<Void> setBedToggleAsync(OfflinePlayer player, boolean toggle) {
+        ValidateParameter.validatePlayer(player);
         return db.updateAsync("UPDATE player_toggles SET bed_toggle=? WHERE uuid=?", toggle ? 1 : 0, player.getUniqueId().toString());
     }
 
     @Override
     public boolean getBedToggle(OfflinePlayer player) {
+        ValidateParameter.validatePlayer(player);
         return db.query(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT bed_toggle FROM player_toggles WHERE uuid=?")) {
                 ps.setString(1, player.getUniqueId().toString());
@@ -116,12 +124,13 @@ public class ToggleAPIImpl implements IToggleAPI {
                     if (rs.next()) return rs.getInt("bed_toggle") == 1;
                 }
             }
-            return true; // Default true
+            return true;
         });
     }
 
     @Override
     public CompletableFuture<Boolean> getBedToggleAsync(OfflinePlayer player) {
+        ValidateParameter.validatePlayer(player);
         return db.queryAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT bed_toggle FROM player_toggles WHERE uuid=?")) {
                 ps.setString(1, player.getUniqueId().toString());
@@ -135,16 +144,19 @@ public class ToggleAPIImpl implements IToggleAPI {
 
     @Override
     public void setScoreboardToggle(OfflinePlayer player, boolean toggle) {
+        ValidateParameter.validatePlayer(player);
         db.update("UPDATE player_toggles SET scoreboard_toggle=? WHERE uuid=?", toggle ? 1 : 0, player.getUniqueId().toString());
     }
 
     @Override
     public CompletableFuture<Void> setScoreboardToggleAsync(OfflinePlayer player, boolean toggle) {
+        ValidateParameter.validatePlayer(player);
         return db.updateAsync("UPDATE player_toggles SET scoreboard_toggle=? WHERE uuid=?", toggle ? 1 : 0, player.getUniqueId().toString());
     }
 
     @Override
     public boolean getScoreboardToggle(OfflinePlayer player) {
+        ValidateParameter.validatePlayer(player);
         return db.query(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT scoreboard_toggle FROM player_toggles WHERE uuid=?")) {
                 ps.setString(1, player.getUniqueId().toString());
@@ -152,12 +164,13 @@ public class ToggleAPIImpl implements IToggleAPI {
                     if (rs.next()) return rs.getInt("scoreboard_toggle") == 1;
                 }
             }
-            return true; // Default true
+            return true;
         });
     }
 
     @Override
     public CompletableFuture<Boolean> getScoreboardToggleAsync(OfflinePlayer player) {
+        ValidateParameter.validatePlayer(player);
         return db.queryAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT scoreboard_toggle FROM player_toggles WHERE uuid=?")) {
                 ps.setString(1, player.getUniqueId().toString());

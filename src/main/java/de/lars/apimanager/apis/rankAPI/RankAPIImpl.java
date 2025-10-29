@@ -2,6 +2,7 @@ package de.lars.apimanager.apis.rankAPI;
 
 import de.lars.apimanager.Main;
 import de.lars.apimanager.database.DatabaseManager;
+import de.lars.apimanager.utils.ValidateParameter;
 import org.bukkit.OfflinePlayer;
 
 import java.sql.PreparedStatement;
@@ -22,7 +23,7 @@ public class RankAPIImpl implements IRankAPI {
         db.update("""
             CREATE TABLE IF NOT EXISTS player_ranks (
                 uuid CHAR(36) NOT NULL PRIMARY KEY,
-                rank_id INT DEFAULT 0,
+                rank_id INT NOT NULL DEFAULT 0,
                 expires_at TIMESTAMP NULL,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -51,6 +52,7 @@ public class RankAPIImpl implements IRankAPI {
 
     @Override
     public Timestamp getCreatedAt(OfflinePlayer player) {
+        ValidateParameter.validatePlayer(player);
         return db.query(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT created_at FROM player_ranks WHERE uuid = ?")) {
                 ps.setString(1, player.getUniqueId().toString());
@@ -64,6 +66,7 @@ public class RankAPIImpl implements IRankAPI {
 
     @Override
     public CompletableFuture<Timestamp> getCreatedAtAsync(OfflinePlayer player) {
+        ValidateParameter.validatePlayer(player);
         return db.queryAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT created_at FROM player_ranks WHERE uuid = ?")) {
                 ps.setString(1, player.getUniqueId().toString());
@@ -77,6 +80,7 @@ public class RankAPIImpl implements IRankAPI {
 
     @Override
     public Timestamp getUpdatedAt(OfflinePlayer player) {
+        ValidateParameter.validatePlayer(player);
         return db.query(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT updated_at FROM player_ranks WHERE uuid = ?")) {
                 ps.setString(1, player.getUniqueId().toString());
@@ -90,6 +94,7 @@ public class RankAPIImpl implements IRankAPI {
 
     @Override
     public CompletableFuture<Timestamp> getUpdatedAtAsync(OfflinePlayer player) {
+        ValidateParameter.validatePlayer(player);
         return db.queryAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT updated_at FROM player_ranks WHERE uuid = ?")) {
                 ps.setString(1, player.getUniqueId().toString());
@@ -102,8 +107,8 @@ public class RankAPIImpl implements IRankAPI {
     }
 
     @Override
-    public void setRank(OfflinePlayer player, Integer rankId, Integer days) {
-        if (player == null || rankId == null) return;
+    public void setRank(OfflinePlayer player, int rankId, Integer days) {
+        ValidateParameter.validatePlayer(player);
 
         Instant expires = (days != null && days > 0)
                 ? Instant.now().plus(days, ChronoUnit.DAYS)
@@ -119,8 +124,8 @@ public class RankAPIImpl implements IRankAPI {
     }
 
     @Override
-    public CompletableFuture<Void> setRankAsync(OfflinePlayer player, Integer rankId, Integer days) {
-        if (player == null || rankId == null) return CompletableFuture.completedFuture(null);
+    public CompletableFuture<Void> setRankAsync(OfflinePlayer player, int rankId, Integer days) {
+        ValidateParameter.validatePlayer(player);
 
         Instant expires = (days != null && days > 0)
                 ? Instant.now().plus(days, ChronoUnit.DAYS)
@@ -137,28 +142,33 @@ public class RankAPIImpl implements IRankAPI {
 
     @Override
     public void increaseRankDays(OfflinePlayer player, int daysToAdd) {
+        ValidateParameter.validatePlayer(player);
         if (daysToAdd > 0) shiftRankDays(player, daysToAdd);
     }
 
     @Override
     public CompletableFuture<Void> increaseRankDaysAsync(OfflinePlayer player, int daysToAdd) {
+        ValidateParameter.validatePlayer(player);
         if (daysToAdd <= 0) return CompletableFuture.completedFuture(null);
         return shiftRankDaysAsync(player, daysToAdd);
     }
 
     @Override
     public void decreaseRankDays(OfflinePlayer player, int daysToRemove) {
+        ValidateParameter.validatePlayer(player);
         if (daysToRemove > 0) shiftRankDays(player, -daysToRemove);
     }
 
     @Override
     public CompletableFuture<Void> decreaseRankDaysAsync(OfflinePlayer player, int daysToRemove) {
+        ValidateParameter.validatePlayer(player);
         if (daysToRemove <= 0) return CompletableFuture.completedFuture(null);
         return shiftRankDaysAsync(player, -daysToRemove);
     }
 
     @Override
     public Integer getRankId(OfflinePlayer player) {
+        ValidateParameter.validatePlayer(player);
         return db.query(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT rank_id FROM player_ranks WHERE uuid = ?")) {
                 ps.setString(1, player.getUniqueId().toString());
@@ -175,6 +185,7 @@ public class RankAPIImpl implements IRankAPI {
 
     @Override
     public CompletableFuture<Integer> getRankIdAsync(OfflinePlayer player) {
+        ValidateParameter.validatePlayer(player);
         return db.queryAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT rank_id FROM player_ranks WHERE uuid = ?")) {
                 ps.setString(1, player.getUniqueId().toString());
@@ -191,6 +202,7 @@ public class RankAPIImpl implements IRankAPI {
 
     @Override
     public Timestamp getExpiresAt(OfflinePlayer player) {
+        ValidateParameter.validatePlayer(player);
         return db.query(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT expires_at FROM player_ranks WHERE uuid = ?")) {
                 ps.setString(1, player.getUniqueId().toString());
@@ -204,6 +216,7 @@ public class RankAPIImpl implements IRankAPI {
 
     @Override
     public CompletableFuture<Timestamp> getExpiresAtAsync(OfflinePlayer player) {
+        ValidateParameter.validatePlayer(player);
         return db.queryAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT expires_at FROM player_ranks WHERE uuid = ?")) {
                 ps.setString(1, player.getUniqueId().toString());
@@ -216,6 +229,7 @@ public class RankAPIImpl implements IRankAPI {
     }
 
     private void shiftRankDays(OfflinePlayer player, int days) {
+        ValidateParameter.validatePlayer(player);
         if (days == 0) return;
 
         Timestamp current = db.query(conn -> {
@@ -239,6 +253,7 @@ public class RankAPIImpl implements IRankAPI {
     }
 
     private CompletableFuture<Void> shiftRankDaysAsync(OfflinePlayer player, int days) {
+        ValidateParameter.validatePlayer(player);
         if (days == 0) return CompletableFuture.completedFuture(null);
 
         return db.queryAsync(conn -> {
