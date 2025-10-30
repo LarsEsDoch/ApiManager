@@ -2,17 +2,17 @@ package de.lars.apimanager.apis.playerAPI;
 
 import org.bukkit.OfflinePlayer;
 
-import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.concurrent.CompletableFuture;
 
 public interface IPlayerAPI {
-    Timestamp getCreatedAt(OfflinePlayer player);
+    Instant getCreatedAt(OfflinePlayer player);
 
-    CompletableFuture<Timestamp> getCreatedAtAsync(OfflinePlayer player);
+    CompletableFuture<Instant> getCreatedAtAsync(OfflinePlayer player);
 
-    Timestamp getUpdatedAt(OfflinePlayer player);
+    Instant getUpdatedAt(OfflinePlayer player);
 
-    CompletableFuture<Timestamp> getUpdatedAtAsync(OfflinePlayer player);
+    CompletableFuture<Instant> getUpdatedAtAsync(OfflinePlayer player);
 
     String getName(OfflinePlayer player);
 
@@ -34,7 +34,7 @@ public interface IPlayerAPI {
 
     CompletableFuture<Boolean> isOnlineAsync(OfflinePlayer player);
 
-    Timestamp getLastSeen(OfflinePlayer player);
+    Instant getLastSeen(OfflinePlayer player);
 
-    CompletableFuture<Timestamp> getLastSeenAsync(OfflinePlayer player);
+    CompletableFuture<Instant> getLastSeenAsync(OfflinePlayer player);
 }
