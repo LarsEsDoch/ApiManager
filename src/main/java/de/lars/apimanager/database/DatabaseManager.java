@@ -2,7 +2,7 @@ package de.lars.apimanager.database;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import de.lars.apimanager.Main;
+import de.lars.apimanager.ApiManager;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -47,7 +47,7 @@ public class DatabaseManager {
         this.dataSource = new HikariDataSource(config);
         this.asyncExecutor = CompletableFuture.delayedExecutor(0, java.util.concurrent.TimeUnit.MILLISECONDS);
 
-        Main.getInstance().getLogger().info("Connected to MariaDB via HikariCP");
+        ApiManager.getInstance().getLogger().info("Connected to MariaDB via HikariCP");
     }
 
     public Connection getConnection() throws SQLException {
@@ -57,7 +57,7 @@ public class DatabaseManager {
     public void close() {
         if (dataSource != null && !dataSource.isClosed()) {
             dataSource.close();
-            Main.getInstance().getLogger().info("HikariCP pool closed.");
+            ApiManager.getInstance().getLogger().info("HikariCP pool closed.");
         }
     }
 
@@ -67,7 +67,7 @@ public class DatabaseManager {
             setParams(ps, params);
             ps.executeUpdate();
         } catch (SQLException e) {
-            Main.getInstance().getLogger().log(Level.SEVERE, "SQL update failed: " + sql, e);
+            ApiManager.getInstance().getLogger().log(Level.SEVERE, "SQL update failed: " + sql, e);
         }
     }
 
@@ -79,7 +79,7 @@ public class DatabaseManager {
         try (Connection conn = getConnection()) {
             return function.apply(conn);
         } catch (SQLException e) {
-            Main.getInstance().getLogger().log(Level.SEVERE, "SQL query failed", e);
+            ApiManager.getInstance().getLogger().log(Level.SEVERE, "SQL query failed", e);
             return null;
         }
     }
