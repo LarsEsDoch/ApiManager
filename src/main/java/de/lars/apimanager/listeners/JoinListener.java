@@ -1,6 +1,6 @@
 package de.lars.apimanager.listeners;
 
-import de.lars.apimanager.Main;
+import de.lars.apimanager.ApiManager;
 import de.lars.apimanager.apis.backpackAPI.BackpackAPIImpl;
 import de.lars.apimanager.apis.banAPI.BanAPIImpl;
 import de.lars.apimanager.apis.coinAPI.CoinAPIImpl;
@@ -22,20 +22,20 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 
 public class JoinListener implements Listener {
-    PlayerAPIImpl playerAPI = Main.getInstance().getPlayerAPI();
-    LanguageAPIImpl languageAPI = Main.getInstance().getLanguageAPI();
-    BackpackAPIImpl backpackAPI = Main.getInstance().getBackpackAPI();
-    LimitAPIImpl limitAPI = Main.getInstance().getLimitAPI();
-    BanAPIImpl banAPI = Main.getInstance().getBanAPI();
-    CourtAPIImpl courtAPI = Main.getInstance().getCourtAPI();
-    RankAPIImpl rankAPI = Main.getInstance().getRankAPI();
-    PrefixAPIImpl prefixAPI = Main.getInstance().getPrefixAPI();
-    StatusAPIImpl statusAPI = Main.getInstance().getStatusAPI();
-    NickAPIImpl nickAPI = Main.getInstance().getNickAPI();
-    ToggleAPIImpl toggleAPI = Main.getInstance().getToggleAPI();
-    CoinAPIImpl coinAPI = Main.getInstance().getCoinAPI();
-    QuestAPIImpl questAPI = Main.getInstance().getQuestAPI();
-    TimerAPIImpl timerAPI = Main.getInstance().getTimerAPI();
+    PlayerAPIImpl playerAPI = ApiManager.getInstance().getPlayerAPI();
+    LanguageAPIImpl languageAPI = ApiManager.getInstance().getLanguageAPI();
+    BackpackAPIImpl backpackAPI = ApiManager.getInstance().getBackpackAPI();
+    LimitAPIImpl limitAPI = ApiManager.getInstance().getLimitAPI();
+    BanAPIImpl banAPI = ApiManager.getInstance().getBanAPI();
+    CourtAPIImpl courtAPI = ApiManager.getInstance().getCourtAPI();
+    RankAPIImpl rankAPI = ApiManager.getInstance().getRankAPI();
+    PrefixAPIImpl prefixAPI = ApiManager.getInstance().getPrefixAPI();
+    StatusAPIImpl statusAPI = ApiManager.getInstance().getStatusAPI();
+    NickAPIImpl nickAPI = ApiManager.getInstance().getNickAPI();
+    ToggleAPIImpl toggleAPI = ApiManager.getInstance().getToggleAPI();
+    CoinAPIImpl coinAPI = ApiManager.getInstance().getCoinAPI();
+    QuestAPIImpl questAPI = ApiManager.getInstance().getQuestAPI();
+    TimerAPIImpl timerAPI = ApiManager.getInstance().getTimerAPI();
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onJoin(PlayerJoinEvent e) {
@@ -43,7 +43,7 @@ public class JoinListener implements Listener {
 
         if (!playerAPI.doesUserExist(player)) {
             playerAPI.initPlayer(player);
-            playerAPI.setOnlineAsync(player, true);
+            playerAPI.setOnline(player, true);
         }
 
         if (!languageAPI.doesUserExist(player)) {
