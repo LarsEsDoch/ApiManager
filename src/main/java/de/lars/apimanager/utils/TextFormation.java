@@ -9,8 +9,8 @@ import java.util.Set;
 import static net.kyori.adventure.text.format.NamedTextColor.*;
 
 public class TextFormation {
-    public static NamedTextColor getNamedTextColor(Integer prefixID) {
-        return switch (prefixID) {
+    public static NamedTextColor getNamedTextColor(Integer color) {
+        return switch (color) {
             case 0 -> BLACK;
             case 1 -> DARK_BLUE;
             case 2 -> DARK_GREEN;
