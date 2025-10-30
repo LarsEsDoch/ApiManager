@@ -37,8 +37,8 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
-public final class Main extends JavaPlugin {
-    private static Main instance;
+public final class ApiManager extends JavaPlugin {
+    private static ApiManager instance;
     private DatabaseManager databaseManager;
 
     private ServerSettingsAPIImpl serverSettingsAPI;
@@ -157,13 +157,13 @@ public final class Main extends JavaPlugin {
                 .append(Component.text("[", NamedTextColor.DARK_GRAY))
                 .append(Component.text("ApiManager", NamedTextColor.GOLD))
                 .append(Component.text("]", NamedTextColor.DARK_GRAY))
-                .append(Component.text(" Database successfully disdonnected!", NamedTextColor.DARK_GREEN))
+                .append(Component.text(" Database successfully disdonnected!", NamedTextColor.GREEN))
                 .build();
 
         Bukkit.getConsoleSender().sendMessage(message);
     }
 
-    public static Main getInstance() {
+    public static ApiManager getInstance() {
         return instance;
     }
 
