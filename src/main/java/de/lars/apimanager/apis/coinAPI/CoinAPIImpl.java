@@ -1,23 +1,24 @@
 package de.lars.apimanager.apis.coinAPI;
 
-import de.lars.apimanager.Main;
+import de.lars.apimanager.ApiManager;
 import de.lars.apimanager.database.DatabaseManager;
 import de.lars.apimanager.utils.ValidateParameter;
 import org.bukkit.OfflinePlayer;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 public class CoinAPIImpl implements ICoinAPI {
     private final DatabaseManager db;
 
     public CoinAPIImpl() {
-        this.db = Main.getInstance().getDatabaseManager();
+        this.db = ApiManager.getInstance().getDatabaseManager();
     }
 
     public void createTables() {
@@ -52,15 +53,15 @@ public class CoinAPIImpl implements ICoinAPI {
     }
 
     @Override
-    public Timestamp getCreatedAt(OfflinePlayer player) {
+    public Instant getCreatedAt(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
         return db.query(conn -> {
             try (PreparedStatement ps = conn.prepareStatement(
-                     "SELECT created_at FROM player_coins WHERE uuid = ?"
+                     "SELECT created_at FROM player_coins WHERE uuid = ? LIMIT 1"
                  )) {
                 ps.setString(1, player.getUniqueId().toString());
                 try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) return rs.getTimestamp("created_at");
+                    if (rs.next()) return rs.getTimestamp("created_at").toInstant();
                     return null;
                 }
             }
@@ -68,15 +69,15 @@ public class CoinAPIImpl implements ICoinAPI {
     }
 
     @Override
-    public CompletableFuture<Timestamp> getCreatedAtAsync(OfflinePlayer player) {
+    public CompletableFuture<Instant> getCreatedAtAsync(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
         return db.queryAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement(
-                     "SELECT created_at FROM player_coins WHERE uuid = ?"
+                     "SELECT created_at FROM player_coins WHERE uuid = ? LIMIT 1"
                  )) {
                 ps.setString(1, player.getUniqueId().toString());
                 try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) return rs.getTimestamp("created_at");
+                    if (rs.next()) return rs.getTimestamp("created_at").toInstant();
                     return null;
                 }
             }
@@ -84,15 +85,15 @@ public class CoinAPIImpl implements ICoinAPI {
     }
 
     @Override
-    public Timestamp getUpdatedAt(OfflinePlayer player) {
+    public Instant getUpdatedAt(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
         return db.query(conn -> {
             try (PreparedStatement ps = conn.prepareStatement(
-                     "SELECT updated_at FROM player_coins WHERE uuid = ?"
+                     "SELECT updated_at FROM player_coins WHERE uuid = ? LIMIT 1"
                  )) {
                 ps.setString(1, player.getUniqueId().toString());
                 try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) return rs.getTimestamp("updated_at");
+                    if (rs.next()) return rs.getTimestamp("updated_at").toInstant();
                     return null;
                 }
             }
@@ -100,15 +101,15 @@ public class CoinAPIImpl implements ICoinAPI {
     }
 
     @Override
-    public CompletableFuture<Timestamp> getUpdatedAtAsync(OfflinePlayer player) {
+    public CompletableFuture<Instant> getUpdatedAtAsync(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
         return db.queryAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement(
-                     "SELECT updated_at FROM player_coins WHERE uuid = ?"
+                     "SELECT updated_at FROM player_coins WHERE uuid = ? LIMIT 1"
                  )) {
                 ps.setString(1, player.getUniqueId().toString());
                 try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) return rs.getTimestamp("updated_at");
+                    if (rs.next()) return rs.getTimestamp("updated_at").toInstant();
                     return null;
                 }
             }
@@ -182,9 +183,13 @@ public class CoinAPIImpl implements ICoinAPI {
     @Override
     public void addGift(OfflinePlayer player, int gift) {
         ValidateParameter.validatePlayer(player);
-        List<String> gifts = new ArrayList<>(getGifts(player));
-        gifts.add(String.valueOf(gift));
-        String giftString = String.join(",", gifts);
+        List<Integer> gifts = new ArrayList<>(getGifts(player));
+        gifts.add(gift);
+
+        String giftString = gifts.stream()
+            .map(String::valueOf)
+            .collect(Collectors.joining(","));
+
         db.update("UPDATE player_coins SET gifts=? WHERE uuid=?", giftString, player.getUniqueId().toString());
     }
 
@@ -192,8 +197,12 @@ public class CoinAPIImpl implements ICoinAPI {
     public CompletableFuture<Void> addGiftAsync(OfflinePlayer player, int gift) {
         ValidateParameter.validatePlayer(player);
         return getGiftsAsync(player).thenCompose(gifts -> {
-            gifts.add(String.valueOf(gift));
-            String giftString = String.join(",", gifts);
+            gifts.add(gift);
+
+            String giftString = gifts.stream()
+                .map(String::valueOf)
+                .collect(Collectors.joining(","));
+
             return db.updateAsync("UPDATE player_coins SET gifts=? WHERE uuid=?", giftString, player.getUniqueId().toString());
         });
     }
@@ -201,9 +210,13 @@ public class CoinAPIImpl implements ICoinAPI {
     @Override
     public void removeGift(OfflinePlayer player, int gift) {
         ValidateParameter.validatePlayer(player);
-        List<String> gifts = new ArrayList<>(getGifts(player));
-        gifts.remove(String.valueOf(gift));
-        String giftString = String.join(",", gifts);
+        List<Integer> gifts = new ArrayList<>(getGifts(player));
+        gifts.remove(Integer.valueOf(gift)); // Important: remove by value, not index
+
+        String giftString = gifts.stream()
+            .map(String::valueOf)
+            .collect(Collectors.joining(","));
+
         db.update("UPDATE player_coins SET gifts=? WHERE uuid=?", giftString, player.getUniqueId().toString());
     }
 
@@ -211,14 +224,18 @@ public class CoinAPIImpl implements ICoinAPI {
     public CompletableFuture<Void> removeGiftAsync(OfflinePlayer player, int gift) {
         ValidateParameter.validatePlayer(player);
         return getGiftsAsync(player).thenCompose(gifts -> {
-            gifts.remove(String.valueOf(gift));
-            String giftString = String.join(",", gifts);
+            gifts.remove(Integer.valueOf(gift)); // Important fix
+
+            String giftString = gifts.stream()
+                .map(String::valueOf)
+                .collect(Collectors.joining(","));
+
             return db.updateAsync("UPDATE player_coins SET gifts=? WHERE uuid=?", giftString, player.getUniqueId().toString());
         });
     }
 
     @Override
-    public List<String> getGifts(OfflinePlayer player) {
+    public List<Integer> getGifts(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
         return db.query(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT gifts FROM player_coins WHERE uuid=?")) {
@@ -227,7 +244,11 @@ public class CoinAPIImpl implements ICoinAPI {
                     if (rs.next()) {
                         String gifts = rs.getString("gifts");
                         if (gifts != null && !gifts.isEmpty()) {
-                            return new ArrayList<>(Arrays.asList(gifts.split(",")));
+                            return Arrays.stream(gifts.split(","))
+                                    .map(String::trim)
+                                    .filter(s -> !s.isEmpty())
+                                    .map(Integer::parseInt)
+                                    .collect(Collectors.toList());
                         }
                     }
                     return new ArrayList<>();
@@ -237,7 +258,7 @@ public class CoinAPIImpl implements ICoinAPI {
     }
 
     @Override
-    public CompletableFuture<List<String>> getGiftsAsync(OfflinePlayer player) {
+    public CompletableFuture<List<Integer>> getGiftsAsync(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
         return db.queryAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT gifts FROM player_coins WHERE uuid=?")) {
@@ -246,7 +267,11 @@ public class CoinAPIImpl implements ICoinAPI {
                     if (rs.next()) {
                         String gifts = rs.getString("gifts");
                         if (gifts != null && !gifts.isEmpty()) {
-                            return new ArrayList<>(Arrays.asList(gifts.split(",")));
+                            return Arrays.stream(gifts.split(","))
+                                    .map(String::trim)
+                                    .filter(s -> !s.isEmpty())
+                                    .map(Integer::parseInt)
+                                    .collect(Collectors.toList());
                         }
                     }
                     return new ArrayList<>();

@@ -2,18 +2,18 @@ package de.lars.apimanager.apis.coinAPI;
 
 import org.bukkit.OfflinePlayer;
 
-import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public interface ICoinAPI {
-    Timestamp getCreatedAt(OfflinePlayer player);
+    Instant getCreatedAt(OfflinePlayer player);
 
-    CompletableFuture<Timestamp> getCreatedAtAsync(OfflinePlayer player);
+    CompletableFuture<Instant> getCreatedAtAsync(OfflinePlayer player);
 
-    Timestamp getUpdatedAt(OfflinePlayer player);
+    Instant getUpdatedAt(OfflinePlayer player);
 
-    CompletableFuture<Timestamp> getUpdatedAtAsync(OfflinePlayer player);
+    CompletableFuture<Instant> getUpdatedAtAsync(OfflinePlayer player);
 
     void setCoins(OfflinePlayer player, int amount);
 
@@ -31,8 +31,6 @@ public interface ICoinAPI {
 
     CompletableFuture<Integer> getCoinsAsync(OfflinePlayer player);
 
-    List<String> getGifts(OfflinePlayer player);
-
     void addGift(OfflinePlayer player, int gift);
 
     CompletableFuture<Void> addGiftAsync(OfflinePlayer player, int gift);
@@ -41,5 +39,7 @@ public interface ICoinAPI {
 
     CompletableFuture<Void> removeGiftAsync(OfflinePlayer player, int gift);
 
-    CompletableFuture<List<String>> getGiftsAsync(OfflinePlayer player);
+    List<Integer> getGifts(OfflinePlayer player);
+
+    CompletableFuture<List<Integer>> getGiftsAsync(OfflinePlayer player);
 }
