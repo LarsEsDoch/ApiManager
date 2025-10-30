@@ -1,6 +1,6 @@
 package de.lars.apimanager.apis.homeAPI;
 
-import de.lars.apimanager.Main;
+import de.lars.apimanager.ApiManager;
 import de.lars.apimanager.database.DatabaseManager;
 import de.lars.apimanager.utils.ValidateParameter;
 import org.bukkit.Bukkit;
@@ -9,7 +9,7 @@ import org.bukkit.OfflinePlayer;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -19,7 +19,7 @@ public class HomeAPIImpl implements IHomeAPI {
     private final DatabaseManager db;
 
     public HomeAPIImpl() {
-        this.db = Main.getInstance().getDatabaseManager();
+        this.db = ApiManager.getInstance().getDatabaseManager();
     }
 
     public void createTables() {
@@ -29,7 +29,7 @@ public class HomeAPIImpl implements IHomeAPI {
                 uuid CHAR(36) NOT NULL,
                 name VARCHAR(255) NOT NULL,
                 location VARCHAR(255) NOT NULL,
-                is_public TINYINT(1) DEFAULT 0,
+                is_public BOOLEAN DEFAULT FALSE,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                 FOREIGN KEY (uuid) REFERENCES players(uuid) ON DELETE CASCADE,
@@ -39,14 +39,14 @@ public class HomeAPIImpl implements IHomeAPI {
     }
 
     @Override
-    public Timestamp getCreatedAt(int homeId) {
+    public Instant getCreatedAt(int homeId) {
         return db.query(conn -> {
             try (PreparedStatement ps = conn.prepareStatement(
                      "SELECT created_at FROM player_homes WHERE id = ?"
                  )) {
                 ps.setInt(1, homeId);
                 try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) return rs.getTimestamp("created_at");
+                    if (rs.next()) return rs.getTimestamp("created_at").toInstant();
                     return null;
                 }
             }
@@ -54,14 +54,14 @@ public class HomeAPIImpl implements IHomeAPI {
     }
 
     @Override
-    public CompletableFuture<Timestamp> getCreatedAtAsync(int homeId) {
+    public CompletableFuture<Instant> getCreatedAtAsync(int homeId) {
         return db.queryAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement(
                      "SELECT created_at FROM player_homes WHERE id = ?"
                  )) {
                 ps.setInt(1, homeId);
                 try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) return rs.getTimestamp("created_at");
+                    if (rs.next()) return rs.getTimestamp("created_at").toInstant();
                     return null;
                 }
             }
@@ -69,14 +69,14 @@ public class HomeAPIImpl implements IHomeAPI {
     }
 
     @Override
-    public Timestamp getUpdatedAt(int homeId) {
+    public Instant getUpdatedAt(int homeId) {
         return db.query(conn -> {
             try (PreparedStatement ps = conn.prepareStatement(
                      "SELECT updated_at FROM player_homes WHERE id = ?"
                  )) {
                 ps.setInt(1, homeId);
                 try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) return rs.getTimestamp("updated_at");
+                    if (rs.next()) return rs.getTimestamp("updated_at").toInstant();
                     return null;
                 }
             }
@@ -84,14 +84,14 @@ public class HomeAPIImpl implements IHomeAPI {
     }
 
     @Override
-    public CompletableFuture<Timestamp> getUpdatedAtAsync(int homeId) {
+    public CompletableFuture<Instant> getUpdatedAtAsync(int homeId) {
         return db.queryAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement(
                      "SELECT updated_at FROM player_homes WHERE id = ?"
                  )) {
                 ps.setInt(1, homeId);
                 try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) return rs.getTimestamp("updated_at");
+                    if (rs.next()) return rs.getTimestamp("updated_at").toInstant();
                     return null;
                 }
             }
@@ -106,7 +106,7 @@ public class HomeAPIImpl implements IHomeAPI {
         db.update("""
             INSERT INTO player_homes (uuid, name, location, is_public)
             VALUES (?, ?, ?, ?)
-        """, player.getUniqueId().toString(), name, serializeLocation(location), isPublic ? 1 : 0);
+        """, player.getUniqueId().toString(), name, serializeLocation(location), isPublic);
     }
 
     @Override
@@ -117,7 +117,7 @@ public class HomeAPIImpl implements IHomeAPI {
         return db.updateAsync("""
             INSERT INTO player_homes (uuid, name, location, is_public)
             VALUES (?, ?, ?, ?)
-        """, player.getUniqueId().toString(), name, serializeLocation(location), isPublic ? 1 : 0);
+        """, player.getUniqueId().toString(), name, serializeLocation(location), isPublic);
     }
 
     @Override
@@ -144,12 +144,12 @@ public class HomeAPIImpl implements IHomeAPI {
 
     @Override
     public void setHomePublic(int homeId, boolean isPublic) {
-        db.update("UPDATE player_homes SET is_public = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?", isPublic ? 1 : 0, homeId);
+        db.update("UPDATE player_homes SET is_public = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?", isPublic, homeId);
     }
 
     @Override
     public CompletableFuture<Void> setHomePublicAsync(int homeId, boolean isPublic) {
-        return db.updateAsync("UPDATE player_homes SET is_public = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?", isPublic ? 1 : 0, homeId);
+        return db.updateAsync("UPDATE player_homes SET is_public = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?", isPublic, homeId);
     }
 
     @Override
@@ -170,7 +170,7 @@ public class HomeAPIImpl implements IHomeAPI {
         return db.query(conn -> {
             List<String> homes = new ArrayList<>();
             try (PreparedStatement ps = conn.prepareStatement(
-                    "SELECT name FROM player_homes WHERE uuid = ? OR is_public = 1")) {
+                    "SELECT name FROM player_homes WHERE uuid = ? OR is_public = TRUE")) {
                 ps.setString(1, player.getUniqueId().toString());
                 try (ResultSet rs = ps.executeQuery()) {
                     while (rs.next()) homes.add(rs.getString("name"));
@@ -186,7 +186,7 @@ public class HomeAPIImpl implements IHomeAPI {
         return db.queryAsync(conn -> {
             List<String> homes = new ArrayList<>();
             try (PreparedStatement ps = conn.prepareStatement(
-                    "SELECT name FROM player_homes WHERE uuid = ? OR is_public = 1")) {
+                    "SELECT name FROM player_homes WHERE uuid = ? OR is_public = TRUE")) {
                 ps.setString(1, player.getUniqueId().toString());
                 try (ResultSet rs = ps.executeQuery()) {
                     while (rs.next()) homes.add(rs.getString("name"));
@@ -202,7 +202,7 @@ public class HomeAPIImpl implements IHomeAPI {
         return db.query(conn -> {
             List<String> homes = new ArrayList<>();
             try (PreparedStatement ps = conn.prepareStatement(
-                    "SELECT name FROM player_homes WHERE uuid = ?")) {
+                    "SELECT name FROM player_homes WHERE uuid = ? LIMIT 1")) {
                 ps.setString(1, player.getUniqueId().toString());
                 try (ResultSet rs = ps.executeQuery()) {
                     while (rs.next()) homes.add(rs.getString("name"));
@@ -218,7 +218,7 @@ public class HomeAPIImpl implements IHomeAPI {
         return db.queryAsync(conn -> {
             List<String> homes = new ArrayList<>();
             try (PreparedStatement ps = conn.prepareStatement(
-                    "SELECT name FROM player_homes WHERE uuid = ?")) {
+                    "SELECT name FROM player_homes WHERE uuid = ? LIMIT 1")) {
                 ps.setString(1, player.getUniqueId().toString());
                 try (ResultSet rs = ps.executeQuery()) {
                     while (rs.next()) homes.add(rs.getString("name"));
@@ -350,7 +350,7 @@ public class HomeAPIImpl implements IHomeAPI {
         ValidateParameter.validateName(name);
         return db.query(conn -> {
             try (PreparedStatement ps = conn.prepareStatement(
-                    "SELECT id FROM player_homes WHERE (uuid = ? OR is_public = 1) AND name = ? LIMIT 1")) {
+                    "SELECT id FROM player_homes WHERE (uuid = ? OR is_public = TRUE) AND name = ? LIMIT 1")) {
                 ps.setString(1, player.getUniqueId().toString());
                 ps.setString(2, name);
                 try (ResultSet rs = ps.executeQuery()) {
@@ -367,7 +367,7 @@ public class HomeAPIImpl implements IHomeAPI {
         ValidateParameter.validateName(name);
         return db.queryAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement(
-                    "SELECT id FROM player_homes WHERE (uuid = ? OR is_public = 1) AND name = ? LIMIT 1")) {
+                    "SELECT id FROM player_homes WHERE (uuid = ? OR is_public = TRUE) AND name = ? LIMIT 1")) {
                 ps.setString(1, player.getUniqueId().toString());
                 ps.setString(2, name);
                 try (ResultSet rs = ps.executeQuery()) {

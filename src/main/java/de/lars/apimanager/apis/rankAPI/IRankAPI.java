@@ -2,17 +2,17 @@ package de.lars.apimanager.apis.rankAPI;
 
 import org.bukkit.OfflinePlayer;
 
-import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.concurrent.CompletableFuture;
 
 public interface IRankAPI {
-    Timestamp getCreatedAt(OfflinePlayer player);
+    Instant getCreatedAt(OfflinePlayer player);
 
-    CompletableFuture<Timestamp> getCreatedAtAsync(OfflinePlayer player);
+    CompletableFuture<Instant> getCreatedAtAsync(OfflinePlayer player);
 
-    Timestamp getUpdatedAt(OfflinePlayer player);
+    Instant getUpdatedAt(OfflinePlayer player);
 
-    CompletableFuture<Timestamp> getUpdatedAtAsync(OfflinePlayer player);
+    CompletableFuture<Instant> getUpdatedAtAsync(OfflinePlayer player);
 
     void setRank(OfflinePlayer player, int rankId, Integer days);
 
@@ -30,7 +30,7 @@ public interface IRankAPI {
 
     CompletableFuture<Integer> getRankIdAsync(OfflinePlayer player);
 
-    Timestamp getExpiresAt(OfflinePlayer player);
+    Instant getExpiresAt(OfflinePlayer player);
 
-    CompletableFuture<Timestamp> getExpiresAtAsync(OfflinePlayer player);
+    CompletableFuture<Instant> getExpiresAtAsync(OfflinePlayer player);
 }

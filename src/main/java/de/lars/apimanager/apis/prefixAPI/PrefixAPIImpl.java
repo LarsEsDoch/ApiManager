@@ -1,6 +1,6 @@
 package de.lars.apimanager.apis.prefixAPI;
 
-import de.lars.apimanager.Main;
+import de.lars.apimanager.ApiManager;
 import de.lars.apimanager.database.DatabaseManager;
 import de.lars.apimanager.utils.TextFormation;
 import de.lars.apimanager.utils.ValidateParameter;
@@ -10,7 +10,7 @@ import org.bukkit.OfflinePlayer;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -20,7 +20,7 @@ public class PrefixAPIImpl implements IPrefixAPI {
     private final DatabaseManager db;
 
     public PrefixAPIImpl() {
-        this.db = Main.getInstance().getDatabaseManager();
+        this.db = ApiManager.getInstance().getDatabaseManager();
     }
 
     public void createTables() {
@@ -55,13 +55,13 @@ public class PrefixAPIImpl implements IPrefixAPI {
     }
 
     @Override
-    public Timestamp getCreatedAt(OfflinePlayer player) {
+    public Instant getCreatedAt(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
         return db.query(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT created_at FROM player_prefixes WHERE uuid = ?")) {
+            try (PreparedStatement ps = conn.prepareStatement("SELECT created_at FROM player_prefixes WHERE uuid = ? LIMIT 1")) {
                 ps.setString(1, player.getUniqueId().toString());
                 try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) return rs.getTimestamp("created_at");
+                    if (rs.next()) return rs.getTimestamp("created_at").toInstant();
                     return null;
                 }
             }
@@ -69,13 +69,13 @@ public class PrefixAPIImpl implements IPrefixAPI {
     }
 
     @Override
-    public CompletableFuture<Timestamp> getCreatedAtAsync(OfflinePlayer player) {
+    public CompletableFuture<Instant> getCreatedAtAsync(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
         return db.queryAsync(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT created_at FROM player_prefixes WHERE uuid = ?")) {
+            try (PreparedStatement ps = conn.prepareStatement("SELECT created_at FROM player_prefixes WHERE uuid = ? LIMIT 1")) {
                 ps.setString(1, player.getUniqueId().toString());
                 try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) return rs.getTimestamp("created_at");
+                    if (rs.next()) return rs.getTimestamp("created_at").toInstant();
                     return null;
                 }
             }
@@ -83,13 +83,13 @@ public class PrefixAPIImpl implements IPrefixAPI {
     }
 
     @Override
-    public Timestamp getUpdatedAt(OfflinePlayer player) {
+    public Instant getUpdatedAt(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
         return db.query(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT updated_at FROM player_prefixes WHERE uuid = ?")) {
+            try (PreparedStatement ps = conn.prepareStatement("SELECT updated_at FROM player_prefixes WHERE uuid = ? LIMIT 1")) {
                 ps.setString(1, player.getUniqueId().toString());
                 try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) return rs.getTimestamp("updated_at");
+                    if (rs.next()) return rs.getTimestamp("updated_at").toInstant();
                     return null;
                 }
             }
@@ -97,13 +97,13 @@ public class PrefixAPIImpl implements IPrefixAPI {
     }
 
     @Override
-    public CompletableFuture<Timestamp> getUpdatedAtAsync(OfflinePlayer player) {
+    public CompletableFuture<Instant> getUpdatedAtAsync(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
         return db.queryAsync(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT updated_at FROM player_prefixes WHERE uuid = ?")) {
+            try (PreparedStatement ps = conn.prepareStatement("SELECT updated_at FROM player_prefixes WHERE uuid = ? LIMIT 1")) {
                 ps.setString(1, player.getUniqueId().toString());
                 try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) return rs.getTimestamp("updated_at");
+                    if (rs.next()) return rs.getTimestamp("updated_at").toInstant();
                     return null;
                 }
             }
@@ -114,7 +114,7 @@ public class PrefixAPIImpl implements IPrefixAPI {
     public void setColor(OfflinePlayer player, NamedTextColor color) {
         ValidateParameter.validatePlayer(player);
         ValidateParameter.validateNamedTextColor(color);
-        db.update("UPDATE player_prefixes SET color = ? WHERE uuid = ?",
+        db.update("UPDATE player_prefixes SET color = ? WHERE uuid = ? LIMIT 1",
                 TextFormation.getColorId(color), player.getUniqueId().toString());
     }
 
@@ -122,7 +122,7 @@ public class PrefixAPIImpl implements IPrefixAPI {
     public CompletableFuture<Void> setColorAsync(OfflinePlayer player, NamedTextColor color) {
         ValidateParameter.validatePlayer(player);
         ValidateParameter.validateNamedTextColor(color);
-        return db.updateAsync("UPDATE player_prefixes SET color = ? WHERE uuid = ?",
+        return db.updateAsync("UPDATE player_prefixes SET color = ? WHERE uuid = ? LIMIT 1",
                         TextFormation.getColorId(color), player.getUniqueId().toString());
     }
 
@@ -130,7 +130,7 @@ public class PrefixAPIImpl implements IPrefixAPI {
     public NamedTextColor getColor(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
         return TextFormation.getNamedTextColor(Objects.requireNonNull(db.query(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT color FROM player_prefixes WHERE uuid = ?")) {
+            try (PreparedStatement ps = conn.prepareStatement("SELECT color FROM player_prefixes WHERE uuid = ? LIMIT 1")) {
                 ps.setString(1, player.getUniqueId().toString());
                 try (ResultSet rs = ps.executeQuery()) {
                     if (rs.next()) {
@@ -148,7 +148,7 @@ public class PrefixAPIImpl implements IPrefixAPI {
     public CompletableFuture<NamedTextColor> getColorAsync(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
         return db.queryAsync(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT color FROM player_prefixes WHERE uuid = ?")) {
+            try (PreparedStatement ps = conn.prepareStatement("SELECT color FROM player_prefixes WHERE uuid = ? LIMIT 1")) {
                 ps.setString(1, player.getUniqueId().toString());
                 try (ResultSet rs = ps.executeQuery()) {
                     if (rs.next()) {
@@ -244,7 +244,7 @@ public class PrefixAPIImpl implements IPrefixAPI {
     public Set<TextDecoration> getDecoration(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
         return db.query(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT decoration FROM player_prefixes WHERE uuid = ?")) {
+            try (PreparedStatement ps = conn.prepareStatement("SELECT decoration FROM player_prefixes WHERE uuid = ? LIMIT 1")) {
                 ps.setString(1, player.getUniqueId().toString());
                 try (ResultSet rs = ps.executeQuery()) {
                     if (rs.next()) {
@@ -261,7 +261,7 @@ public class PrefixAPIImpl implements IPrefixAPI {
     public CompletableFuture<Set<TextDecoration>> getDecorationAsync(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
         return db.queryAsync(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT decoration FROM player_prefixes WHERE uuid = ?")) {
+            try (PreparedStatement ps = conn.prepareStatement("SELECT decoration FROM player_prefixes WHERE uuid = ? LIMIT 1")) {
                 ps.setString(1, player.getUniqueId().toString());
                 try (ResultSet rs = ps.executeQuery()) {
                     if (rs.next()) {

@@ -3,18 +3,18 @@ package de.lars.apimanager.apis.homeAPI;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 
-import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public interface IHomeAPI {
-    Timestamp getCreatedAt(int homeId);
+    Instant getCreatedAt(int homeId);
 
-    CompletableFuture<Timestamp> getCreatedAtAsync(int homeId);
+    CompletableFuture<Instant> getCreatedAtAsync(int homeId);
 
-    Timestamp getUpdatedAt(int homeId);
+    Instant getUpdatedAt(int homeId);
 
-    CompletableFuture<Timestamp> getUpdatedAtAsync(int homeId);
+    CompletableFuture<Instant> getUpdatedAtAsync(int homeId);
 
     void createHome(OfflinePlayer player, String name, Location location, boolean isPublic);
 

@@ -6,7 +6,7 @@ import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 
-import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.Set;
 
 public class ValidateParameter {
@@ -82,9 +82,9 @@ public class ValidateParameter {
         }
     }
 
-    public static void validateTimestamp(Timestamp timestamp) {
-        if (timestamp == null) {
-            throw new IllegalArgumentException("Timestamp cannot be null");
+    public static void validateInstant(Instant instant) {
+        if (instant == null) {
+            throw new IllegalArgumentException("Instant cannot be null");
         }
     }
 }

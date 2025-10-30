@@ -1,20 +1,20 @@
 package de.lars.apimanager.apis.nickAPI;
 
-import de.lars.apimanager.Main;
+import de.lars.apimanager.ApiManager;
 import de.lars.apimanager.database.DatabaseManager;
 import de.lars.apimanager.utils.ValidateParameter;
 import org.bukkit.OfflinePlayer;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.concurrent.CompletableFuture;
 
 public class NickAPIImpl implements INickAPI {
     private final DatabaseManager db;
 
     public NickAPIImpl() {
-        this.db = Main.getInstance().getDatabaseManager();
+        this.db = ApiManager.getInstance().getDatabaseManager();
     }
 
     public void createTables() {
@@ -49,13 +49,13 @@ public class NickAPIImpl implements INickAPI {
     }
 
     @Override
-    public Timestamp getCreatedAt(OfflinePlayer player) {
+    public Instant getCreatedAt(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
         return db.query(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT created_at FROM player_nicknames WHERE uuid = ?")) {
+            try (PreparedStatement ps = conn.prepareStatement("SELECT created_at FROM player_nicknames WHERE uuid = ? LIMIT 1")) {
                 ps.setString(1, player.getUniqueId().toString());
                 try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) return rs.getTimestamp("created_at");
+                    if (rs.next()) return rs.getTimestamp("created_at").toInstant();
                     return null;
                 }
             }
@@ -63,13 +63,13 @@ public class NickAPIImpl implements INickAPI {
     }
 
     @Override
-    public CompletableFuture<Timestamp> getCreatedAtAsync(OfflinePlayer player) {
+    public CompletableFuture<Instant> getCreatedAtAsync(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
         return db.queryAsync(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT created_at FROM player_nicknames WHERE uuid = ?")) {
+            try (PreparedStatement ps = conn.prepareStatement("SELECT created_at FROM player_nicknames WHERE uuid = ? LIMIT 1")) {
                 ps.setString(1, player.getUniqueId().toString());
                 try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) return rs.getTimestamp("created_at");
+                    if (rs.next()) return rs.getTimestamp("created_at").toInstant();
                     return null;
                 }
             }
@@ -77,13 +77,13 @@ public class NickAPIImpl implements INickAPI {
     }
 
     @Override
-    public Timestamp getUpdatedAt(OfflinePlayer player) {
+    public Instant getUpdatedAt(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
         return db.query(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT updated_at FROM player_nicknames WHERE uuid = ?")) {
+            try (PreparedStatement ps = conn.prepareStatement("SELECT updated_at FROM player_nicknames WHERE uuid = ? LIMIT 1")) {
                 ps.setString(1, player.getUniqueId().toString());
                 try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) return rs.getTimestamp("updated_at");
+                    if (rs.next()) return rs.getTimestamp("updated_at").toInstant();
                     return null;
                 }
             }
@@ -91,13 +91,13 @@ public class NickAPIImpl implements INickAPI {
     }
 
     @Override
-    public CompletableFuture<Timestamp> getUpdatedAtAsync(OfflinePlayer player) {
+    public CompletableFuture<Instant> getUpdatedAtAsync(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
         return db.queryAsync(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT updated_at FROM player_nicknames WHERE uuid = ?")) {
+            try (PreparedStatement ps = conn.prepareStatement("SELECT updated_at FROM player_nicknames WHERE uuid = ? LIMIT 1")) {
                 ps.setString(1, player.getUniqueId().toString());
                 try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) return rs.getTimestamp("updated_at");
+                    if (rs.next()) return rs.getTimestamp("updated_at").toInstant();
                     return null;
                 }
             }

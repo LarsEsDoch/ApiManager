@@ -1,6 +1,6 @@
 package de.lars.apimanager.apis.backpackAPI;
 
-import de.lars.apimanager.Main;
+import de.lars.apimanager.ApiManager;
 import de.lars.apimanager.database.DatabaseManager;
 import de.lars.apimanager.utils.ValidateParameter;
 import org.bukkit.OfflinePlayer;
@@ -11,7 +11,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.Base64;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
@@ -22,7 +22,7 @@ public class BackpackAPIImpl implements IBackpackAPI {
     private final DatabaseManager db;
 
     public BackpackAPIImpl() {
-        this.db = Main.getInstance().getDatabaseManager();
+        this.db = ApiManager.getInstance().getDatabaseManager();
     }
 
     public void createTables() {
@@ -56,15 +56,15 @@ public class BackpackAPIImpl implements IBackpackAPI {
     }
 
     @Override
-    public Timestamp getCreatedAt(OfflinePlayer player) {
+    public Instant getCreatedAt(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
         return db.query(conn -> {
             try (PreparedStatement ps = conn.prepareStatement(
-                     "SELECT created_at FROM player_backpacks WHERE uuid = ?"
+                     "SELECT created_at FROM player_backpacks WHERE uuid = ? LIMIT 1"
                  )) {
                 ps.setString(1, player.getUniqueId().toString());
                 try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) return rs.getTimestamp("created_at");
+                    if (rs.next()) return rs.getTimestamp("created_at").toInstant();
                     return null;
                 }
             }
@@ -72,15 +72,15 @@ public class BackpackAPIImpl implements IBackpackAPI {
     }
 
     @Override
-    public CompletableFuture<Timestamp> getCreatedAtAsync(OfflinePlayer player) {
+    public CompletableFuture<Instant> getCreatedAtAsync(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
         return db.queryAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement(
-                     "SELECT created_at FROM player_backpacks WHERE uuid = ?"
+                     "SELECT created_at FROM player_backpacks WHERE uuid = ? LIMIT 1"
                  )) {
                 ps.setString(1, player.getUniqueId().toString());
                 try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) return rs.getTimestamp("created_at");
+                    if (rs.next()) return rs.getTimestamp("created_at").toInstant();
                     return null;
                 }
             }
@@ -88,15 +88,15 @@ public class BackpackAPIImpl implements IBackpackAPI {
     }
 
     @Override
-    public Timestamp getUpdatedAt(OfflinePlayer player) {
+    public Instant getUpdatedAt(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
         return db.query(conn -> {
             try (PreparedStatement ps = conn.prepareStatement(
-                     "SELECT updated_at FROM player_backpacks WHERE uuid = ?"
+                     "SELECT updated_at FROM player_backpacks WHERE uuid = ? LIMIT 1"
                  )) {
                 ps.setString(1, player.getUniqueId().toString());
                 try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) return rs.getTimestamp("updated_at");
+                    if (rs.next()) return rs.getTimestamp("updated_at").toInstant();
                     return null;
                 }
             }
@@ -104,15 +104,15 @@ public class BackpackAPIImpl implements IBackpackAPI {
     }
 
     @Override
-    public CompletableFuture<Timestamp> getUpdatedAtAsync(OfflinePlayer player) {
+    public CompletableFuture<Instant> getUpdatedAtAsync(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
         return db.queryAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement(
-                     "SELECT updated_at FROM player_backpacks WHERE uuid = ?"
+                     "SELECT updated_at FROM player_backpacks WHERE uuid = ? LIMIT 1"
                  )) {
                 ps.setString(1, player.getUniqueId().toString());
                 try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) return rs.getTimestamp("updated_at");
+                    if (rs.next()) return rs.getTimestamp("updated_at").toInstant();
                     return null;
                 }
             }
@@ -123,7 +123,7 @@ public class BackpackAPIImpl implements IBackpackAPI {
     public void setBackpack(OfflinePlayer player, String data) {
         ValidateParameter.validatePlayer(player);
         String compressed = compressToBase64(data);
-        db.update("UPDATE player_backpacks SET data = ? WHERE uuid = ?",
+        db.update("UPDATE player_backpacks SET data = ? WHERE uuid = ? LIMIT 1",
                 compressed, player.getUniqueId().toString());
     }
 
@@ -131,7 +131,7 @@ public class BackpackAPIImpl implements IBackpackAPI {
     public CompletableFuture<Void> setBackpackAsync(OfflinePlayer player, String data) {
         ValidateParameter.validatePlayer(player);
         String compressed = compressToBase64(data);
-        return db.updateAsync("UPDATE player_backpacks SET data = ? WHERE uuid = ?",
+        return db.updateAsync("UPDATE player_backpacks SET data = ? WHERE uuid = ? LIMIT 1",
                     compressed, player.getUniqueId().toString());
     }
 
@@ -139,7 +139,7 @@ public class BackpackAPIImpl implements IBackpackAPI {
     public String getBackpack(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
         return db.query(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT data FROM player_backpacks WHERE uuid = ?")) {
+            try (PreparedStatement ps = conn.prepareStatement("SELECT data FROM player_backpacks WHERE uuid = ? LIMIT 1")) {
                 ps.setString(1, player.getUniqueId().toString());
                 try (ResultSet rs = ps.executeQuery()) {
                     if (rs.next()) {
@@ -156,7 +156,7 @@ public class BackpackAPIImpl implements IBackpackAPI {
     public CompletableFuture<String> getBackpackAsync(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
         return db.queryAsync(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT data FROM player_backpacks WHERE uuid = ?")) {
+            try (PreparedStatement ps = conn.prepareStatement("SELECT data FROM player_backpacks WHERE uuid = ? LIMIT 1")) {
                 ps.setString(1, player.getUniqueId().toString());
                 try (ResultSet rs = ps.executeQuery()) {
                     if (rs.next()) {
@@ -177,7 +177,7 @@ public class BackpackAPIImpl implements IBackpackAPI {
             dos.finish();
             return Base64.getEncoder().encodeToString(bos.toByteArray());
         } catch (IOException e) {
-            Main.getInstance().getLogger().log(Level.WARNING, "Failed to compress backpack data", e);
+            ApiManager.getInstance().getLogger().log(Level.WARNING, "Failed to compress backpack data", e);
             return "";
         }
     }
@@ -195,7 +195,7 @@ public class BackpackAPIImpl implements IBackpackAPI {
             }
             return bos.toString(StandardCharsets.UTF_8);
         } catch (IOException e) {
-            Main.getInstance().getLogger().log(Level.WARNING, "Failed to decompress backpack data", e);
+            ApiManager.getInstance().getLogger().log(Level.WARNING, "Failed to decompress backpack data", e);
             return "";
         }
     }

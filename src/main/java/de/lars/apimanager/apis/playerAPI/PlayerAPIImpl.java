@@ -1,20 +1,20 @@
 package de.lars.apimanager.apis.playerAPI;
 
-import de.lars.apimanager.Main;
+import de.lars.apimanager.ApiManager;
 import de.lars.apimanager.database.DatabaseManager;
 import de.lars.apimanager.utils.ValidateParameter;
 import org.bukkit.OfflinePlayer;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.concurrent.CompletableFuture;
 
 public class PlayerAPIImpl implements IPlayerAPI {
     private final DatabaseManager db;
 
     public PlayerAPIImpl() {
-        this.db = Main.getInstance().getDatabaseManager();
+        this.db = ApiManager.getInstance().getDatabaseManager();
     }
 
     public void createTables() {
@@ -35,7 +35,7 @@ public class PlayerAPIImpl implements IPlayerAPI {
     public void initPlayer(OfflinePlayer player) {
         db.update("""
             INSERT IGNORE INTO players (uuid, name, playtime, is_online)
-            VALUES (?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?)
         """, player.getUniqueId().toString(), player.getName(), 0, false);
     }
 
@@ -51,15 +51,15 @@ public class PlayerAPIImpl implements IPlayerAPI {
     }
 
     @Override
-    public Timestamp getCreatedAt(OfflinePlayer player) {
+    public Instant getCreatedAt(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
         return db.query(conn -> {
             try (PreparedStatement ps = conn.prepareStatement(
-                     "SELECT created_at FROM players WHERE uuid = ?"
+                     "SELECT created_at FROM players WHERE uuid = ? LIMIT 1"
                  )) {
                 ps.setString(1, player.getUniqueId().toString());
                 try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) return rs.getTimestamp("created_at");
+                    if (rs.next()) return rs.getTimestamp("created_at").toInstant();
                     return null;
                 }
             }
@@ -67,15 +67,15 @@ public class PlayerAPIImpl implements IPlayerAPI {
     }
 
     @Override
-    public CompletableFuture<Timestamp> getCreatedAtAsync(OfflinePlayer player) {
+    public CompletableFuture<Instant> getCreatedAtAsync(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
         return db.queryAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement(
-                     "SELECT created_at FROM players WHERE uuid = ?"
+                     "SELECT created_at FROM players WHERE uuid = ? LIMIT 1"
                  )) {
                 ps.setString(1, player.getUniqueId().toString());
                 try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) return rs.getTimestamp("created_at");
+                    if (rs.next()) return rs.getTimestamp("created_at").toInstant();
                     return null;
                 }
             }
@@ -83,15 +83,15 @@ public class PlayerAPIImpl implements IPlayerAPI {
     }
 
     @Override
-    public Timestamp getUpdatedAt(OfflinePlayer player) {
+    public Instant getUpdatedAt(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
         return db.query(conn -> {
             try (PreparedStatement ps = conn.prepareStatement(
-                     "SELECT updated_at FROM players WHERE uuid = ?"
+                     "SELECT updated_at FROM players WHERE uuid = ? LIMIT 1"
                  )) {
                 ps.setString(1, player.getUniqueId().toString());
                 try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) return rs.getTimestamp("updated_at");
+                    if (rs.next()) return rs.getTimestamp("updated_at").toInstant();
                     return null;
                 }
             }
@@ -99,15 +99,15 @@ public class PlayerAPIImpl implements IPlayerAPI {
     }
 
     @Override
-    public CompletableFuture<Timestamp> getUpdatedAtAsync(OfflinePlayer player) {
+    public CompletableFuture<Instant> getUpdatedAtAsync(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
         return db.queryAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement(
-                     "SELECT updated_at FROM players WHERE uuid = ?"
+                     "SELECT updated_at FROM players WHERE uuid = ? LIMIT 1"
                  )) {
                 ps.setString(1, player.getUniqueId().toString());
                 try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) return rs.getTimestamp("updated_at");
+                    if (rs.next()) return rs.getTimestamp("updated_at").toInstant();
                     return null;
                 }
             }
@@ -118,7 +118,7 @@ public class PlayerAPIImpl implements IPlayerAPI {
     public String getName(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
         return db.query(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT name FROM players WHERE uuid = ?")) {
+            try (PreparedStatement ps = conn.prepareStatement("SELECT name FROM players WHERE uuid = ? LIMIT 1")) {
                 ps.setString(1, player.getUniqueId().toString());
                 try (ResultSet rs = ps.executeQuery()) {
                     if (rs.next()) return rs.getString("name");
@@ -132,7 +132,7 @@ public class PlayerAPIImpl implements IPlayerAPI {
     public CompletableFuture<String> getNameAsync(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
         return db.queryAsync(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT name FROM players WHERE uuid = ?")) {
+            try (PreparedStatement ps = conn.prepareStatement("SELECT name FROM players WHERE uuid = ? LIMIT 1")) {
                 ps.setString(1, player.getUniqueId().toString());
                 try (ResultSet rs = ps.executeQuery()) {
                     if (rs.next()) return rs.getString("name");
@@ -166,7 +166,7 @@ public class PlayerAPIImpl implements IPlayerAPI {
     public Long getPlaytime(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
         return db.query(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT playtime FROM players WHERE uuid = ?")) {
+            try (PreparedStatement ps = conn.prepareStatement("SELECT playtime FROM players WHERE uuid = ? LIMIT 1")) {
                 ps.setString(1, player.getUniqueId().toString());
                 try (ResultSet rs = ps.executeQuery()) {
                     if (rs.next()) {
@@ -184,7 +184,7 @@ public class PlayerAPIImpl implements IPlayerAPI {
     public CompletableFuture<Long> getPlaytimeAsync(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
         return db.queryAsync(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT playtime FROM players WHERE uuid = ?")) {
+            try (PreparedStatement ps = conn.prepareStatement("SELECT playtime FROM players WHERE uuid = ? LIMIT 1")) {
                 ps.setString(1, player.getUniqueId().toString());
                 try (ResultSet rs = ps.executeQuery()) {
                     if (rs.next()) {
@@ -224,7 +224,7 @@ public class PlayerAPIImpl implements IPlayerAPI {
     public boolean isOnline(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
         return db.query(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT is_online FROM players WHERE uuid = ?")) {
+            try (PreparedStatement ps = conn.prepareStatement("SELECT is_online FROM players WHERE uuid = ? LIMIT 1")) {
                 ps.setString(1, player.getUniqueId().toString());
                 try (ResultSet rs = ps.executeQuery()) {
                     if (rs.next()) return rs.getBoolean("is_online");
@@ -238,7 +238,7 @@ public class PlayerAPIImpl implements IPlayerAPI {
     public CompletableFuture<Boolean> isOnlineAsync(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
         return db.queryAsync(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT is_online FROM players WHERE uuid = ?")) {
+            try (PreparedStatement ps = conn.prepareStatement("SELECT is_online FROM players WHERE uuid = ? LIMIT 1")) {
                 ps.setString(1, player.getUniqueId().toString());
                 try (ResultSet rs = ps.executeQuery()) {
                     if (rs.next()) return rs.getBoolean("is_online");
@@ -249,13 +249,13 @@ public class PlayerAPIImpl implements IPlayerAPI {
     }
 
     @Override
-    public Timestamp getLastSeen(OfflinePlayer player) {
+    public Instant getLastSeen(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
         return db.query(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT last_seen FROM players WHERE uuid = ?")) {
+            try (PreparedStatement ps = conn.prepareStatement("SELECT last_seen FROM players WHERE uuid = ? LIMIT 1")) {
                 ps.setString(1, player.getUniqueId().toString());
                 try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) return rs.getTimestamp("last_seen");
+                    if (rs.next()) return rs.getTimestamp("last_seen").toInstant();
                     else return null;
                 }
             }
@@ -263,13 +263,13 @@ public class PlayerAPIImpl implements IPlayerAPI {
     }
 
     @Override
-    public CompletableFuture<Timestamp> getLastSeenAsync(OfflinePlayer player) {
+    public CompletableFuture<Instant> getLastSeenAsync(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
         return db.queryAsync(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT last_seen FROM players WHERE uuid = ?")) {
+            try (PreparedStatement ps = conn.prepareStatement("SELECT last_seen FROM players WHERE uuid = ? LIMIT 1")) {
                 ps.setString(1, player.getUniqueId().toString());
                 try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) return rs.getTimestamp("last_seen");
+                    if (rs.next()) return rs.getTimestamp("last_seen").toInstant();
                     else return null;
                 }
             }

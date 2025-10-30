@@ -1,20 +1,20 @@
 package de.lars.apimanager.apis.timerAPI;
 
-import de.lars.apimanager.Main;
+import de.lars.apimanager.ApiManager;
 import de.lars.apimanager.database.DatabaseManager;
 import de.lars.apimanager.utils.ValidateParameter;
 import org.bukkit.OfflinePlayer;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.concurrent.CompletableFuture;
 
 public class TimerAPIImpl implements ITimerAPI {
     private final DatabaseManager db;
 
     public TimerAPIImpl() {
-        this.db = Main.getInstance().getDatabaseManager();
+        this.db = ApiManager.getInstance().getDatabaseManager();
     }
 
     public void createTables() {
@@ -52,13 +52,13 @@ public class TimerAPIImpl implements ITimerAPI {
     }
 
     @Override
-    public Timestamp getCreatedAt(OfflinePlayer player) {
+    public Instant getCreatedAt(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
         return db.query(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT created_at FROM player_timers WHERE uuid = ?")) {
+            try (PreparedStatement ps = conn.prepareStatement("SELECT created_at FROM player_timers WHERE uuid = ? LIMIT 1")) {
                 ps.setString(1, player.getUniqueId().toString());
                 try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) return rs.getTimestamp("created_at");
+                    if (rs.next()) return rs.getTimestamp("created_at").toInstant();
                     return null;
                 }
             }
@@ -66,13 +66,13 @@ public class TimerAPIImpl implements ITimerAPI {
     }
 
     @Override
-    public CompletableFuture<Timestamp> getCreatedAtAsync(OfflinePlayer player) {
+    public CompletableFuture<Instant> getCreatedAtAsync(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
         return db.queryAsync(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT created_at FROM player_timers WHERE uuid = ?")) {
+            try (PreparedStatement ps = conn.prepareStatement("SELECT created_at FROM player_timers WHERE uuid = ? LIMIT 1")) {
                 ps.setString(1, player.getUniqueId().toString());
                 try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) return rs.getTimestamp("created_at");
+                    if (rs.next()) return rs.getTimestamp("created_at").toInstant();
                     return null;
                 }
             }
@@ -80,13 +80,13 @@ public class TimerAPIImpl implements ITimerAPI {
     }
 
     @Override
-    public Timestamp getUpdatedAt(OfflinePlayer player) {
+    public Instant getUpdatedAt(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
         return db.query(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT updated_at FROM player_timers WHERE uuid = ?")) {
+            try (PreparedStatement ps = conn.prepareStatement("SELECT updated_at FROM player_timers WHERE uuid = ? LIMIT 1")) {
                 ps.setString(1, player.getUniqueId().toString());
                 try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) return rs.getTimestamp("updated_at");
+                    if (rs.next()) return rs.getTimestamp("updated_at").toInstant();
                     return null;
                 }
             }
@@ -94,13 +94,13 @@ public class TimerAPIImpl implements ITimerAPI {
     }
 
     @Override
-    public CompletableFuture<Timestamp> getUpdatedAtAsync(OfflinePlayer player) {
+    public CompletableFuture<Instant> getUpdatedAtAsync(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
         return db.queryAsync(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT updated_at FROM player_timers WHERE uuid = ?")) {
+            try (PreparedStatement ps = conn.prepareStatement("SELECT updated_at FROM player_timers WHERE uuid = ? LIMIT 1")) {
                 ps.setString(1, player.getUniqueId().toString());
                 try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) return rs.getTimestamp("updated_at");
+                    if (rs.next()) return rs.getTimestamp("updated_at").toInstant();
                     return null;
                 }
             }
@@ -110,70 +110,70 @@ public class TimerAPIImpl implements ITimerAPI {
     @Override
     public void setTime(OfflinePlayer player, int time) {
         ValidateParameter.validatePlayer(player);
-        db.update("UPDATE player_timers SET time = ?, updated_at = CURRENT_TIMESTAMP WHERE uuid = ?",
+        db.update("UPDATE player_timers SET time = ?, updated_at = CURRENT_TIMESTAMP WHERE uuid = ? LIMIT 1",
                 time, player.getUniqueId().toString());
     }
 
     @Override
     public CompletableFuture<Void> setTimeAsync(OfflinePlayer player, int time) {
         ValidateParameter.validatePlayer(player);
-        return db.updateAsync("UPDATE player_timers SET time = ?, updated_at = CURRENT_TIMESTAMP WHERE uuid = ?",
+        return db.updateAsync("UPDATE player_timers SET time = ?, updated_at = CURRENT_TIMESTAMP WHERE uuid = ? LIMIT 1",
                 time, player.getUniqueId().toString());
     }
 
     @Override
     public void setOff(OfflinePlayer player, boolean off) {
         ValidateParameter.validatePlayer(player);
-        db.update("UPDATE player_timers SET off = ?, updated_at = CURRENT_TIMESTAMP WHERE uuid = ?",
+        db.update("UPDATE player_timers SET off = ?, updated_at = CURRENT_TIMESTAMP WHERE uuid = ? LIMIT 1",
                 off, player.getUniqueId().toString());
     }
 
     @Override
     public CompletableFuture<Void> setOffAsync(OfflinePlayer player, boolean off) {
         ValidateParameter.validatePlayer(player);
-        return db.updateAsync("UPDATE player_timers SET off = ?, updated_at = CURRENT_TIMESTAMP WHERE uuid = ?",
+        return db.updateAsync("UPDATE player_timers SET off = ?, updated_at = CURRENT_TIMESTAMP WHERE uuid = ? LIMIT 1",
                 off, player.getUniqueId().toString());
     }
 
     @Override
     public void setRunning(OfflinePlayer player, boolean running) {
         ValidateParameter.validatePlayer(player);
-        db.update("UPDATE player_timers SET running = ?, updated_at = CURRENT_TIMESTAMP WHERE uuid = ?",
+        db.update("UPDATE player_timers SET running = ?, updated_at = CURRENT_TIMESTAMP WHERE uuid = ? LIMIT 1",
                 running, player.getUniqueId().toString());
     }
 
     @Override
     public CompletableFuture<Void> setRunningAsync(OfflinePlayer player, boolean running) {
         ValidateParameter.validatePlayer(player);
-        return db.updateAsync("UPDATE player_timers SET running = ?, updated_at = CURRENT_TIMESTAMP WHERE uuid = ?",
+        return db.updateAsync("UPDATE player_timers SET running = ?, updated_at = CURRENT_TIMESTAMP WHERE uuid = ? LIMIT 1",
                 running, player.getUniqueId().toString());
     }
 
     @Override
     public void setTimer(OfflinePlayer player, boolean timer) {
         ValidateParameter.validatePlayer(player);
-        db.update("UPDATE player_timers SET timer_enabled = ?, updated_at = CURRENT_TIMESTAMP WHERE uuid = ?",
+        db.update("UPDATE player_timers SET timer_enabled = ?, updated_at = CURRENT_TIMESTAMP WHERE uuid = ? LIMIT 1",
                 timer, player.getUniqueId().toString());
     }
 
     @Override
     public CompletableFuture<Void> setTimerAsync(OfflinePlayer player, boolean timer) {
         ValidateParameter.validatePlayer(player);
-        return db.updateAsync("UPDATE player_timers SET timer_enabled = ?, updated_at = CURRENT_TIMESTAMP WHERE uuid = ?",
+        return db.updateAsync("UPDATE player_timers SET timer_enabled = ?, updated_at = CURRENT_TIMESTAMP WHERE uuid = ? LIMIT 1",
                 timer, player.getUniqueId().toString());
     }
 
     @Override
     public void setPublic(OfflinePlayer player, boolean isPublic) {
         ValidateParameter.validatePlayer(player);
-        db.update("UPDATE player_timers SET public_timer = ?, updated_at = CURRENT_TIMESTAMP WHERE uuid = ?",
+        db.update("UPDATE player_timers SET public_timer = ?, updated_at = CURRENT_TIMESTAMP WHERE uuid = ? LIMIT 1",
                 isPublic, player.getUniqueId().toString());
     }
 
     @Override
     public CompletableFuture<Void> setPublicAsync(OfflinePlayer player, boolean isPublic) {
         ValidateParameter.validatePlayer(player);
-        return db.updateAsync("UPDATE player_timers SET public_timer = ?, updated_at = CURRENT_TIMESTAMP WHERE uuid = ?",
+        return db.updateAsync("UPDATE player_timers SET public_timer = ?, updated_at = CURRENT_TIMESTAMP WHERE uuid = ? LIMIT 1",
                 isPublic, player.getUniqueId().toString());
     }
 
@@ -181,7 +181,7 @@ public class TimerAPIImpl implements ITimerAPI {
     public Integer getTime(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
         return db.query(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT time FROM player_timers WHERE uuid = ?")) {
+            try (PreparedStatement ps = conn.prepareStatement("SELECT time FROM player_timers WHERE uuid = ? LIMIT 1")) {
                 ps.setString(1, player.getUniqueId().toString());
                 try (ResultSet rs = ps.executeQuery()) {
                     if (rs.next()) return rs.getInt("time");
@@ -195,7 +195,7 @@ public class TimerAPIImpl implements ITimerAPI {
     public CompletableFuture<Integer> getTimeAsync(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
         return db.queryAsync(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT time FROM player_timers WHERE uuid = ?")) {
+            try (PreparedStatement ps = conn.prepareStatement("SELECT time FROM player_timers WHERE uuid = ? LIMIT 1")) {
                 ps.setString(1, player.getUniqueId().toString());
                 try (ResultSet rs = ps.executeQuery()) {
                     if (rs.next()) return rs.getInt("time");
@@ -209,7 +209,7 @@ public class TimerAPIImpl implements ITimerAPI {
     public boolean isPublic(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
         return db.query(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT public_timer FROM player_timers WHERE uuid = ?")) {
+            try (PreparedStatement ps = conn.prepareStatement("SELECT public_timer FROM player_timers WHERE uuid = ? LIMIT 1")) {
                 ps.setString(1, player.getUniqueId().toString());
                 try (ResultSet rs = ps.executeQuery()) {
                     if (rs.next()) return rs.getBoolean("public_timer");
@@ -223,7 +223,7 @@ public class TimerAPIImpl implements ITimerAPI {
     public CompletableFuture<Boolean> isPublicAsync(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
         return db.queryAsync(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT public_timer FROM player_timers WHERE uuid = ?")) {
+            try (PreparedStatement ps = conn.prepareStatement("SELECT public_timer FROM player_timers WHERE uuid = ? LIMIT 1")) {
                 ps.setString(1, player.getUniqueId().toString());
                 try (ResultSet rs = ps.executeQuery()) {
                     if (rs.next()) return rs.getBoolean("public_timer");
@@ -237,7 +237,7 @@ public class TimerAPIImpl implements ITimerAPI {
     public boolean isOff(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
         return db.query(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT off FROM player_timers WHERE uuid = ?")) {
+            try (PreparedStatement ps = conn.prepareStatement("SELECT off FROM player_timers WHERE uuid = ? LIMIT 1")) {
                 ps.setString(1, player.getUniqueId().toString());
                 try (ResultSet rs = ps.executeQuery()) {
                     if (rs.next()) return rs.getBoolean("off");
@@ -251,7 +251,7 @@ public class TimerAPIImpl implements ITimerAPI {
     public CompletableFuture<Boolean> isOffAsync(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
         return db.queryAsync(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT off FROM player_timers WHERE uuid = ?")) {
+            try (PreparedStatement ps = conn.prepareStatement("SELECT off FROM player_timers WHERE uuid = ? LIMIT 1")) {
                 ps.setString(1, player.getUniqueId().toString());
                 try (ResultSet rs = ps.executeQuery()) {
                     if (rs.next()) return rs.getBoolean("off");
@@ -265,7 +265,7 @@ public class TimerAPIImpl implements ITimerAPI {
     public boolean isRunning(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
         return db.query(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT running FROM player_timers WHERE uuid = ?")) {
+            try (PreparedStatement ps = conn.prepareStatement("SELECT running FROM player_timers WHERE uuid = ? LIMIT 1")) {
                 ps.setString(1, player.getUniqueId().toString());
                 try (ResultSet rs = ps.executeQuery()) {
                     if (rs.next()) return rs.getBoolean("running");
@@ -279,7 +279,7 @@ public class TimerAPIImpl implements ITimerAPI {
     public CompletableFuture<Boolean> isRunningAsync(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
         return db.queryAsync(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT running FROM player_timers WHERE uuid = ?")) {
+            try (PreparedStatement ps = conn.prepareStatement("SELECT running FROM player_timers WHERE uuid = ? LIMIT 1")) {
                 ps.setString(1, player.getUniqueId().toString());
                 try (ResultSet rs = ps.executeQuery()) {
                     if (rs.next()) return rs.getBoolean("running");
@@ -293,7 +293,7 @@ public class TimerAPIImpl implements ITimerAPI {
     public boolean isTimerEnabled(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
         return db.query(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT timer_enabled FROM player_timers WHERE uuid = ?")) {
+            try (PreparedStatement ps = conn.prepareStatement("SELECT timer_enabled FROM player_timers WHERE uuid = ? LIMIT 1")) {
                 ps.setString(1, player.getUniqueId().toString());
                 try (ResultSet rs = ps.executeQuery()) {
                     if (rs.next()) return rs.getBoolean("timer_enabled");
@@ -307,7 +307,7 @@ public class TimerAPIImpl implements ITimerAPI {
     public CompletableFuture<Boolean> isTimerEnabledAsync(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
         return db.queryAsync(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT timer_enabled FROM player_timers WHERE uuid = ?")) {
+            try (PreparedStatement ps = conn.prepareStatement("SELECT timer_enabled FROM player_timers WHERE uuid = ? LIMIT 1")) {
                 ps.setString(1, player.getUniqueId().toString());
                 try (ResultSet rs = ps.executeQuery()) {
                     if (rs.next()) return rs.getBoolean("timer_enabled");

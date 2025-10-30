@@ -3,23 +3,23 @@ package de.lars.apimanager.apis.chunkAPI;
 import org.bukkit.Chunk;
 import org.bukkit.OfflinePlayer;
 
-import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 public interface IChunkAPI {
-    Timestamp getCreated(Chunk chunk);
+    Instant getCreated(Chunk chunk);
 
-    CompletableFuture<Timestamp> getCreatedAsync(Chunk chunk);
+    CompletableFuture<Instant> getCreatedAsync(Chunk chunk);
 
-    Timestamp getUpdated(Chunk chunk);
+    Instant getUpdated(Chunk chunk);
 
-    CompletableFuture<Timestamp> getUpdatedAsync(Chunk chunk);
+    CompletableFuture<Instant> getUpdatedAsync(Chunk chunk);
 
-    Timestamp getClaimed(Chunk chunk);
+    Instant getClaimed(Chunk chunk);
 
-    CompletableFuture<Timestamp> getClaimedAsync(Chunk chunk);
+    CompletableFuture<Instant> getClaimedAsync(Chunk chunk);
 
     void claimChunk(OfflinePlayer player, Chunk chunk);
 

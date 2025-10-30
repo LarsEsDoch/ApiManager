@@ -2,17 +2,17 @@ package de.lars.apimanager.apis.banAPI;
 
 import org.bukkit.OfflinePlayer;
 
-import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.concurrent.CompletableFuture;
 
 public interface IBanAPI {
-    Timestamp getCreatedAt(OfflinePlayer player);
+    Instant getCreatedAt(OfflinePlayer player);
 
-    CompletableFuture<Timestamp> getCreatedAtAsync(OfflinePlayer player);
+    CompletableFuture<Instant> getCreatedAtAsync(OfflinePlayer player);
 
-    Timestamp getUpdatedAt(OfflinePlayer player);
+    Instant getUpdatedAt(OfflinePlayer player);
 
-    CompletableFuture<Timestamp> getUpdatedAtAsync(OfflinePlayer player);
+    CompletableFuture<Instant> getUpdatedAtAsync(OfflinePlayer player);
 
     void setBanned(OfflinePlayer player, String reason, Integer hours);
 
@@ -38,7 +38,7 @@ public interface IBanAPI {
 
     CompletableFuture<Void> setDaysAsync(OfflinePlayer player, Integer days);
 
-    Timestamp getDays(OfflinePlayer player);
+    Instant getEnd(OfflinePlayer player);
 
-    CompletableFuture<Timestamp> getDaysAsync(OfflinePlayer player);
+    CompletableFuture<Instant> getEndAsync(OfflinePlayer player);
 }

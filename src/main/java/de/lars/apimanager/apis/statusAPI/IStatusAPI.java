@@ -3,17 +3,17 @@ package de.lars.apimanager.apis.statusAPI;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.OfflinePlayer;
 
-import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.concurrent.CompletableFuture;
 
 public interface IStatusAPI {
-    Timestamp getCreatedAt(OfflinePlayer player);
+    Instant getCreatedAt(OfflinePlayer player);
 
-    CompletableFuture<Timestamp> getCreatedAtAsync(OfflinePlayer player);
+    CompletableFuture<Instant> getCreatedAtAsync(OfflinePlayer player);
 
-    Timestamp getUpdatedAt(OfflinePlayer player);
+    Instant getUpdatedAt(OfflinePlayer player);
 
-    CompletableFuture<Timestamp> getUpdatedAtAsync(OfflinePlayer player);
+    CompletableFuture<Instant> getUpdatedAtAsync(OfflinePlayer player);
 
     void setStatus(OfflinePlayer player, String status);
 
