@@ -1,36 +1,36 @@
 package de.lars.apimanager.apis.serverSettingsAPI;
 
-import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.concurrent.CompletableFuture;
 
 public interface IServerSettingsAPI {
-    Timestamp getCreatedAt();
+    Instant getCreatedAt();
 
-    CompletableFuture<Timestamp> getCreatedAtAsync();
+    CompletableFuture<Instant> getCreatedAtAsync();
 
-    Timestamp getUpdatedAt();
+    Instant getUpdatedAt();
 
-    CompletableFuture<Timestamp> getUpdatedAtAsync();
+    CompletableFuture<Instant> getUpdatedAtAsync();
 
     void setRealTimeEnabled(boolean enabled);
 
     CompletableFuture<Void> setRealTimeEnabledAsync(boolean enabled);
 
-    boolean isRealTimeActivated();
+    boolean isRealTimeEnabled();
 
-    CompletableFuture<Boolean> isRealTimeActivatedAsync();
+    CompletableFuture<Boolean> isRealTimeEnabledAsync();
 
     void setRealWeatherEnabled(boolean enabled);
 
     CompletableFuture<Void> setRealWeatherEnabledAsync(boolean enabled);
 
-    boolean isRealWeatherActivated();
+    boolean isRealWeatherEnabled();
 
-    CompletableFuture<Boolean> isRealWeatherActivatedAsync();
+    CompletableFuture<Boolean> isRealWeatherEnabledAsync();
 
-    void enableMaintenance(String reason, Timestamp endTime);
+    void enableMaintenance(String reason, Instant start, Instant endTime, Instant maxEndTime);
 
-    CompletableFuture<Void> enableMaintenanceAsync(String reason, Timestamp endTime);
+    CompletableFuture<Void> enableMaintenanceAsync(String reason, Instant start, Instant endTime, Instant maxEndTime);
 
     void disableMaintenance();
 
@@ -48,13 +48,29 @@ public interface IServerSettingsAPI {
 
     CompletableFuture<String> getMaintenanceReasonAsync();
 
-    void setMaintenanceEnd(Timestamp endTime);
+    void setMaintenanceStart(Instant startTime);
 
-    CompletableFuture<Void> setMaintenanceEndAsync(Timestamp endTime);
+    CompletableFuture<Void> setMaintenanceStartAsync(Instant startTime);
 
-    Timestamp getMaintenanceEnd();
+    Instant getMaintenanceStart();
 
-    CompletableFuture<Timestamp> getMaintenanceEndAsync();
+    CompletableFuture<Instant> getMaintenanceStartAsync();
+
+    void setMaintenanceEnd(Instant endTime);
+
+    CompletableFuture<Void> setMaintenanceEndAsync(Instant endTime);
+
+    Instant getMaintenanceEnd();
+
+    CompletableFuture<Instant> getMaintenanceEndAsync();
+
+    void setMaintenanceMaxEnd(Instant maxEndTIme);
+
+    CompletableFuture<Void> setMaintenanceMaxEndAsync(Instant maxEndTIme);
+
+    Instant getMaintenanceMaxEnd();
+
+    CompletableFuture<Instant> getMaintenanceMaxEndAsync();
 
     void setMaxPlayers(int maxPlayers);
 

@@ -1,19 +1,20 @@
 package de.lars.apimanager.apis.serverSettingsAPI;
 
-import de.lars.apimanager.Main;
+import de.lars.apimanager.ApiManager;
 import de.lars.apimanager.database.DatabaseManager;
 import de.lars.apimanager.utils.ValidateParameter;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.concurrent.CompletableFuture;
 
 public class ServerSettingsAPIImpl implements IServerSettingsAPI {
     private final DatabaseManager db;
 
     public ServerSettingsAPIImpl() {
-        this.db = Main.getInstance().getDatabaseManager();
+        this.db = ApiManager.getInstance().getDatabaseManager();
     }
 
     public void createTables() {
@@ -24,7 +25,9 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
                 real_weather_enabled BOOLEAN DEFAULT TRUE,
                 maintenance_enabled BOOLEAN DEFAULT FALSE,
                 maintenance_reason VARCHAR(255) DEFAULT '',
+                maintenance_start TIMESTAMP DEFAULT NULL,
                 maintenance_end TIMESTAMP DEFAULT NULL,
+                maintenance_max_end TIMESTAMP DEFAULT NULL,
                 max_players INT DEFAULT 100,
                 server_name VARCHAR(255) DEFAULT 'A Minecraft Server',
                 server_version VARCHAR(50) DEFAULT '1.21.10',
@@ -43,52 +46,52 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
     }
 
     @Override
-    public Timestamp getCreatedAt() {
+    public Instant getCreatedAt() {
         return db.query(conn -> {
             try (PreparedStatement ps = conn.prepareStatement(
                      "SELECT created_at FROM server_settings WHERE id = 1"
                  );
                  ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) return rs.getTimestamp("created_at");
+                if (rs.next()) return rs.getTimestamp("created_at").toInstant();
                 return null;
             }
         });
     }
 
     @Override
-    public CompletableFuture<Timestamp> getCreatedAtAsync() {
+    public CompletableFuture<Instant> getCreatedAtAsync() {
         return db.queryAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement(
                      "SELECT created_at FROM server_settings WHERE id = 1"
                  );
                  ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) return rs.getTimestamp("created_at");
+                if (rs.next()) return rs.getTimestamp("created_at").toInstant();
                 return null;
             }
         });
     }
 
     @Override
-    public Timestamp getUpdatedAt() {
+    public Instant getUpdatedAt() {
         return db.query(conn -> {
             try (PreparedStatement ps = conn.prepareStatement(
                      "SELECT updated_at FROM server_settings WHERE id = 1"
                  );
                  ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) return rs.getTimestamp("updated_at");
+                if (rs.next()) return rs.getTimestamp("updated_at").toInstant();
                 return null;
             }
         });
     }
 
     @Override
-    public CompletableFuture<Timestamp> getUpdatedAtAsync() {
+    public CompletableFuture<Instant> getUpdatedAtAsync() {
         return db.queryAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement(
                      "SELECT updated_at FROM server_settings WHERE id = 1"
                  );
                  ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) return rs.getTimestamp("updated_at");
+                if (rs.next()) return rs.getTimestamp("updated_at").toInstant();
                 return null;
             }
         });
@@ -113,7 +116,7 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
     }
 
     @Override
-    public boolean isRealTimeActivated() {
+    public boolean isRealTimeEnabled() {
         return db.query(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT real_time_enabled FROM server_settings WHERE id = 1")) {
                 try (ResultSet rs = ps.executeQuery()) {
@@ -124,7 +127,7 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
     }
 
     @Override
-    public CompletableFuture<Boolean> isRealTimeActivatedAsync() {
+    public CompletableFuture<Boolean> isRealTimeEnabledAsync() {
         return db.queryAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT real_time_enabled FROM server_settings WHERE id = 1")) {
                 try (ResultSet rs = ps.executeQuery()) {
@@ -153,7 +156,7 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
     }
 
     @Override
-    public boolean isRealWeatherActivated() {
+    public boolean isRealWeatherEnabled() {
         return db.query(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT real_weather_enabled FROM server_settings WHERE id = 1")) {
                 try (ResultSet rs = ps.executeQuery()) {
@@ -164,7 +167,7 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
     }
 
     @Override
-    public CompletableFuture<Boolean> isRealWeatherActivatedAsync() {
+    public CompletableFuture<Boolean> isRealWeatherEnabledAsync() {
         return db.queryAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT real_weather_enabled FROM server_settings WHERE id = 1")) {
                 try (ResultSet rs = ps.executeQuery()) {
@@ -175,25 +178,29 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
     }
 
     @Override
-    public void enableMaintenance(String reason, Timestamp endTime) {
+    public void enableMaintenance(String reason, Instant start, Instant endTime, Instant maxEndTime) {
         db.update("""
             UPDATE server_settings
             SET maintenance_enabled = ?,
                 maintenance_reason = ?,
-                maintenance_end = ?
+                maintenance_start = ?,
+                maintenance_end = ?,
+                maintenance_max_end = ?
             WHERE id = 1
-        """, true, reason, endTime);
+        """, true, reason, Timestamp.from(endTime));
     }
 
     @Override
-    public CompletableFuture<Void> enableMaintenanceAsync(String reason, Timestamp endTime) {
+    public CompletableFuture<Void> enableMaintenanceAsync(String reason, Instant start, Instant endTime, Instant maxEndTime) {
         return db.updateAsync("""
             UPDATE server_settings
             SET maintenance_enabled = ?,
                 maintenance_reason = ?,
-                maintenance_end = ?
+                maintenance_start = ?,
+                maintenance_end = ?,
+                maintenance_max_end = ?
             WHERE id = 1
-        """, true, reason, endTime);
+        """, true, reason, Timestamp.from(endTime));
     }
 
     @Override
@@ -285,45 +292,160 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
     }
 
     @Override
-    public void setMaintenanceEnd(Timestamp endTime) {
-        ValidateParameter.validateTimestamp(endTime);
+    public void setMaintenanceStart(Instant startTime) {
+        ValidateParameter.validateInstant(startTime);
         db.update("""
             UPDATE server_settings
-            SET maintenance_end = ?
+            SET maintenance_start = ?
             WHERE id = 1
-        """, endTime);
+        """, Timestamp.from(startTime));
     }
 
     @Override
-    public CompletableFuture<Void> setMaintenanceEndAsync(Timestamp endTime) {
-        ValidateParameter.validateTimestamp(endTime);
+    public CompletableFuture<Void> setMaintenanceStartAsync(Instant startTime) {
+        ValidateParameter.validateInstant(startTime);
         return db.updateAsync("""
             UPDATE server_settings
-            SET maintenance_end = ?
+            SET maintenance_start = ?
             WHERE id = 1
-        """, endTime);
+        """, Timestamp.from(startTime));
     }
 
     @Override
-    public Timestamp getMaintenanceEnd() {
+    public Instant getMaintenanceStart() {
         return db.query(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT maintenance_end FROM server_settings WHERE id = 1")) {
-                try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) return rs.getTimestamp("maintenance_end");
-                    else return null;
+            try (PreparedStatement ps = conn.prepareStatement(
+                "SELECT maintenance_start FROM server_settings WHERE id = 1"
+            );
+            ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    Timestamp ts = rs.getTimestamp("maintenance_start");
+                    return ts != null ? ts.toInstant() : null;
                 }
+                return null;
+            }
+        });
+    }
+
+
+    @Override
+    public CompletableFuture<Instant> getMaintenanceStartAsync() {
+        return db.queryAsync(conn -> {
+            try (PreparedStatement ps = conn.prepareStatement(
+                "SELECT maintenance_start FROM server_settings WHERE id = 1"
+            );
+            ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    Timestamp ts = rs.getTimestamp("maintenance_start");
+                    return ts != null ? ts.toInstant() : null;
+                }
+                return null;
             }
         });
     }
 
     @Override
-    public CompletableFuture<Timestamp> getMaintenanceEndAsync() {
-        return db.queryAsync(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT maintenance_end FROM server_settings WHERE id = 1")) {
-                try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) return rs.getTimestamp("maintenance_end");
-                    else return null;
+    public void setMaintenanceEnd(Instant endTime) {
+        ValidateParameter.validateInstant(endTime);
+        db.update("""
+            UPDATE server_settings
+            SET maintenance_end = ?
+            WHERE id = 1
+        """, Timestamp.from(endTime));
+    }
+
+    @Override
+    public CompletableFuture<Void> setMaintenanceEndAsync(Instant endTime) {
+        ValidateParameter.validateInstant(endTime);
+        return db.updateAsync("""
+            UPDATE server_settings
+            SET maintenance_end = ?
+            WHERE id = 1
+        """, Timestamp.from(endTime));
+    }
+
+    @Override
+    public Instant getMaintenanceEnd() {
+        return db.query(conn -> {
+            try (PreparedStatement ps = conn.prepareStatement(
+                "SELECT maintenance_end FROM server_settings WHERE id = 1"
+            );
+            ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    Timestamp ts = rs.getTimestamp("maintenance_end");
+                    return ts != null ? ts.toInstant() : null;
                 }
+                return null;
+            }
+        });
+    }
+
+
+    @Override
+    public CompletableFuture<Instant> getMaintenanceEndAsync() {
+        return db.queryAsync(conn -> {
+            try (PreparedStatement ps = conn.prepareStatement(
+                "SELECT maintenance_end FROM server_settings WHERE id = 1"
+            );
+            ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    Timestamp ts = rs.getTimestamp("maintenance_end");
+                    return ts != null ? ts.toInstant() : null;
+                }
+                return null;
+            }
+        });
+    }
+
+    @Override
+    public void setMaintenanceMaxEnd(Instant maxendTime) {
+        ValidateParameter.validateInstant(maxendTime);
+        db.update("""
+            UPDATE server_settings
+            SET maintenance_max_end = ?
+            WHERE id = 1
+        """, Timestamp.from(maxendTime));
+    }
+
+    @Override
+    public CompletableFuture<Void> setMaintenanceMaxEndAsync(Instant maxendTime) {
+        ValidateParameter.validateInstant(maxendTime);
+        return db.updateAsync("""
+            UPDATE server_settings
+            SET maintenance_max_end = ?
+            WHERE id = 1
+        """, Timestamp.from(maxendTime));
+    }
+
+    @Override
+    public Instant getMaintenanceMaxEnd() {
+        return db.query(conn -> {
+            try (PreparedStatement ps = conn.prepareStatement(
+                "SELECT maintenance_max_end FROM server_settings WHERE id = 1"
+            );
+            ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    Timestamp ts = rs.getTimestamp("maintenance_max_end");
+                    return ts != null ? ts.toInstant() : null;
+                }
+                return null;
+            }
+        });
+    }
+
+
+    @Override
+    public CompletableFuture<Instant> getMaintenanceMaxEndAsync() {
+        return db.queryAsync(conn -> {
+            try (PreparedStatement ps = conn.prepareStatement(
+                "SELECT maintenance_max_end FROM server_settings WHERE id = 1"
+            );
+            ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    Timestamp ts = rs.getTimestamp("maintenance_max_end");
+                    return ts != null ? ts.toInstant() : null;
+                }
+                return null;
             }
         });
     }
