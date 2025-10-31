@@ -38,7 +38,7 @@ public class QuestAPIImpl implements IQuestAPI {
     public void initPlayer(OfflinePlayer player) {
         db.update("""
             INSERT IGNORE INTO player_quests (uuid, streak, quest, quest_name, quest_complete, target, progress, last_quest_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         """, player.getUniqueId().toString(), 0, -1, "", false, null, 0, null);
     }
 
