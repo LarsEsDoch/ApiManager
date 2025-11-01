@@ -57,7 +57,7 @@ public interface IChunkAPI {
 
     CompletableFuture<UUID> getChunkOwnerAsync(Chunk chunk);
 
-    List<String> getChunks(OfflinePlayer player);
+    List<Chunk> getChunks(OfflinePlayer player);
 
-    CompletableFuture<List<String>> getChunksAsync(OfflinePlayer player);
+    CompletableFuture<List<Chunk>> getChunksAsync(OfflinePlayer player);
 }

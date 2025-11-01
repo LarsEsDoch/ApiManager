@@ -6,6 +6,7 @@ import de.lars.apimanager.utils.ValidateParameter;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.World;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -447,38 +448,58 @@ public class ChunkAPIImpl implements IChunkAPI {
     }
 
     @Override
-    public List<String> getChunks(OfflinePlayer player) {
+    public List<Chunk> getChunks(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
         String uuid = player.getUniqueId().toString();
+
         return db.query(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT world, x, z FROM claimed_chunks WHERE uuid = ? LIMIT 1")) {
+            try (PreparedStatement ps = conn.prepareStatement("SELECT world, x, z FROM claimed_chunks WHERE uuid = ?")) {
                 ps.setString(1, uuid);
                 try (ResultSet rs = ps.executeQuery()) {
-                    List<String> out = new ArrayList<>();
+                    List<Chunk> chunks = new ArrayList<>();
                     while (rs.next()) {
-                        out.add(rs.getString("world") + ":" + rs.getInt("x") + ":" + rs.getInt("z"));
+                        String worldName = rs.getString("world");
+                        int x = rs.getInt("x");
+                        int z = rs.getInt("z");
+
+                        World world = Bukkit.getWorld(worldName);
+                        if (world != null) {
+                            chunks.add(world.getChunkAt(x, z));
+                        }
                     }
-                    return out;
+                    return chunks;
                 }
             }
         });
     }
 
     @Override
-    public CompletableFuture<List<String>> getChunksAsync(OfflinePlayer player) {
+    public CompletableFuture<List<Chunk>> getChunksAsync(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
         String uuid = player.getUniqueId().toString();
+
         return db.queryAsync(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT world, x, z FROM claimed_chunks WHERE uuid = ? LIMIT 1")) {
+            List<String[]> data = new ArrayList<>();
+            try (PreparedStatement ps = conn.prepareStatement("SELECT world, x, z FROM claimed_chunks WHERE uuid = ?")) {
                 ps.setString(1, uuid);
                 try (ResultSet rs = ps.executeQuery()) {
-                    List<String> out = new ArrayList<>();
                     while (rs.next()) {
-                        out.add(rs.getString("world") + ":" + rs.getInt("x") + ":" + rs.getInt("z"));
+                        data.add(new String[]{rs.getString("world"), String.valueOf(rs.getInt("x")), String.valueOf(rs.getInt("z"))});
                     }
-                    return out;
                 }
             }
+            return data;
+        }).thenApply(data -> {
+            List<Chunk> chunks = new ArrayList<>();
+            for (String[] entry : data) {
+                World world = Bukkit.getWorld(entry[0]);
+                if (world != null) {
+                    int x = Integer.parseInt(entry[1]);
+                    int z = Integer.parseInt(entry[2]);
+                    chunks.add(world.getChunkAt(x, z));
+                }
+            }
+            return chunks;
         });
     }
 }
