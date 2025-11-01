@@ -55,7 +55,14 @@ public class RankAPIImpl implements IRankAPI {
             try (PreparedStatement ps = conn.prepareStatement("SELECT created_at FROM player_ranks WHERE uuid = ? LIMIT 1")) {
                 ps.setString(1, player.getUniqueId().toString());
                 try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) return rs.getTimestamp("created_at").toInstant();
+                    if (rs.next()) {
+                        Timestamp ts = rs.getTimestamp("created_at");
+                        if (ts != null) {
+                            return ts.toInstant();
+                        } else {
+                            return null;
+                        }
+                    }
                     return null;
                 }
             }
@@ -69,7 +76,14 @@ public class RankAPIImpl implements IRankAPI {
             try (PreparedStatement ps = conn.prepareStatement("SELECT created_at FROM player_ranks WHERE uuid = ? LIMIT 1")) {
                 ps.setString(1, player.getUniqueId().toString());
                 try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) return rs.getTimestamp("created_at").toInstant();
+                    if (rs.next()) {
+                        Timestamp ts = rs.getTimestamp("created_at");
+                        if (ts != null) {
+                            return ts.toInstant();
+                        } else {
+                            return null;
+                        }
+                    }
                     return null;
                 }
             }
@@ -83,7 +97,14 @@ public class RankAPIImpl implements IRankAPI {
             try (PreparedStatement ps = conn.prepareStatement("SELECT updated_at FROM player_ranks WHERE uuid = ? LIMIT 1")) {
                 ps.setString(1, player.getUniqueId().toString());
                 try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) return rs.getTimestamp("updated_at").toInstant();
+                    if (rs.next()) {
+                        Timestamp ts = rs.getTimestamp("updated_at");
+                        if (ts != null) {
+                            return ts.toInstant();
+                        } else {
+                            return null;
+                        }
+                    }
                     return null;
                 }
             }
@@ -97,7 +118,14 @@ public class RankAPIImpl implements IRankAPI {
             try (PreparedStatement ps = conn.prepareStatement("SELECT updated_at FROM player_ranks WHERE uuid = ? LIMIT 1")) {
                 ps.setString(1, player.getUniqueId().toString());
                 try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) return rs.getTimestamp("updated_at").toInstant();
+                    if (rs.next()) {
+                        Timestamp ts = rs.getTimestamp("updated_at");
+                        if (ts != null) {
+                            return ts.toInstant();
+                        } else {
+                            return null;
+                        }
+                    }
                     return null;
                 }
             }

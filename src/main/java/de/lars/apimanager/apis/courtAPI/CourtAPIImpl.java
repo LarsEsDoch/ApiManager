@@ -7,6 +7,7 @@ import org.bukkit.OfflinePlayer;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.concurrent.CompletableFuture;
 
@@ -66,7 +67,14 @@ public class CourtAPIImpl implements ICourtAPI {
                  )) {
                 ps.setString(1, player.getUniqueId().toString());
                 try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) return rs.getTimestamp("created_at").toInstant();
+                    if (rs.next()) {
+                        Timestamp ts = rs.getTimestamp("created_at");
+                        if (ts != null) {
+                            return ts.toInstant();
+                        } else {
+                            return null;
+                        }
+                    }
                     return null;
                 }
             }
@@ -82,7 +90,14 @@ public class CourtAPIImpl implements ICourtAPI {
                  )) {
                 ps.setString(1, player.getUniqueId().toString());
                 try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) return rs.getTimestamp("created_at").toInstant();
+                    if (rs.next()) {
+                        Timestamp ts = rs.getTimestamp("created_at");
+                        if (ts != null) {
+                            return ts.toInstant();
+                        } else {
+                            return null;
+                        }
+                    }
                     return null;
                 }
             }
@@ -98,7 +113,14 @@ public class CourtAPIImpl implements ICourtAPI {
                  )) {
                 ps.setString(1, player.getUniqueId().toString());
                 try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) return rs.getTimestamp("updated_at").toInstant();
+                    if (rs.next()) {
+                        Timestamp ts = rs.getTimestamp("updated_at");
+                        if (ts != null) {
+                            return ts.toInstant();
+                        } else {
+                            return null;
+                        }
+                    }
                     return null;
                 }
             }
@@ -114,7 +136,14 @@ public class CourtAPIImpl implements ICourtAPI {
                  )) {
                 ps.setString(1, player.getUniqueId().toString());
                 try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) return rs.getTimestamp("updated_at").toInstant();
+                    if (rs.next()) {
+                        Timestamp ts = rs.getTimestamp("updated_at");
+                        if (ts != null) {
+                            return ts.toInstant();
+                        } else {
+                            return null;
+                        }
+                    }
                     return null;
                 }
             }

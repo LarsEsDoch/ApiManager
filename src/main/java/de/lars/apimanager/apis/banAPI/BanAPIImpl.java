@@ -22,7 +22,7 @@ public class BanAPIImpl implements IBanAPI {
             CREATE TABLE IF NOT EXISTS player_bans (
                 uuid CHAR(36) NOT NULL PRIMARY KEY,
                 is_banned BOOLEAN DEFAULT FALSE,
-                reason VARCHAR(255) DEFAULT '',
+                reason VARCHAR(255) DEFAULT NULL,
                 banned_at TIMESTAMP DEFAULT NULL,
                 expires_at TIMESTAMP NULL,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -36,7 +36,7 @@ public class BanAPIImpl implements IBanAPI {
         db().update("""
             INSERT IGNORE INTO player_bans (uuid, is_banned, reason, banned_at, expires_at)
             VALUES (?, ?, ?, ?, ?)
-        """, player.getUniqueId().toString(), "", null, null, null);
+        """, player.getUniqueId().toString(), false, null, null, null);
     }
 
     public boolean doesUserExist(OfflinePlayer player) {
@@ -79,7 +79,15 @@ public class BanAPIImpl implements IBanAPI {
             try (PreparedStatement ps = conn.prepareStatement("SELECT " + column + " FROM player_bans WHERE uuid = ? LIMIT 1")) {
                 ps.setString(1, player.getUniqueId().toString());
                 try (ResultSet rs = ps.executeQuery()) {
-                    return rs.next() ? rs.getTimestamp(column).toInstant() : null;
+                    if (rs.next()) {
+                    Timestamp ts = rs.getTimestamp(column);
+                    if (ts != null) {
+                        return ts.toInstant();
+                    } else {
+                        return null;
+                    }
+                }
+                return null;
                 }
             }
         });
@@ -119,13 +127,13 @@ public class BanAPIImpl implements IBanAPI {
     @Override
     public void setUnBanned(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        db().update("UPDATE player_bans SET is_banned = FALSE, expires_at = NULL, reason = '' WHERE uuid = ? LIMIT 1", player.getUniqueId().toString());
+        db().update("UPDATE player_bans SET is_banned = FALSE, expires_at = NULL, reason = NULL WHERE uuid = ? LIMIT 1", player.getUniqueId().toString());
     }
 
     @Override
     public CompletableFuture<Void> setUnBannedAsync(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        return db().updateAsync("UPDATE player_bans SET is_banned = FALSE, expires_at = NULL, reason = '' WHERE uuid = ? LIMIT 1", player.getUniqueId().toString());
+        return db().updateAsync("UPDATE player_bans SET is_banned = FALSE, expires_at = NULL, reason = NULL WHERE uuid = ? LIMIT 1", player.getUniqueId().toString());
     }
 
     @Override
@@ -240,7 +248,15 @@ public class BanAPIImpl implements IBanAPI {
             try (PreparedStatement ps = conn.prepareStatement("SELECT " + column + " FROM player_bans WHERE uuid = ? LIMIT 1")) {
                 ps.setString(1, player.getUniqueId().toString());
                 try (ResultSet rs = ps.executeQuery()) {
-                    return rs.next() ? rs.getTimestamp(column).toInstant() : null;
+                    if (rs.next()) {
+                        Timestamp ts = rs.getTimestamp(column);
+                        if (ts != null) {
+                            return ts.toInstant();
+                        } else {
+                            return null;
+                        }
+                    }
+                    return null;
                 }
             }
         });

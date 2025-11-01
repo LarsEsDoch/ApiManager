@@ -9,9 +9,11 @@ import org.bukkit.OfflinePlayer;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
@@ -44,7 +46,14 @@ public class HomeAPIImpl implements IHomeAPI {
                  )) {
                 ps.setInt(1, homeId);
                 try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) return rs.getTimestamp("created_at").toInstant();
+                    if (rs.next()) {
+                        Timestamp ts = rs.getTimestamp("created_at");
+                        if (ts != null) {
+                            return ts.toInstant();
+                        } else {
+                            return null;
+                        }
+                    }
                     return null;
                 }
             }
@@ -59,7 +68,14 @@ public class HomeAPIImpl implements IHomeAPI {
                  )) {
                 ps.setInt(1, homeId);
                 try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) return rs.getTimestamp("created_at").toInstant();
+                    if (rs.next()) {
+                        Timestamp ts = rs.getTimestamp("created_at");
+                        if (ts != null) {
+                            return ts.toInstant();
+                        } else {
+                            return null;
+                        }
+                    }
                     return null;
                 }
             }
@@ -74,7 +90,14 @@ public class HomeAPIImpl implements IHomeAPI {
                  )) {
                 ps.setInt(1, homeId);
                 try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) return rs.getTimestamp("updated_at").toInstant();
+                    if (rs.next()) {
+                        Timestamp ts = rs.getTimestamp("updated_at");
+                        if (ts != null) {
+                            return ts.toInstant();
+                        } else {
+                            return null;
+                        }
+                    }
                     return null;
                 }
             }
@@ -89,7 +112,14 @@ public class HomeAPIImpl implements IHomeAPI {
                  )) {
                 ps.setInt(1, homeId);
                 try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) return rs.getTimestamp("updated_at").toInstant();
+                    if (rs.next()) {
+                        Timestamp ts = rs.getTimestamp("updated_at");
+                        if (ts != null) {
+                            return ts.toInstant();
+                        } else {
+                            return null;
+                        }
+                    }
                     return null;
                 }
             }
@@ -200,7 +230,7 @@ public class HomeAPIImpl implements IHomeAPI {
         return db().query(conn -> {
             List<String> homes = new ArrayList<>();
             try (PreparedStatement ps = conn.prepareStatement(
-                    "SELECT name FROM player_homes WHERE uuid = ? LIMIT 1")) {
+                    "SELECT name FROM player_homes WHERE uuid = ?")) {
                 ps.setString(1, player.getUniqueId().toString());
                 try (ResultSet rs = ps.executeQuery()) {
                     while (rs.next()) homes.add(rs.getString("name"));
@@ -216,7 +246,7 @@ public class HomeAPIImpl implements IHomeAPI {
         return db().queryAsync(conn -> {
             List<String> homes = new ArrayList<>();
             try (PreparedStatement ps = conn.prepareStatement(
-                    "SELECT name FROM player_homes WHERE uuid = ? LIMIT 1")) {
+                    "SELECT name FROM player_homes WHERE uuid = ?")) {
                 ps.setString(1, player.getUniqueId().toString());
                 try (ResultSet rs = ps.executeQuery()) {
                     while (rs.next()) homes.add(rs.getString("name"));
@@ -261,7 +291,10 @@ public class HomeAPIImpl implements IHomeAPI {
                     "SELECT location FROM player_homes WHERE id = ?")) {
                 ps.setInt(1, homeId);
                 try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) return deserializeLocation(rs.getString("location"));
+                    if (rs.next()) {
+                        String locData = rs.getString("location");
+                        return deserializeLocation(locData);
+                    }
                 }
             }
             return null;
@@ -275,7 +308,10 @@ public class HomeAPIImpl implements IHomeAPI {
                     "SELECT location FROM player_homes WHERE id = ?")) {
                 ps.setInt(1, homeId);
                 try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) return deserializeLocation(rs.getString("location"));
+                    if (rs.next()) {
+                        String locData = rs.getString("location");
+                        return deserializeLocation(locData);
+                    }
                 }
             }
             return null;
@@ -377,8 +413,7 @@ public class HomeAPIImpl implements IHomeAPI {
     }
 
     private String serializeLocation(Location loc) {
-        return String.format(
-                "%s,%.3f,%.3f,%.3f,%.3f,%.3f",
+        return String.format(Locale.ENGLISH, "%s,%.3f,%.3f,%.3f,%.3f,%.3f",
                 Objects.requireNonNull(loc.getWorld()).getName(),
                 loc.getX(), loc.getY(), loc.getZ(),
                 loc.getYaw(), loc.getPitch()

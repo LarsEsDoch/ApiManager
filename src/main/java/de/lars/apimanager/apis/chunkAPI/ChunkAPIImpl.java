@@ -10,6 +10,7 @@ import org.bukkit.World;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -49,7 +50,14 @@ public class ChunkAPIImpl implements IChunkAPI {
                 ps.setInt(2, chunk.getX());
                 ps.setInt(3, chunk.getZ());
                 try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) return rs.getTimestamp("created_at").toInstant();
+                    if (rs.next()) {
+                        Timestamp ts = rs.getTimestamp("created_at");
+                        if (ts != null) {
+                            return ts.toInstant();
+                        } else {
+                            return null;
+                        }
+                    }
                     return null;
                 }
             }
@@ -66,7 +74,14 @@ public class ChunkAPIImpl implements IChunkAPI {
                 ps.setInt(2, chunk.getX());
                 ps.setInt(3, chunk.getZ());
                 try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) return rs.getTimestamp("created_at").toInstant();
+                    if (rs.next()) {
+                        Timestamp ts = rs.getTimestamp("created_at");
+                        if (ts != null) {
+                            return ts.toInstant();
+                        } else {
+                            return null;
+                        }
+                    }
                     return null;
                 }
             }
@@ -83,7 +98,14 @@ public class ChunkAPIImpl implements IChunkAPI {
                 ps.setInt(2, chunk.getX());
                 ps.setInt(3, chunk.getZ());
                 try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) return rs.getTimestamp("updated_at").toInstant();
+                    if (rs.next()) {
+                        Timestamp ts = rs.getTimestamp("updated_at");
+                        if (ts != null) {
+                            return ts.toInstant();
+                        } else {
+                            return null;
+                        }
+                    }
                     return null;
                 }
             }
@@ -100,7 +122,14 @@ public class ChunkAPIImpl implements IChunkAPI {
                 ps.setInt(2, chunk.getX());
                 ps.setInt(3, chunk.getZ());
                 try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) return rs.getTimestamp("updated_at").toInstant();
+                    if (rs.next()) {
+                        Timestamp ts = rs.getTimestamp("updated_at");
+                        if (ts != null) {
+                            return ts.toInstant();
+                        } else {
+                            return null;
+                        }
+                    }
                     return null;
                 }
             }
