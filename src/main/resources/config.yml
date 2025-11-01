@@ -1,0 +1,7 @@
+# Database configuration
+database:
+    host: "Enter the IP of your database"
+    port: 3306 # Normally 3306
+    database: "Enter the name of the database"
+    username: "Enter the database user"
+    password: "Enter the password of the user"
