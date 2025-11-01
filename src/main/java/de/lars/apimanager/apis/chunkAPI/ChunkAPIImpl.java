@@ -275,6 +275,49 @@ public class ChunkAPIImpl implements IChunkAPI {
     }
 
     @Override
+    public String getFlags(Chunk chunk) {
+        ValidateParameter.validateChunk(chunk);
+        String world = chunk.getWorld().getName();
+        int x = chunk.getX();
+        int z = chunk.getZ();
+
+        return db().query(conn -> {
+            try (PreparedStatement ps = conn.prepareStatement(
+                    "SELECT flags FROM claimed_chunks WHERE world = ? AND x = ? AND z = ? LIMIT 1")) {
+                ps.setString(1, world);
+                ps.setInt(2, x);
+                ps.setInt(3, z);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) return rs.getString("flags");
+                    return "{}";
+                }
+            }
+        });
+    }
+
+    @Override
+    public CompletableFuture<String> getFlagsAsync(Chunk chunk) {
+        ValidateParameter.validateChunk(chunk);
+        String world = chunk.getWorld().getName();
+        int x = chunk.getX();
+        int z = chunk.getZ();
+
+        return db().queryAsync(conn -> {
+            try (PreparedStatement ps = conn.prepareStatement(
+                    "SELECT flags FROM claimed_chunks WHERE world = ? AND x = ? AND z = ? LIMIT 1")) {
+                ps.setString(1, world);
+                ps.setInt(2, x);
+                ps.setInt(3, z);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) return rs.getString("flags");
+                    return "{}";
+                }
+            }
+        });
+    }
+
+
+    @Override
     public List<OfflinePlayer> getFriendPlayers(Chunk chunk) {
         ValidateParameter.validateChunk(chunk);
         return getFriends(chunk).stream()

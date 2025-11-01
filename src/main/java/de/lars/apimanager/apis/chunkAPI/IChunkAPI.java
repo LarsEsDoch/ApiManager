@@ -33,6 +33,10 @@ public interface IChunkAPI {
 
     CompletableFuture<Void> setFlagsAsync(Chunk chunk, String flagsJson);
 
+    String getFlags(Chunk chunk);
+
+    CompletableFuture<String> getFlagsAsync(Chunk chunk);
+
     List<OfflinePlayer> getFriendPlayers(Chunk chunk);
 
     CompletableFuture<List<OfflinePlayer>> getFriendPlayersAsync(Chunk chunk);
