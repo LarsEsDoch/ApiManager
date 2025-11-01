@@ -32,6 +32,7 @@ import de.lars.apimanager.apis.toggleAPI.ToggleAPI;
 import de.lars.apimanager.apis.toggleAPI.ToggleAPIImpl;
 import de.lars.apimanager.database.DatabaseManager;
 import de.lars.apimanager.listeners.JoinListener;
+import de.lars.apimanager.listeners.QuitListener;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
@@ -134,6 +135,7 @@ public final class ApiManager extends JavaPlugin {
         timerAPI.createTables();
 
         Bukkit.getPluginManager().registerEvents(new JoinListener(), this);
+        Bukkit.getPluginManager().registerEvents(new QuitListener(), this);
 
         Component message = Component.text()
                 .append(Component.text("[", NamedTextColor.DARK_GRAY))
