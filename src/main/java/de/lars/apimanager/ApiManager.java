@@ -6,6 +6,7 @@ import de.lars.apimanager.apis.banAPI.BanAPI;
 import de.lars.apimanager.apis.banAPI.BanAPIImpl;
 import de.lars.apimanager.apis.coinAPI.CoinAPI;
 import de.lars.apimanager.apis.coinAPI.CoinAPIImpl;
+import de.lars.apimanager.apis.commands.ReloadCommand;
 import de.lars.apimanager.apis.courtAPI.CourtAPI;
 import de.lars.apimanager.apis.courtAPI.CourtAPIImpl;
 import de.lars.apimanager.apis.languageAPI.LanguageAPI;
@@ -30,9 +31,13 @@ import de.lars.apimanager.apis.timerAPI.TimerAPI;
 import de.lars.apimanager.apis.timerAPI.TimerAPIImpl;
 import de.lars.apimanager.apis.toggleAPI.ToggleAPI;
 import de.lars.apimanager.apis.toggleAPI.ToggleAPIImpl;
+import de.lars.apimanager.database.ConnectDatabase;
 import de.lars.apimanager.database.DatabaseManager;
+import de.lars.apimanager.database.IDatabaseManager;
 import de.lars.apimanager.listeners.JoinListener;
 import de.lars.apimanager.listeners.QuitListener;
+import io.papermc.paper.command.brigadier.Commands;
+import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
@@ -40,7 +45,8 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public final class ApiManager extends JavaPlugin {
     private static ApiManager instance;
-    private DatabaseManager databaseManager;
+    public IDatabaseManager databaseManager;
+    private ConnectDatabase connectDatabase;
 
     private ServerSettingsAPIImpl serverSettingsAPI;
     private PlayerAPIImpl playerAPI;
@@ -62,18 +68,106 @@ public final class ApiManager extends JavaPlugin {
     public void onLoad() {
         instance = this;
         saveDefaultConfig();
+        connectDatabase = new ConnectDatabase(this);
 
-        String host = getConfig().getString("database.host");
-        int port = getConfig().getInt("database.port");
-        String database = getConfig().getString("database.database");
-        String user = getConfig().getString("database.user");
-        String password = getConfig().getString("database.password");
-
-        this.databaseManager = new DatabaseManager(host, port, database, user, password);
+        if (!connectDatabase.loadDatabaseConfig()) {
+            getLogger().warning("Invalid database configuration. Please adjust config.yml!");
+        }
     }
 
     @Override
     public void onEnable() {
+        serverSettingsAPI = new ServerSettingsAPIImpl();
+    ServerSettingsAPI.setApi(serverSettingsAPI);
+
+    playerAPI = new PlayerAPIImpl();
+    PlayerAPI.setApi(playerAPI);
+
+    languageAPI = new LanguageAPIImpl();
+    LanguageAPI.setApi(languageAPI);
+
+    backpackAPI = new BackpackAPIImpl();
+    BackpackAPI.setApi(backpackAPI);
+
+    limitAPI = new LimitAPIImpl();
+    LimitAPI.setApi(limitAPI);
+
+    banAPI = new BanAPIImpl();
+    BanAPI.setApi(banAPI);
+
+    courtAPI = new CourtAPIImpl();
+    CourtAPI.setApi(courtAPI);
+
+    rankAPI = new RankAPIImpl();
+    RankAPI.setApi(rankAPI);
+
+    prefixAPI = new PrefixAPIImpl();
+    PrefixAPI.setApi(prefixAPI);
+
+    statusAPI = new StatusAPIImpl();
+    StatusAPI.setApi(statusAPI);
+
+    nickAPI = new NickAPIImpl();
+    NickAPI.setApi(nickAPI);
+
+    toggleAPI = new ToggleAPIImpl();
+    ToggleAPI.setApi(toggleAPI);
+
+    coinAPI = new CoinAPIImpl();
+    CoinAPI.setApi(coinAPI);
+
+    questAPI = new QuestAPIImpl();
+    QuestAPI.setApi(questAPI);
+
+    timerAPI = new TimerAPIImpl();
+    TimerAPI.setApi(timerAPI);
+
+    boolean hasRealDb = ApiManager.getInstance().getDatabaseManager() instanceof DatabaseManager;
+
+    if (hasRealDb) {
+        serverSettingsAPI.createTables();
+        playerAPI.createTables();
+        languageAPI.createTables();
+        backpackAPI.createTables();
+        limitAPI.createTables();
+        banAPI.createTables();
+        courtAPI.createTables();
+        rankAPI.createTables();
+        prefixAPI.createTables();
+        statusAPI.createTables();
+        nickAPI.createTables();
+        toggleAPI.createTables();
+        coinAPI.createTables();
+        questAPI.createTables();
+        timerAPI.createTables();
+        Component message = Component.text()
+                .append(Component.text("[", NamedTextColor.DARK_GRAY))
+                .append(Component.text("ApiManager", NamedTextColor.GOLD))
+                .append(Component.text("]", NamedTextColor.DARK_GRAY))
+                .append(Component.text(" All APIs are ready!", NamedTextColor.DARK_GREEN))
+                .build();
+        Bukkit.getConsoleSender().sendMessage(message);
+    } else {
+        getLogger().warning("Database not connected — skipping table creation. APIs will run in safe mode (no DB).");
+    }
+
+        Bukkit.getPluginManager().registerEvents(new JoinListener(), this);
+        Bukkit.getPluginManager().registerEvents(new QuitListener(), this);
+
+        this.getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS,event -> {
+            final Commands commands = event.registrar();
+            ReloadCommand reloadCommand = new ReloadCommand(this, connectDatabase);
+            commands.register("reload", "Reload the database config", reloadCommand);
+            commands.register("rl", "Reload the database config", reloadCommand);
+        });
+    }
+
+    public void reinitializeApisAfterDbReconnect() {
+        if (!(this.databaseManager instanceof de.lars.apimanager.database.DatabaseManager)) {
+            getLogger().warning("Database not a real DatabaseManager after reload — skipping API reinitialization.");
+            return;
+        }
+
         serverSettingsAPI = new ServerSettingsAPIImpl();
         ServerSettingsAPI.setApi(serverSettingsAPI);
         serverSettingsAPI.createTables();
@@ -134,18 +228,9 @@ public final class ApiManager extends JavaPlugin {
         TimerAPI.setApi(timerAPI);
         timerAPI.createTables();
 
-        Bukkit.getPluginManager().registerEvents(new JoinListener(), this);
-        Bukkit.getPluginManager().registerEvents(new QuitListener(), this);
-
-        Component message = Component.text()
-                .append(Component.text("[", NamedTextColor.DARK_GRAY))
-                .append(Component.text("ApiManager", NamedTextColor.GOLD))
-                .append(Component.text("]", NamedTextColor.DARK_GRAY))
-                .append(Component.text(" All APIs are ready!", NamedTextColor.DARK_GREEN))
-                .build();
-
-        Bukkit.getConsoleSender().sendMessage(message);
+        getLogger().info("APIs reinitialized to use the new database connection.");
     }
+
 
     @Override
     public void onDisable() {
@@ -157,7 +242,7 @@ public final class ApiManager extends JavaPlugin {
                 .append(Component.text("[", NamedTextColor.DARK_GRAY))
                 .append(Component.text("ApiManager", NamedTextColor.GOLD))
                 .append(Component.text("]", NamedTextColor.DARK_GRAY))
-                .append(Component.text(" Database successfully disdonnected!", NamedTextColor.GREEN))
+                .append(Component.text(" Database successfully disconnected!", NamedTextColor.DARK_GREEN))
                 .build();
 
         Bukkit.getConsoleSender().sendMessage(message);
@@ -167,7 +252,7 @@ public final class ApiManager extends JavaPlugin {
         return instance;
     }
 
-    public DatabaseManager getDatabaseManager() {
+    public IDatabaseManager getDatabaseManager() {
         return databaseManager;
     }
 
