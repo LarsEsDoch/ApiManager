@@ -33,7 +33,7 @@ public class SafeDatabaseManager implements IDatabaseManager{
     private void logSkip(String action, String detail) {
         de.lars.apimanager.ApiManager.getInstance().getLogger().log(
                 Level.WARNING,
-                "[SafeDatabaseManager] Action [" + action + "] cannot be executed because the database isn't connected. Detail: " + detail
+                "[SafeDatabaseManager] Action [" + action + "] cannot be executed because the database isn't connected."
         );
     }
 }
