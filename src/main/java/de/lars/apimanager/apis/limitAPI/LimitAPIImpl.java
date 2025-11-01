@@ -1,7 +1,7 @@
 package de.lars.apimanager.apis.limitAPI;
 
 import de.lars.apimanager.ApiManager;
-import de.lars.apimanager.database.DatabaseManager;
+import de.lars.apimanager.database.IDatabaseManager;
 import de.lars.apimanager.utils.ValidateParameter;
 import org.bukkit.OfflinePlayer;
 
@@ -11,14 +11,12 @@ import java.time.Instant;
 import java.util.concurrent.CompletableFuture;
 
 public class LimitAPIImpl implements ILimitAPI {
-    private final DatabaseManager db;
-
-    public LimitAPIImpl() {
-        this.db = ApiManager.getInstance().getDatabaseManager();
+    private IDatabaseManager db() {
+        return ApiManager.getInstance().getDatabaseManager();
     }
 
     public void createTables() {
-        db.update("""
+        db().update("""
             CREATE TABLE IF NOT EXISTS player_limits (
                 uuid CHAR(36) NOT NULL PRIMARY KEY,
                 slots INT DEFAULT 9,
@@ -32,14 +30,14 @@ public class LimitAPIImpl implements ILimitAPI {
     }
 
     public void initPlayer(OfflinePlayer player) {
-        db.update("""
+        db().update("""
             INSERT IGNORE INTO player_limits (uuid, slots, chunk_limit, home_limit)
             VALUES (?, ?, ?, ?)
         """, player.getUniqueId().toString(), 9, 32, 32);
     }
 
     public boolean doesUserExist(OfflinePlayer player) {
-        return db.query(conn -> {
+        return db().query(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT 1 FROM player_limits WHERE uuid = ? LIMIT 1")) {
                 ps.setString(1, player.getUniqueId().toString());
                 try (ResultSet rs = ps.executeQuery()) {
@@ -52,7 +50,7 @@ public class LimitAPIImpl implements ILimitAPI {
     @Override
     public Instant getCreatedAt(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        return db.query(conn -> {
+        return db().query(conn -> {
             try (PreparedStatement ps = conn.prepareStatement(
                      "SELECT created_at FROM player_limits WHERE uuid = ? LIMIT 1"
                  )) {
@@ -68,7 +66,7 @@ public class LimitAPIImpl implements ILimitAPI {
     @Override
     public CompletableFuture<Instant> getCreatedAtAsync(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        return db.queryAsync(conn -> {
+        return db().queryAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement(
                      "SELECT created_at FROM player_limits WHERE uuid = ? LIMIT 1"
                  )) {
@@ -84,7 +82,7 @@ public class LimitAPIImpl implements ILimitAPI {
     @Override
     public Instant getUpdatedAt(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        return db.query(conn -> {
+        return db().query(conn -> {
             try (PreparedStatement ps = conn.prepareStatement(
                      "SELECT updated_at FROM player_limits WHERE uuid = ? LIMIT 1"
                  )) {
@@ -100,7 +98,7 @@ public class LimitAPIImpl implements ILimitAPI {
     @Override
     public CompletableFuture<Instant> getUpdatedAtAsync(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        return db.queryAsync(conn -> {
+        return db().queryAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement(
                      "SELECT updated_at FROM player_limits WHERE uuid = ? LIMIT 1"
                  )) {
@@ -117,7 +115,7 @@ public class LimitAPIImpl implements ILimitAPI {
     public void setSlots(OfflinePlayer player, int slots) {
         ValidateParameter.validatePlayer(player);
         if (slots < 0) slots = 0;
-        db.update("UPDATE player_limits SET slots = ? WHERE uuid = ? LIMIT 1",
+        db().update("UPDATE player_limits SET slots = ? WHERE uuid = ? LIMIT 1",
                 slots, player.getUniqueId().toString());
     }
 
@@ -125,7 +123,7 @@ public class LimitAPIImpl implements ILimitAPI {
     public CompletableFuture<Void> setSlotsAsync(OfflinePlayer player, int slots) {
         ValidateParameter.validatePlayer(player);
         if (slots < 0) slots = 0;
-        return db.updateAsync("UPDATE player_limits SET slots = ? WHERE uuid = ? LIMIT 1",
+        return db().updateAsync("UPDATE player_limits SET slots = ? WHERE uuid = ? LIMIT 1",
                         slots, player.getUniqueId().toString());
     }
 
@@ -166,7 +164,7 @@ public class LimitAPIImpl implements ILimitAPI {
     @Override
     public Integer getSlots(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        return db.query(conn -> {
+        return db().query(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT slots FROM player_limits WHERE uuid = ? LIMIT 1")) {
                 ps.setString(1, player.getUniqueId().toString());
                 try (ResultSet rs = ps.executeQuery()) {
@@ -184,7 +182,7 @@ public class LimitAPIImpl implements ILimitAPI {
     @Override
     public CompletableFuture<Integer> getSlotsAsync(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        return db.queryAsync(conn -> {
+        return db().queryAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT slots FROM player_limits WHERE uuid = ? LIMIT 1")) {
                 ps.setString(1, player.getUniqueId().toString());
                 try (ResultSet rs = ps.executeQuery()) {
@@ -202,7 +200,7 @@ public class LimitAPIImpl implements ILimitAPI {
     @Override
     public void setChunkLimit(OfflinePlayer player, Integer chunk_limit) {
         ValidateParameter.validatePlayer(player);
-        db.update("""
+        db().update("""
             UPDATE player_limits
             SET chunk_limit = ?
             WHERE uuid = ?
@@ -212,7 +210,7 @@ public class LimitAPIImpl implements ILimitAPI {
     @Override
     public CompletableFuture<Void> setChunkLimitAsync(OfflinePlayer player, Integer chunk_limit) {
         ValidateParameter.validatePlayer(player);
-        return db.updateAsync("""
+        return db().updateAsync("""
             UPDATE player_limits
             SET chunk_limit = ?
             WHERE uuid = ?
@@ -256,7 +254,7 @@ public class LimitAPIImpl implements ILimitAPI {
     @Override
     public Integer getChunkLimit(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        return db.query(conn -> {
+        return db().query(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT chunk_limit FROM player_limits WHERE uuid = ? LIMIT 1")) {
                 ps.setString(1, player.getUniqueId().toString());
                 try (ResultSet rs = ps.executeQuery()) {
@@ -274,7 +272,7 @@ public class LimitAPIImpl implements ILimitAPI {
     @Override
     public CompletableFuture<Integer> getChunkLimitAsync(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        return db.queryAsync(conn -> {
+        return db().queryAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT chunk_limit FROM player_limits WHERE uuid = ? LIMIT 1")) {
                 ps.setString(1, player.getUniqueId().toString());
                 try (ResultSet rs = ps.executeQuery()) {
@@ -292,7 +290,7 @@ public class LimitAPIImpl implements ILimitAPI {
     @Override
     public void setHomeLimit(OfflinePlayer player, Integer home_limit) {
         ValidateParameter.validatePlayer(player);
-        db.update("""
+        db().update("""
             UPDATE player_limits
             SET home_limit = ?
             WHERE uuid = ?
@@ -302,7 +300,7 @@ public class LimitAPIImpl implements ILimitAPI {
     @Override
     public CompletableFuture<Void> setHomeLimitAsync(OfflinePlayer player, Integer home_limit) {
         ValidateParameter.validatePlayer(player);
-        return db.updateAsync("""
+        return db().updateAsync("""
             UPDATE player_limits
             SET home_limit = ?
             WHERE uuid = ?
@@ -346,7 +344,7 @@ public class LimitAPIImpl implements ILimitAPI {
     @Override
     public Integer getHomeLimit(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        return db.query(conn -> {
+        return db().query(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT home_limit FROM player_limits WHERE uuid = ? LIMIT 1")) {
                 ps.setString(1, player.getUniqueId().toString());
                 try (ResultSet rs = ps.executeQuery()) {
@@ -364,7 +362,7 @@ public class LimitAPIImpl implements ILimitAPI {
     @Override
     public CompletableFuture<Integer> getHomeLimitAsync(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        return db.queryAsync(conn -> {
+        return db().queryAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT home_limit FROM player_limits WHERE uuid = ? LIMIT 1")) {
                 ps.setString(1, player.getUniqueId().toString());
                 try (ResultSet rs = ps.executeQuery()) {

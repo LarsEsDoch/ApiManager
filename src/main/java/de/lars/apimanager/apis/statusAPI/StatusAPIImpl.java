@@ -1,7 +1,7 @@
 package de.lars.apimanager.apis.statusAPI;
 
 import de.lars.apimanager.ApiManager;
-import de.lars.apimanager.database.DatabaseManager;
+import de.lars.apimanager.database.IDatabaseManager;
 import de.lars.apimanager.utils.TextFormation;
 import de.lars.apimanager.utils.ValidateParameter;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -14,14 +14,12 @@ import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
 public class StatusAPIImpl implements IStatusAPI {
-    private final DatabaseManager db;
-
-    public StatusAPIImpl() {
-        this.db = ApiManager.getInstance().getDatabaseManager();
+    private IDatabaseManager db() {
+        return ApiManager.getInstance().getDatabaseManager();
     }
 
     public void createTables() {
-        db.update("""
+        db().update("""
             CREATE TABLE IF NOT EXISTS player_status (
                 uuid CHAR(36) NOT NULL PRIMARY KEY,
                 status VARCHAR(255) DEFAULT '',
@@ -34,14 +32,14 @@ public class StatusAPIImpl implements IStatusAPI {
     }
 
     public void initPlayer(OfflinePlayer player) {
-        db.update("""
+        db().update("""
             INSERT IGNORE INTO player_status (uuid, status, color)
             VALUES (?, ?, ?)
         """, player.getUniqueId().toString(), "", 0);
     }
 
     public boolean doesUserExist(OfflinePlayer player) {
-        return db.query(conn -> {
+        return db().query(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT 1 FROM player_status WHERE uuid = ? LIMIT 1")) {
                 ps.setString(1, player.getUniqueId().toString());
                 try (ResultSet rs = ps.executeQuery()) {
@@ -54,7 +52,7 @@ public class StatusAPIImpl implements IStatusAPI {
     @Override
     public Instant getCreatedAt(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        return db.query(conn -> {
+        return db().query(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT created_at FROM player_status WHERE uuid = ? LIMIT 1")) {
                 ps.setString(1, player.getUniqueId().toString());
                 try (ResultSet rs = ps.executeQuery()) {
@@ -68,7 +66,7 @@ public class StatusAPIImpl implements IStatusAPI {
     @Override
     public CompletableFuture<Instant> getCreatedAtAsync(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        return db.queryAsync(conn -> {
+        return db().queryAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT created_at FROM player_status WHERE uuid = ? LIMIT 1")) {
                 ps.setString(1, player.getUniqueId().toString());
                 try (ResultSet rs = ps.executeQuery()) {
@@ -82,7 +80,7 @@ public class StatusAPIImpl implements IStatusAPI {
     @Override
     public Instant getUpdatedAt(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        return db.query(conn -> {
+        return db().query(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT updated_at FROM player_status WHERE uuid = ? LIMIT 1")) {
                 ps.setString(1, player.getUniqueId().toString());
                 try (ResultSet rs = ps.executeQuery()) {
@@ -96,7 +94,7 @@ public class StatusAPIImpl implements IStatusAPI {
     @Override
     public CompletableFuture<Instant> getUpdatedAtAsync(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        return db.queryAsync(conn -> {
+        return db().queryAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT updated_at FROM player_status WHERE uuid = ? LIMIT 1")) {
                 ps.setString(1, player.getUniqueId().toString());
                 try (ResultSet rs = ps.executeQuery()) {
@@ -111,7 +109,7 @@ public class StatusAPIImpl implements IStatusAPI {
     public void setStatus(OfflinePlayer player, String status) {
         ValidateParameter.validatePlayer(player);
         ValidateParameter.validateStatus(status);
-        db.update("UPDATE player_status SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE uuid = ? LIMIT 1",
+        db().update("UPDATE player_status SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE uuid = ? LIMIT 1",
                 status, player.getUniqueId().toString());
     }
 
@@ -119,14 +117,14 @@ public class StatusAPIImpl implements IStatusAPI {
     public CompletableFuture<Void> setStatusAsync(OfflinePlayer player, String status) {
         ValidateParameter.validatePlayer(player);
         ValidateParameter.validateStatus(status);
-        return db.updateAsync("UPDATE player_status SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE uuid = ? LIMIT 1",
+        return db().updateAsync("UPDATE player_status SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE uuid = ? LIMIT 1",
                 status, player.getUniqueId().toString());
     }
 
     @Override
     public String getStatus(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        return db.query(conn -> {
+        return db().query(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT status FROM player_status WHERE uuid = ? LIMIT 1")) {
                 ps.setString(1, player.getUniqueId().toString());
                 try (ResultSet rs = ps.executeQuery()) {
@@ -140,7 +138,7 @@ public class StatusAPIImpl implements IStatusAPI {
     @Override
     public CompletableFuture<String> getStatusAsync(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        return db.queryAsync(conn -> {
+        return db().queryAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT status FROM player_status WHERE uuid = ? LIMIT 1")) {
                 ps.setString(1, player.getUniqueId().toString());
                 try (ResultSet rs = ps.executeQuery()) {
@@ -155,7 +153,7 @@ public class StatusAPIImpl implements IStatusAPI {
     public void setColor(OfflinePlayer player, NamedTextColor color) {
         ValidateParameter.validatePlayer(player);
         ValidateParameter.validateNamedTextColor(color);
-        db.update("UPDATE player_status SET color = ? WHERE uuid = ? LIMIT 1",
+        db().update("UPDATE player_status SET color = ? WHERE uuid = ? LIMIT 1",
                 TextFormation.getColorId(color), player.getUniqueId().toString());
     }
 
@@ -163,14 +161,14 @@ public class StatusAPIImpl implements IStatusAPI {
     public CompletableFuture<Void> setColorAsync(OfflinePlayer player, NamedTextColor color) {
         ValidateParameter.validatePlayer(player);
         ValidateParameter.validateNamedTextColor(color);
-        return db.updateAsync("UPDATE player_status SET color = ? WHERE uuid = ? LIMIT 1",
+        return db().updateAsync("UPDATE player_status SET color = ? WHERE uuid = ? LIMIT 1",
                         TextFormation.getColorId(color), player.getUniqueId().toString());
     }
 
     @Override
     public NamedTextColor getColor(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        return TextFormation.getNamedTextColor(Objects.requireNonNull(db.query(conn -> {
+        return TextFormation.getNamedTextColor(Objects.requireNonNull(db().query(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT color FROM player_status WHERE uuid = ? LIMIT 1")) {
                 ps.setString(1, player.getUniqueId().toString());
                 try (ResultSet rs = ps.executeQuery()) {
@@ -188,7 +186,7 @@ public class StatusAPIImpl implements IStatusAPI {
     @Override
     public CompletableFuture<NamedTextColor> getColorAsync(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        return db.queryAsync(conn -> {
+        return db().queryAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT color FROM player_status WHERE uuid = ? LIMIT 1")) {
                 ps.setString(1, player.getUniqueId().toString());
                 try (ResultSet rs = ps.executeQuery()) {

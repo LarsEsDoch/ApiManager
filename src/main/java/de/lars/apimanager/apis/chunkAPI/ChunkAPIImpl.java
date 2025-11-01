@@ -1,7 +1,7 @@
 package de.lars.apimanager.apis.chunkAPI;
 
 import de.lars.apimanager.ApiManager;
-import de.lars.apimanager.database.DatabaseManager;
+import de.lars.apimanager.database.IDatabaseManager;
 import de.lars.apimanager.utils.ValidateParameter;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
@@ -16,14 +16,12 @@ import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 public class ChunkAPIImpl implements IChunkAPI {
-    private final DatabaseManager db;
-
-    public ChunkAPIImpl() {
-        this.db = ApiManager.getInstance().getDatabaseManager();
+    private IDatabaseManager db() {
+        return ApiManager.getInstance().getDatabaseManager();
     }
 
     public void createTables() {
-        db.update("""
+        db().update("""
             CREATE TABLE IF NOT EXISTS claimed_chunks (
                 uuid CHAR(36) NOT NULL,
                 world VARCHAR(64) NOT NULL,
@@ -44,7 +42,7 @@ public class ChunkAPIImpl implements IChunkAPI {
     @Override
     public Instant getCreated(Chunk chunk) {
         ValidateParameter.validateChunk(chunk);
-        return db.query(conn -> {
+        return db().query(conn -> {
             try (PreparedStatement ps = conn.prepareStatement(
                     "SELECT created_at FROM claimed_chunks WHERE world = ? AND x = ? AND z = ? LIMIT 1")) {
                 ps.setString(1, chunk.getWorld().getName());
@@ -61,7 +59,7 @@ public class ChunkAPIImpl implements IChunkAPI {
     @Override
     public CompletableFuture<Instant> getCreatedAsync(Chunk chunk) {
         ValidateParameter.validateChunk(chunk);
-        return db.queryAsync(conn -> {
+        return db().queryAsync(conn -> {
                 try (PreparedStatement ps = conn.prepareStatement(
                     "SELECT created_at FROM claimed_chunks WHERE world = ? AND x = ? AND z = ? LIMIT 1")) {
                 ps.setString(1, chunk.getWorld().getName());
@@ -78,7 +76,7 @@ public class ChunkAPIImpl implements IChunkAPI {
     @Override
     public Instant getUpdated(Chunk chunk) {
         ValidateParameter.validateChunk(chunk);
-        return db.query(conn -> {
+        return db().query(conn -> {
             try (PreparedStatement ps = conn.prepareStatement(
                     "SELECT updated_at FROM claimed_chunks WHERE world = ? AND x = ? AND z = ? LIMIT 1")) {
                 ps.setString(1, chunk.getWorld().getName());
@@ -95,7 +93,7 @@ public class ChunkAPIImpl implements IChunkAPI {
     @Override
     public CompletableFuture<Instant> getUpdatedAsync(Chunk chunk) {
         ValidateParameter.validateChunk(chunk);
-        return db.queryAsync(conn -> {
+        return db().queryAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement(
                     "SELECT updated_at FROM claimed_chunks WHERE world = ? AND x = ? AND z = ? LIMIT 1")) {
                 ps.setString(1, chunk.getWorld().getName());
@@ -112,7 +110,7 @@ public class ChunkAPIImpl implements IChunkAPI {
     @Override
     public Instant getClaimed(Chunk chunk) {
         ValidateParameter.validateChunk(chunk);
-        return db.query(conn -> {
+        return db().query(conn -> {
             try (PreparedStatement ps = conn.prepareStatement(
                     "SELECT claimed_at FROM claimed_chunks WHERE world = ? AND x = ? AND z = ? LIMIT 1")) {
                 ps.setString(1, chunk.getWorld().getName());
@@ -129,7 +127,7 @@ public class ChunkAPIImpl implements IChunkAPI {
     @Override
     public CompletableFuture<Instant> getClaimedAsync(Chunk chunk) {
         ValidateParameter.validateChunk(chunk);
-        return db.queryAsync(conn -> {
+        return db().queryAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement(
                     "SELECT claimed_at FROM claimed_chunks WHERE world = ? AND x = ? AND z = ? LIMIT 1")) {
                 ps.setString(1, chunk.getWorld().getName());
@@ -152,7 +150,7 @@ public class ChunkAPIImpl implements IChunkAPI {
         int z = chunk.getZ();
         String uuid = player.getUniqueId().toString();
 
-        db.update("""
+        db().update("""
             INSERT INTO claimed_chunks (uuid, world, x, z, claimed_at)
             VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)
             ON DUPLICATE KEY UPDATE
@@ -173,7 +171,7 @@ public class ChunkAPIImpl implements IChunkAPI {
         int z = chunk.getZ();
         String uuid = player.getUniqueId().toString();
 
-        return db.updateAsync("""
+        return db().updateAsync("""
             INSERT INTO claimed_chunks (uuid, world, x, z, claimed_at)
             VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)
             ON DUPLICATE KEY UPDATE
@@ -191,7 +189,7 @@ public class ChunkAPIImpl implements IChunkAPI {
         int x = chunk.getX();
         int z = chunk.getZ();
 
-        db.update("""
+        db().update("""
             DELETE FROM claimed_chunks
             WHERE world = ? AND x = ? AND z = ?
         """, world, x, z);
@@ -207,7 +205,7 @@ public class ChunkAPIImpl implements IChunkAPI {
         int x = chunk.getX();
         int z = chunk.getZ();
 
-        return db.updateAsync("""
+        return db().updateAsync("""
             DELETE FROM claimed_chunks
             WHERE world = ? AND x = ? AND z = ?
         """, world, x, z).thenCompose(v -> {
@@ -226,7 +224,7 @@ public class ChunkAPIImpl implements IChunkAPI {
         int x = chunk.getX();
         int z = chunk.getZ();
 
-        db.update("""
+        db().update("""
                     UPDATE claimed_chunks
                     SET flags = ?
                     WHERE world = ? AND x = ? AND z = ?
@@ -240,7 +238,7 @@ public class ChunkAPIImpl implements IChunkAPI {
         int x = chunk.getX();
         int z = chunk.getZ();
 
-        return db.updateAsync("""
+        return db().updateAsync("""
                     UPDATE claimed_chunks
                     SET flags = ?
                     WHERE world = ? AND x = ? AND z = ?
@@ -280,7 +278,7 @@ public class ChunkAPIImpl implements IChunkAPI {
         int x = chunk.getX();
         int z = chunk.getZ();
 
-        return db.query(conn -> {
+        return db().query(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT friends FROM claimed_chunks WHERE world = ? AND x = ? AND z = ?")) {
                 ps.setString(1, world);
                 ps.setInt(2, x);
@@ -306,7 +304,7 @@ public class ChunkAPIImpl implements IChunkAPI {
         int x = chunk.getX();
         int z = chunk.getZ();
 
-        return db.queryAsync(conn -> {
+        return db().queryAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT friends FROM claimed_chunks WHERE world = ? AND x = ? AND z = ?")) {
                 ps.setString(1, world);
                 ps.setInt(2, x);
@@ -335,7 +333,7 @@ public class ChunkAPIImpl implements IChunkAPI {
         if (!friends.contains(friendUuid)) {
             friends.add(friendUuid);
             String joined = String.join(",", friends);
-            db.update("UPDATE claimed_chunks SET friends = ?, updated_at = CURRENT_TIMESTAMP WHERE world = ? AND x = ? AND z = ?",
+            db().update("UPDATE claimed_chunks SET friends = ?, updated_at = CURRENT_TIMESTAMP WHERE world = ? AND x = ? AND z = ?",
                     joined, chunk.getWorld().getName(), chunk.getX(), chunk.getZ());
         }
     }
@@ -349,7 +347,7 @@ public class ChunkAPIImpl implements IChunkAPI {
         return getFriendsAsync(chunk).thenCompose(list -> {
             if (!list.contains(friendUuid)) list.add(friendUuid);
             String joined = String.join(",", list);
-            return db.updateAsync("UPDATE claimed_chunks SET friends = ?, updated_at = CURRENT_TIMESTAMP WHERE world = ? AND x = ? AND z = ?",
+            return db().updateAsync("UPDATE claimed_chunks SET friends = ?, updated_at = CURRENT_TIMESTAMP WHERE world = ? AND x = ? AND z = ?",
                     joined, chunk.getWorld().getName(), chunk.getX(), chunk.getZ());
         });
     }
@@ -363,7 +361,7 @@ public class ChunkAPIImpl implements IChunkAPI {
         List<String> friends = new ArrayList<>(getFriends(chunk));
         if (friends.remove(friendUuid)) {
             String joined = String.join(",", friends);
-            db.update("UPDATE claimed_chunks SET friends = ?, updated_at = CURRENT_TIMESTAMP WHERE world = ? AND x = ? AND z = ?",
+            db().update("UPDATE claimed_chunks SET friends = ?, updated_at = CURRENT_TIMESTAMP WHERE world = ? AND x = ? AND z = ?",
                     joined, chunk.getWorld().getName(), chunk.getX(), chunk.getZ());
         }
     }
@@ -377,7 +375,7 @@ public class ChunkAPIImpl implements IChunkAPI {
         return getFriendsAsync(chunk).thenCompose(list -> {
             list.remove(friendUuid);
             String joined = String.join(",", list);
-            return db.updateAsync("UPDATE claimed_chunks SET friends = ?, updated_at = CURRENT_TIMESTAMP WHERE world = ? AND x = ? AND z = ?",
+            return db().updateAsync("UPDATE claimed_chunks SET friends = ?, updated_at = CURRENT_TIMESTAMP WHERE world = ? AND x = ? AND z = ?",
                     joined, chunk.getWorld().getName(), chunk.getX(), chunk.getZ());
         });
     }
@@ -406,7 +404,7 @@ public class ChunkAPIImpl implements IChunkAPI {
         int x = chunk.getX();
         int z = chunk.getZ();
 
-        return db.query(conn -> {
+        return db().query(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT uuid FROM claimed_chunks WHERE world = ? AND x = ? AND z = ?")) {
                 ps.setString(1, world);
                 ps.setInt(2, x);
@@ -430,7 +428,7 @@ public class ChunkAPIImpl implements IChunkAPI {
         int x = chunk.getX();
         int z = chunk.getZ();
 
-        return db.queryAsync(conn -> {
+        return db().queryAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT uuid FROM claimed_chunks WHERE world = ? AND x = ? AND z = ?")) {
                 ps.setString(1, world);
                 ps.setInt(2, x);
@@ -452,7 +450,7 @@ public class ChunkAPIImpl implements IChunkAPI {
         ValidateParameter.validatePlayer(player);
         String uuid = player.getUniqueId().toString();
 
-        return db.query(conn -> {
+        return db().query(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT world, x, z FROM claimed_chunks WHERE uuid = ?")) {
                 ps.setString(1, uuid);
                 try (ResultSet rs = ps.executeQuery()) {
@@ -478,7 +476,7 @@ public class ChunkAPIImpl implements IChunkAPI {
         ValidateParameter.validatePlayer(player);
         String uuid = player.getUniqueId().toString();
 
-        return db.queryAsync(conn -> {
+        return db().queryAsync(conn -> {
             List<String[]> data = new ArrayList<>();
             try (PreparedStatement ps = conn.prepareStatement("SELECT world, x, z FROM claimed_chunks WHERE uuid = ?")) {
                 ps.setString(1, uuid);

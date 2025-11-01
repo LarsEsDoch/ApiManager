@@ -1,7 +1,7 @@
 package de.lars.apimanager.apis.languageAPI;
 
 import de.lars.apimanager.ApiManager;
-import de.lars.apimanager.database.DatabaseManager;
+import de.lars.apimanager.database.IDatabaseManager;
 import de.lars.apimanager.utils.ValidateParameter;
 import org.bukkit.OfflinePlayer;
 
@@ -11,14 +11,12 @@ import java.time.Instant;
 import java.util.concurrent.CompletableFuture;
 
 public class LanguageAPIImpl implements ILanguageAPI {
-    private final DatabaseManager db;
-
-    public LanguageAPIImpl() {
-        this.db = ApiManager.getInstance().getDatabaseManager();
+    private IDatabaseManager db() {
+        return ApiManager.getInstance().getDatabaseManager();
     }
 
     public void createTables() {
-        db.update("""
+        db().update("""
             CREATE TABLE IF NOT EXISTS player_languages (
                 uuid CHAR(36) NOT NULL PRIMARY KEY,
                 language_id INT DEFAULT 1,
@@ -30,14 +28,14 @@ public class LanguageAPIImpl implements ILanguageAPI {
     }
 
     public void initPlayer(OfflinePlayer player) {
-        db.update("""
+        db().update("""
             INSERT IGNORE INTO player_languages (uuid, language_id)
             VALUES (?, ?)
         """, player.getUniqueId().toString(), 1);
     }
 
     public boolean doesUserExist(OfflinePlayer player) {
-        return db.query(conn -> {
+        return db().query(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT 1 FROM player_languages WHERE uuid = ? LIMIT 1")) {
                 ps.setString(1, player.getUniqueId().toString());
                 try (ResultSet rs = ps.executeQuery()) {
@@ -50,7 +48,7 @@ public class LanguageAPIImpl implements ILanguageAPI {
     @Override
     public Instant getCreatedAt(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        return db.query(conn -> {
+        return db().query(conn -> {
             try (PreparedStatement ps = conn.prepareStatement(
                      "SELECT created_at FROM player_languages WHERE uuid = ? LIMIT 1"
                  )) {
@@ -66,7 +64,7 @@ public class LanguageAPIImpl implements ILanguageAPI {
     @Override
     public CompletableFuture<Instant> getCreatedAtAsync(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        return db.queryAsync(conn -> {
+        return db().queryAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement(
                      "SELECT created_at FROM player_languages WHERE uuid = ? LIMIT 1"
                  )) {
@@ -82,7 +80,7 @@ public class LanguageAPIImpl implements ILanguageAPI {
     @Override
     public Instant getUpdatedAt(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        return db.query(conn -> {
+        return db().query(conn -> {
             try (PreparedStatement ps = conn.prepareStatement(
                      "SELECT updated_at FROM player_languages WHERE uuid = ? LIMIT 1"
                  )) {
@@ -98,7 +96,7 @@ public class LanguageAPIImpl implements ILanguageAPI {
     @Override
     public CompletableFuture<Instant> getUpdatedAtAsync(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        return db.queryAsync(conn -> {
+        return db().queryAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement(
                      "SELECT updated_at FROM player_languages WHERE uuid = ? LIMIT 1"
                  )) {
@@ -113,7 +111,7 @@ public class LanguageAPIImpl implements ILanguageAPI {
 
     @Override
     public void setLanguage(OfflinePlayer player, Integer id) {
-        db.update("""
+        db().update("""
             UPDATE player_languages
             SET language_id = ?
             WHERE uuid = ?
@@ -122,7 +120,7 @@ public class LanguageAPIImpl implements ILanguageAPI {
 
     @Override
     public CompletableFuture<Void> setLanguageAsync(OfflinePlayer player, Integer id) {
-        return db.updateAsync("""
+        return db().updateAsync("""
             UPDATE player_languages
             SET language_id = ?
             WHERE uuid = ?
@@ -132,7 +130,7 @@ public class LanguageAPIImpl implements ILanguageAPI {
     @Override
     public Integer getLanguage(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        return db.query(conn -> {
+        return db().query(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT language_id FROM player_languages WHERE uuid = ? LIMIT 1")) {
                 ps.setString(1, player.getUniqueId().toString());
                 try (ResultSet rs = ps.executeQuery()) {
@@ -150,7 +148,7 @@ public class LanguageAPIImpl implements ILanguageAPI {
     @Override
     public CompletableFuture<Integer> getLanguageAsync(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        return db.queryAsync(conn -> {
+        return db().queryAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT language_id FROM player_languages WHERE uuid = ? LIMIT 1")) {
                 ps.setString(1, player.getUniqueId().toString());
                 try (ResultSet rs = ps.executeQuery()) {

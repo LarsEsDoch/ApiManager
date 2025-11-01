@@ -1,7 +1,7 @@
 package de.lars.apimanager.apis.serverSettingsAPI;
 
 import de.lars.apimanager.ApiManager;
-import de.lars.apimanager.database.DatabaseManager;
+import de.lars.apimanager.database.IDatabaseManager;
 import de.lars.apimanager.utils.ValidateParameter;
 
 import java.sql.PreparedStatement;
@@ -11,14 +11,12 @@ import java.time.Instant;
 import java.util.concurrent.CompletableFuture;
 
 public class ServerSettingsAPIImpl implements IServerSettingsAPI {
-    private final DatabaseManager db;
-
-    public ServerSettingsAPIImpl() {
-        this.db = ApiManager.getInstance().getDatabaseManager();
+    private IDatabaseManager db() {
+        return ApiManager.getInstance().getDatabaseManager();
     }
 
     public void createTables() {
-        db.update("""
+        db().update("""
             CREATE TABLE IF NOT EXISTS server_settings (
                 id INT PRIMARY KEY CHECK (id = 1),
                 real_time_enabled BOOLEAN DEFAULT TRUE,
@@ -37,7 +35,7 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
         """);
 
         if (countRowsInTable() < 1) {
-            db.update("""
+            db().update("""
                 INSERT INTO server_settings
                 (id, real_time_enabled, real_weather_enabled, maintenance_enabled, maintenance_reason, maintenance_end, max_players, server_name, server_version)
                 VALUES (1, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -47,7 +45,7 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
 
     @Override
     public Instant getCreatedAt() {
-        return db.query(conn -> {
+        return db().query(conn -> {
             try (PreparedStatement ps = conn.prepareStatement(
                      "SELECT created_at FROM server_settings WHERE id = 1"
                  );
@@ -60,7 +58,7 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
 
     @Override
     public CompletableFuture<Instant> getCreatedAtAsync() {
-        return db.queryAsync(conn -> {
+        return db().queryAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement(
                      "SELECT created_at FROM server_settings WHERE id = 1"
                  );
@@ -73,7 +71,7 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
 
     @Override
     public Instant getUpdatedAt() {
-        return db.query(conn -> {
+        return db().query(conn -> {
             try (PreparedStatement ps = conn.prepareStatement(
                      "SELECT updated_at FROM server_settings WHERE id = 1"
                  );
@@ -86,7 +84,7 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
 
     @Override
     public CompletableFuture<Instant> getUpdatedAtAsync() {
-        return db.queryAsync(conn -> {
+        return db().queryAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement(
                      "SELECT updated_at FROM server_settings WHERE id = 1"
                  );
@@ -99,7 +97,7 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
 
     @Override
     public void setRealTimeEnabled(boolean enabled) {
-        db.update("""
+        db().update("""
             UPDATE server_settings
             SET real_time_enabled = ?
             WHERE id = 1
@@ -108,7 +106,7 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
 
     @Override
     public CompletableFuture<Void> setRealTimeEnabledAsync(boolean enabled) {
-        return db.updateAsync("""
+        return db().updateAsync("""
             UPDATE server_settings
             SET real_time_enabled = ?
             WHERE id = 1
@@ -117,7 +115,7 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
 
     @Override
     public boolean isRealTimeEnabled() {
-        return db.query(conn -> {
+        return db().query(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT real_time_enabled FROM server_settings WHERE id = 1")) {
                 try (ResultSet rs = ps.executeQuery()) {
                     return rs.next() && rs.getBoolean("real_time_enabled");
@@ -128,7 +126,7 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
 
     @Override
     public CompletableFuture<Boolean> isRealTimeEnabledAsync() {
-        return db.queryAsync(conn -> {
+        return db().queryAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT real_time_enabled FROM server_settings WHERE id = 1")) {
                 try (ResultSet rs = ps.executeQuery()) {
                     return rs.next() && rs.getBoolean("real_time_enabled");
@@ -139,7 +137,7 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
 
     @Override
     public void setRealWeatherEnabled(boolean enabled) {
-        db.update("""
+        db().update("""
             UPDATE server_settings
             SET real_weather_enabled = ?
             WHERE id = 1
@@ -148,7 +146,7 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
 
     @Override
     public CompletableFuture<Void> setRealWeatherEnabledAsync(boolean enabled) {
-        return db.updateAsync("""
+        return db().updateAsync("""
             UPDATE server_settings
             SET real_weather_enabled = ?
             WHERE id = 1
@@ -157,7 +155,7 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
 
     @Override
     public boolean isRealWeatherEnabled() {
-        return db.query(conn -> {
+        return db().query(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT real_weather_enabled FROM server_settings WHERE id = 1")) {
                 try (ResultSet rs = ps.executeQuery()) {
                     return rs.next() && rs.getBoolean("real_weather_enabled");
@@ -168,7 +166,7 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
 
     @Override
     public CompletableFuture<Boolean> isRealWeatherEnabledAsync() {
-        return db.queryAsync(conn -> {
+        return db().queryAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT real_weather_enabled FROM server_settings WHERE id = 1")) {
                 try (ResultSet rs = ps.executeQuery()) {
                     return rs.next() && rs.getBoolean("real_weather_enabled");
@@ -179,7 +177,7 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
 
     @Override
     public void enableMaintenance(String reason, Instant start, Instant endTime, Instant maxEndTime) {
-        db.update("""
+        db().update("""
             UPDATE server_settings
             SET maintenance_enabled = ?,
                 maintenance_reason = ?,
@@ -192,7 +190,7 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
 
     @Override
     public CompletableFuture<Void> enableMaintenanceAsync(String reason, Instant start, Instant endTime, Instant maxEndTime) {
-        return db.updateAsync("""
+        return db().updateAsync("""
             UPDATE server_settings
             SET maintenance_enabled = ?,
                 maintenance_reason = ?,
@@ -205,7 +203,7 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
 
     @Override
     public void disableMaintenance() {
-        db.update("""
+        db().update("""
             UPDATE server_settings
             SET maintenance_enabled = ?,
                 maintenance_reason = ?,
@@ -216,7 +214,7 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
 
     @Override
     public CompletableFuture<Void> disableMaintenanceAsync() {
-        return db.updateAsync("""
+        return db().updateAsync("""
             UPDATE server_settings
             SET maintenance_enabled = ?,
                 maintenance_reason = ?,
@@ -227,7 +225,7 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
 
     @Override
     public boolean isMaintenanceEnabled() {
-        return db.query(conn -> {
+        return db().query(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT maintenance_enabled FROM server_settings WHERE id = 1")) {
                 try (ResultSet rs = ps.executeQuery()) {
                     return rs.next() && rs.getBoolean("maintenance_enabled");
@@ -238,7 +236,7 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
 
     @Override
     public CompletableFuture<Boolean> isMaintenanceEnabledAsync() {
-        return db.queryAsync(conn -> {
+        return db().queryAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT maintenance_enabled FROM server_settings WHERE id = 1")) {
                 try (ResultSet rs = ps.executeQuery()) {
                     return rs.next() && rs.getBoolean("maintenance_enabled");
@@ -250,7 +248,7 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
     @Override
     public void setMaintenanceReason(String reason) {
         ValidateParameter.validateReason(reason);
-        db.update("""
+        db().update("""
             UPDATE server_settings
             SET maintenance_reason = ?
             WHERE id = 1
@@ -260,7 +258,7 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
     @Override
     public CompletableFuture<Void> setMaintenanceReasonAsync(String reason) {
         ValidateParameter.validateReason(reason);
-        return db.updateAsync("""
+        return db().updateAsync("""
             UPDATE server_settings
             SET maintenance_reason = ?
             WHERE id = 1
@@ -269,7 +267,7 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
 
     @Override
     public String getMaintenanceReason() {
-        return db.query(conn -> {
+        return db().query(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT maintenance_reason FROM server_settings WHERE id = 1")) {
                 try (ResultSet rs = ps.executeQuery()) {
                     if (rs.next()) return rs.getString("maintenance_reason");
@@ -281,7 +279,7 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
 
     @Override
     public CompletableFuture<String> getMaintenanceReasonAsync() {
-        return db.queryAsync(conn -> {
+        return db().queryAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT maintenance_reason FROM server_settings WHERE id = 1")) {
                 try (ResultSet rs = ps.executeQuery()) {
                     if (rs.next()) return rs.getString("maintenance_reason");
@@ -294,7 +292,7 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
     @Override
     public void setMaintenanceStart(Instant startTime) {
         ValidateParameter.validateInstant(startTime);
-        db.update("""
+        db().update("""
             UPDATE server_settings
             SET maintenance_start = ?
             WHERE id = 1
@@ -304,7 +302,7 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
     @Override
     public CompletableFuture<Void> setMaintenanceStartAsync(Instant startTime) {
         ValidateParameter.validateInstant(startTime);
-        return db.updateAsync("""
+        return db().updateAsync("""
             UPDATE server_settings
             SET maintenance_start = ?
             WHERE id = 1
@@ -313,7 +311,7 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
 
     @Override
     public Instant getMaintenanceStart() {
-        return db.query(conn -> {
+        return db().query(conn -> {
             try (PreparedStatement ps = conn.prepareStatement(
                 "SELECT maintenance_start FROM server_settings WHERE id = 1"
             );
@@ -330,7 +328,7 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
 
     @Override
     public CompletableFuture<Instant> getMaintenanceStartAsync() {
-        return db.queryAsync(conn -> {
+        return db().queryAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement(
                 "SELECT maintenance_start FROM server_settings WHERE id = 1"
             );
@@ -347,7 +345,7 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
     @Override
     public void setMaintenanceEnd(Instant endTime) {
         ValidateParameter.validateInstant(endTime);
-        db.update("""
+        db().update("""
             UPDATE server_settings
             SET maintenance_end = ?
             WHERE id = 1
@@ -357,7 +355,7 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
     @Override
     public CompletableFuture<Void> setMaintenanceEndAsync(Instant endTime) {
         ValidateParameter.validateInstant(endTime);
-        return db.updateAsync("""
+        return db().updateAsync("""
             UPDATE server_settings
             SET maintenance_end = ?
             WHERE id = 1
@@ -366,7 +364,7 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
 
     @Override
     public Instant getMaintenanceEnd() {
-        return db.query(conn -> {
+        return db().query(conn -> {
             try (PreparedStatement ps = conn.prepareStatement(
                 "SELECT maintenance_end FROM server_settings WHERE id = 1"
             );
@@ -383,7 +381,7 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
 
     @Override
     public CompletableFuture<Instant> getMaintenanceEndAsync() {
-        return db.queryAsync(conn -> {
+        return db().queryAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement(
                 "SELECT maintenance_end FROM server_settings WHERE id = 1"
             );
@@ -400,7 +398,7 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
     @Override
     public void setMaintenanceMaxEnd(Instant maxendTime) {
         ValidateParameter.validateInstant(maxendTime);
-        db.update("""
+        db().update("""
             UPDATE server_settings
             SET maintenance_max_end = ?
             WHERE id = 1
@@ -410,7 +408,7 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
     @Override
     public CompletableFuture<Void> setMaintenanceMaxEndAsync(Instant maxendTime) {
         ValidateParameter.validateInstant(maxendTime);
-        return db.updateAsync("""
+        return db().updateAsync("""
             UPDATE server_settings
             SET maintenance_max_end = ?
             WHERE id = 1
@@ -419,7 +417,7 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
 
     @Override
     public Instant getMaintenanceMaxEnd() {
-        return db.query(conn -> {
+        return db().query(conn -> {
             try (PreparedStatement ps = conn.prepareStatement(
                 "SELECT maintenance_max_end FROM server_settings WHERE id = 1"
             );
@@ -436,7 +434,7 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
 
     @Override
     public CompletableFuture<Instant> getMaintenanceMaxEndAsync() {
-        return db.queryAsync(conn -> {
+        return db().queryAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement(
                 "SELECT maintenance_max_end FROM server_settings WHERE id = 1"
             );
@@ -452,7 +450,7 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
 
     @Override
     public void setMaxPlayers(int maxPlayers) {
-        db.update("""
+        db().update("""
             UPDATE server_settings
             SET max_players = ?
             WHERE id = 1
@@ -461,7 +459,7 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
 
     @Override
     public CompletableFuture<Void> setMaxPlayersAsync(int maxPlayers) {
-        return db.updateAsync("""
+        return db().updateAsync("""
             UPDATE server_settings
             SET max_players = ?
             WHERE id = 1
@@ -470,7 +468,7 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
 
     @Override
     public Integer getMaxPlayers() {
-        return db.query(conn -> {
+        return db().query(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT max_players FROM server_settings WHERE id = 1")) {
                 try (ResultSet rs = ps.executeQuery()) {
                     if (rs.next()) return rs.getInt("max_players");
@@ -482,7 +480,7 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
 
     @Override
     public CompletableFuture<Integer> getMaxPlayersAsync() {
-        return db.queryAsync(conn -> {
+        return db().queryAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT max_players FROM server_settings WHERE id = 1")) {
                 try (ResultSet rs = ps.executeQuery()) {
                     if (rs.next()) return rs.getInt("max_players");
@@ -495,7 +493,7 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
     @Override
     public void setServerName(String serverName) {
         ValidateParameter.validateServerName(serverName);
-        db.update("""
+        db().update("""
             UPDATE server_settings
             SET server_name = ?
             WHERE id = 1
@@ -505,7 +503,7 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
     @Override
     public CompletableFuture<Void> setServerNameAsync(String serverName) {
         ValidateParameter.validateServerName(serverName);
-        return db.updateAsync("""
+        return db().updateAsync("""
             UPDATE server_settings
             SET server_name = ?
             WHERE id = 1
@@ -514,7 +512,7 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
 
     @Override
     public String getServerName() {
-        return db.query(conn -> {
+        return db().query(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT server_name FROM server_settings WHERE id = 1")) {
                 try (ResultSet rs = ps.executeQuery()) {
                     if (rs.next()) return rs.getString("server_name");
@@ -526,7 +524,7 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
 
     @Override
     public CompletableFuture<String> getServerNameAsync() {
-        return db.queryAsync(conn -> {
+        return db().queryAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT server_name FROM server_settings WHERE id = 1")) {
                 try (ResultSet rs = ps.executeQuery()) {
                     if (rs.next()) return rs.getString("server_name");
@@ -539,7 +537,7 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
     @Override
     public void setServerVersion(String serverVersion) {
        ValidateParameter.validateServerVersion(serverVersion);
-        db.update("""
+        db().update("""
             UPDATE server_settings
             SET server_version = ?
             WHERE id = 1
@@ -549,7 +547,7 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
     @Override
     public CompletableFuture<Void> setServerVersionAsync(String serverVersion) {
         ValidateParameter.validateServerVersion(serverVersion);
-        return db.updateAsync("""
+        return db().updateAsync("""
             UPDATE server_settings
             SET server_version = ?
             WHERE id = 1
@@ -558,7 +556,7 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
 
     @Override
     public String getServerVersion() {
-        return db.query(conn -> {
+        return db().query(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT server_version FROM server_settings WHERE id = 1")) {
                 try (ResultSet rs = ps.executeQuery()) {
                     if (rs.next()) return rs.getString("server_version");
@@ -570,7 +568,7 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
 
     @Override
     public CompletableFuture<String> getServerVersionAsync() {
-        return db.queryAsync(conn -> {
+        return db().queryAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT server_version FROM server_settings WHERE id = 1")) {
                 try (ResultSet rs = ps.executeQuery()) {
                     if (rs.next()) return rs.getString("server_version");
@@ -581,7 +579,7 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
     }
 
     public int countRowsInTable() {
-        return db.query(conn -> {
+        return db().query(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT COUNT(*) AS row_count FROM server_settings WHERE id = 1");
                  ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) return rs.getInt("row_count");

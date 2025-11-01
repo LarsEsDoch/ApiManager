@@ -1,7 +1,7 @@
 package de.lars.apimanager.apis.rankAPI;
 
 import de.lars.apimanager.ApiManager;
-import de.lars.apimanager.database.DatabaseManager;
+import de.lars.apimanager.database.IDatabaseManager;
 import de.lars.apimanager.utils.ValidateParameter;
 import org.bukkit.OfflinePlayer;
 
@@ -13,14 +13,12 @@ import java.time.temporal.ChronoUnit;
 import java.util.concurrent.CompletableFuture;
 
 public class RankAPIImpl implements IRankAPI {
-    private final DatabaseManager db;
-
-    public RankAPIImpl() {
-        this.db = ApiManager.getInstance().getDatabaseManager();
+    private IDatabaseManager db() {
+        return ApiManager.getInstance().getDatabaseManager();
     }
 
     public void createTables() {
-        db.update("""
+        db().update("""
             CREATE TABLE IF NOT EXISTS player_ranks (
                 uuid CHAR(36) NOT NULL PRIMARY KEY,
                 rank_id INT NOT NULL DEFAULT 0,
@@ -33,14 +31,14 @@ public class RankAPIImpl implements IRankAPI {
     }
 
     public void initPlayer(OfflinePlayer player) {
-        db.update("""
+        db().update("""
             INSERT IGNORE INTO player_ranks (uuid, rank_id, expires_at)
             VALUES (?, ?, ?)
         """, player.getUniqueId().toString(), 0, null);
     }
 
     public boolean doesUserExist(OfflinePlayer player) {
-        return db.query(conn -> {
+        return db().query(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT 1 FROM player_ranks WHERE uuid = ? LIMIT 1")) {
                 ps.setString(1, player.getUniqueId().toString());
                 try (ResultSet rs = ps.executeQuery()) {
@@ -53,7 +51,7 @@ public class RankAPIImpl implements IRankAPI {
     @Override
     public Instant getCreatedAt(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        return db.query(conn -> {
+        return db().query(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT created_at FROM player_ranks WHERE uuid = ? LIMIT 1")) {
                 ps.setString(1, player.getUniqueId().toString());
                 try (ResultSet rs = ps.executeQuery()) {
@@ -67,7 +65,7 @@ public class RankAPIImpl implements IRankAPI {
     @Override
     public CompletableFuture<Instant> getCreatedAtAsync(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        return db.queryAsync(conn -> {
+        return db().queryAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT created_at FROM player_ranks WHERE uuid = ? LIMIT 1")) {
                 ps.setString(1, player.getUniqueId().toString());
                 try (ResultSet rs = ps.executeQuery()) {
@@ -81,7 +79,7 @@ public class RankAPIImpl implements IRankAPI {
     @Override
     public Instant getUpdatedAt(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        return db.query(conn -> {
+        return db().query(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT updated_at FROM player_ranks WHERE uuid = ? LIMIT 1")) {
                 ps.setString(1, player.getUniqueId().toString());
                 try (ResultSet rs = ps.executeQuery()) {
@@ -95,7 +93,7 @@ public class RankAPIImpl implements IRankAPI {
     @Override
     public CompletableFuture<Instant> getUpdatedAtAsync(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        return db.queryAsync(conn -> {
+        return db().queryAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT updated_at FROM player_ranks WHERE uuid = ? LIMIT 1")) {
                 ps.setString(1, player.getUniqueId().toString());
                 try (ResultSet rs = ps.executeQuery()) {
@@ -114,7 +112,7 @@ public class RankAPIImpl implements IRankAPI {
                 ? Instant.now().plus(days, ChronoUnit.DAYS)
                 : null;
 
-        db.update("""
+        db().update("""
             UPDATE player_ranks
             SET rank_id = ?,
                 expires_at = ?,
@@ -131,7 +129,7 @@ public class RankAPIImpl implements IRankAPI {
                 ? Instant.now().plus(days, ChronoUnit.DAYS)
                 : null;
 
-        return db.updateAsync("""
+        return db().updateAsync("""
             UPDATE player_ranks
             SET rank_id = ?,
                 expires_at = ?,
@@ -169,7 +167,7 @@ public class RankAPIImpl implements IRankAPI {
     @Override
     public Integer getRankId(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        return db.query(conn -> {
+        return db().query(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT rank_id FROM player_ranks WHERE uuid = ? LIMIT 1")) {
                 ps.setString(1, player.getUniqueId().toString());
                 try (ResultSet rs = ps.executeQuery()) {
@@ -186,7 +184,7 @@ public class RankAPIImpl implements IRankAPI {
     @Override
     public CompletableFuture<Integer> getRankIdAsync(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        return db.queryAsync(conn -> {
+        return db().queryAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT rank_id FROM player_ranks WHERE uuid = ? LIMIT 1")) {
                 ps.setString(1, player.getUniqueId().toString());
                 try (ResultSet rs = ps.executeQuery()) {
@@ -203,7 +201,7 @@ public class RankAPIImpl implements IRankAPI {
     @Override
     public Instant getExpiresAt(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        return db.query(conn -> {
+        return db().query(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT expires_at FROM player_ranks WHERE uuid = ? LIMIT 1")) {
                 ps.setString(1, player.getUniqueId().toString());
                 try (ResultSet rs = ps.executeQuery()) {
@@ -217,7 +215,7 @@ public class RankAPIImpl implements IRankAPI {
     @Override
     public CompletableFuture<Instant> getExpiresAtAsync(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        return db.queryAsync(conn -> {
+        return db().queryAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT expires_at FROM player_ranks WHERE uuid = ? LIMIT 1")) {
                 ps.setString(1, player.getUniqueId().toString());
                 try (ResultSet rs = ps.executeQuery()) {
@@ -232,7 +230,7 @@ public class RankAPIImpl implements IRankAPI {
         ValidateParameter.validatePlayer(player);
         if (days == 0) return;
 
-        Timestamp current = db.query(conn -> {
+        Timestamp current = db().query(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT expires_at FROM player_ranks WHERE uuid = ? LIMIT 1")) {
                 ps.setString(1, player.getUniqueId().toString());
                 try (ResultSet rs = ps.executeQuery()) {
@@ -245,7 +243,7 @@ public class RankAPIImpl implements IRankAPI {
         Instant base = (current == null) ? Instant.now() : current.toInstant();
         Instant newExpires = base.plus(days, ChronoUnit.DAYS);
 
-        db.update("""
+        db().update("""
             UPDATE player_ranks
             SET expires_at = ?, updated_at = CURRENT_TIMESTAMP
             WHERE uuid = ?
@@ -256,7 +254,7 @@ public class RankAPIImpl implements IRankAPI {
         ValidateParameter.validatePlayer(player);
         if (days == 0) return CompletableFuture.completedFuture(null);
 
-        return db.queryAsync(conn -> {
+        return db().queryAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT expires_at FROM player_ranks WHERE uuid = ? LIMIT 1")) {
                 ps.setString(1, player.getUniqueId().toString());
                 try (ResultSet rs = ps.executeQuery()) {
@@ -267,7 +265,7 @@ public class RankAPIImpl implements IRankAPI {
         }).thenCompose(current -> {
             Instant base = (current == null) ? Instant.now() : current.toInstant();
             Instant newExpires = base.plus(days, ChronoUnit.DAYS);
-            return db.updateAsync("""
+            return db().updateAsync("""
                 UPDATE player_ranks
                 SET expires_at = ?, updated_at = CURRENT_TIMESTAMP
                 WHERE uuid = ?
