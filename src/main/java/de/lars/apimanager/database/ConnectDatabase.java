@@ -2,7 +2,6 @@ package de.lars.apimanager.database;
 
 import de.lars.apimanager.ApiManager;
 
-import java.io.Console;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 
@@ -17,7 +16,7 @@ public class ConnectDatabase{
         String host = plugin.getConfig().getString("database.host");
         int port = plugin.getConfig().getInt("database.port");
         String database = plugin.getConfig().getString("database.database");
-        String user = plugin.getConfig().getString("database.user");
+        String user = plugin.getConfig().getString("database.username");
         String password = plugin.getConfig().getString("database.password");
 
         if (host == null || host.isEmpty() || host.equalsIgnoreCase("Enter the IP of your database") ||
