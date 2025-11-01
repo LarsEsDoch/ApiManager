@@ -27,7 +27,7 @@ public class PrefixAPIImpl implements IPrefixAPI {
         db.update("""
             CREATE TABLE IF NOT EXISTS player_prefixes (
                 uuid CHAR(36) NOT NULL PRIMARY KEY,
-                color INT DEFAULT 0,
+                color INT DEFAULT 15,
                 decoration INT DEFAULT 0,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -40,7 +40,7 @@ public class PrefixAPIImpl implements IPrefixAPI {
         db.update("""
             INSERT IGNORE INTO player_prefixes (uuid, color, decoration)
             VALUES (?, ?, ?)
-        """, player.getUniqueId().toString(), 0, 0);
+        """, player.getUniqueId().toString(), 15, 0);
     }
 
     public boolean doesUserExist(OfflinePlayer player) {
