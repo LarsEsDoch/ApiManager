@@ -10,6 +10,8 @@ import java.sql.ResultSet;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public class BanAPIImpl implements IBanAPI {
@@ -127,13 +129,13 @@ public class BanAPIImpl implements IBanAPI {
     @Override
     public void setUnBanned(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        db().update("UPDATE player_bans SET is_banned = FALSE, expires_at = NULL, reason = NULL WHERE uuid = ? LIMIT 1", player.getUniqueId().toString());
+        db().update("UPDATE player_bans SET is_banned = FALSE, banned_at = NULL, expires_at = NULL, reason = NULL WHERE uuid = ? LIMIT 1", player.getUniqueId().toString());
     }
 
     @Override
     public CompletableFuture<Void> setUnBannedAsync(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        return db().updateAsync("UPDATE player_bans SET is_banned = FALSE, expires_at = NULL, reason = NULL WHERE uuid = ? LIMIT 1", player.getUniqueId().toString());
+        return db().updateAsync("UPDATE player_bans SET is_banned = FALSE, banned_at = NULL, expires_at = NULL, reason = NULL WHERE uuid = ? LIMIT 1", player.getUniqueId().toString());
     }
 
     @Override
@@ -218,6 +220,36 @@ public class BanAPIImpl implements IBanAPI {
                     return false;
                 }
             }
+        });
+    }
+
+    @Override
+    public List<String> getBannedPlayers() {
+        return db().query(conn -> {
+            List<String> bannedPlayers = new ArrayList<>();
+            try (PreparedStatement ps = conn.prepareStatement("SELECT uuid FROM player_bans WHERE is_banned = TRUE")) {
+                try (ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        bannedPlayers.add(rs.getString("uuid"));
+                    }
+                }
+            }
+            return bannedPlayers;
+        });
+    }
+
+    @Override
+    public CompletableFuture<List<String>> getBannedPlayersAsync() {
+        return db().queryAsync(conn -> {
+            List<String> bannedPlayers = new ArrayList<>();
+            try (PreparedStatement ps = conn.prepareStatement("SELECT uuid FROM player_bans WHERE is_banned = TRUE")) {
+                try (ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        bannedPlayers.add(rs.getString("uuid"));
+                    }
+                }
+            }
+            return bannedPlayers;
         });
     }
 

@@ -3,6 +3,7 @@ package de.lars.apimanager.apis.banAPI;
 import org.bukkit.OfflinePlayer;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public interface IBanAPI {
@@ -41,4 +42,8 @@ public interface IBanAPI {
     Instant getEnd(OfflinePlayer player);
 
     CompletableFuture<Instant> getEndAsync(OfflinePlayer player);
+
+    List<String> getBannedPlayers();
+
+    CompletableFuture<List<String>> getBannedPlayersAsync();
 }
