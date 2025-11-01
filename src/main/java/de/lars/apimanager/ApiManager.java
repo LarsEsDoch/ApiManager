@@ -151,8 +151,6 @@ public final class ApiManager extends JavaPlugin {
             databaseManager.close();
         }
 
-        Bukkit.getPluginManager().registerEvents(new JoinListener(), this);
-
         Component message = Component.text()
                 .append(Component.text("[", NamedTextColor.DARK_GRAY))
                 .append(Component.text("ApiManager", NamedTextColor.GOLD))
