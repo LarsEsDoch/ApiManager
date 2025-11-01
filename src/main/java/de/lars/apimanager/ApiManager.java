@@ -4,11 +4,15 @@ import de.lars.apimanager.apis.backpackAPI.BackpackAPI;
 import de.lars.apimanager.apis.backpackAPI.BackpackAPIImpl;
 import de.lars.apimanager.apis.banAPI.BanAPI;
 import de.lars.apimanager.apis.banAPI.BanAPIImpl;
+import de.lars.apimanager.apis.chunkAPI.ChunkAPI;
+import de.lars.apimanager.apis.chunkAPI.ChunkAPIImpl;
 import de.lars.apimanager.apis.coinAPI.CoinAPI;
 import de.lars.apimanager.apis.coinAPI.CoinAPIImpl;
 import de.lars.apimanager.apis.commands.ReloadCommand;
 import de.lars.apimanager.apis.courtAPI.CourtAPI;
 import de.lars.apimanager.apis.courtAPI.CourtAPIImpl;
+import de.lars.apimanager.apis.homeAPI.HomeAPI;
+import de.lars.apimanager.apis.homeAPI.HomeAPIImpl;
 import de.lars.apimanager.apis.languageAPI.LanguageAPI;
 import de.lars.apimanager.apis.languageAPI.LanguageAPIImpl;
 import de.lars.apimanager.apis.limitAPI.LimitAPI;
@@ -49,6 +53,8 @@ public final class ApiManager extends JavaPlugin {
     private ConnectDatabase connectDatabase;
 
     private ServerSettingsAPIImpl serverSettingsAPI;
+    private ChunkAPIImpl chunkAPI;
+    private HomeAPIImpl homeAPI;
     private PlayerAPIImpl playerAPI;
     private LanguageAPIImpl languageAPI;
     private BackpackAPIImpl backpackAPI;
@@ -78,78 +84,86 @@ public final class ApiManager extends JavaPlugin {
     @Override
     public void onEnable() {
         serverSettingsAPI = new ServerSettingsAPIImpl();
-    ServerSettingsAPI.setApi(serverSettingsAPI);
+        ServerSettingsAPI.setApi(serverSettingsAPI);
 
-    playerAPI = new PlayerAPIImpl();
-    PlayerAPI.setApi(playerAPI);
+        chunkAPI = new ChunkAPIImpl();
+        ChunkAPI.setApi(chunkAPI);
 
-    languageAPI = new LanguageAPIImpl();
-    LanguageAPI.setApi(languageAPI);
+        homeAPI = new HomeAPIImpl();
+        HomeAPI.setApi(homeAPI);
 
-    backpackAPI = new BackpackAPIImpl();
-    BackpackAPI.setApi(backpackAPI);
+        playerAPI = new PlayerAPIImpl();
+        PlayerAPI.setApi(playerAPI);
 
-    limitAPI = new LimitAPIImpl();
-    LimitAPI.setApi(limitAPI);
+        languageAPI = new LanguageAPIImpl();
+        LanguageAPI.setApi(languageAPI);
 
-    banAPI = new BanAPIImpl();
-    BanAPI.setApi(banAPI);
+        backpackAPI = new BackpackAPIImpl();
+        BackpackAPI.setApi(backpackAPI);
 
-    courtAPI = new CourtAPIImpl();
-    CourtAPI.setApi(courtAPI);
+        limitAPI = new LimitAPIImpl();
+        LimitAPI.setApi(limitAPI);
 
-    rankAPI = new RankAPIImpl();
-    RankAPI.setApi(rankAPI);
+        banAPI = new BanAPIImpl();
+        BanAPI.setApi(banAPI);
 
-    prefixAPI = new PrefixAPIImpl();
-    PrefixAPI.setApi(prefixAPI);
+        courtAPI = new CourtAPIImpl();
+        CourtAPI.setApi(courtAPI);
 
-    statusAPI = new StatusAPIImpl();
-    StatusAPI.setApi(statusAPI);
+        rankAPI = new RankAPIImpl();
+        RankAPI.setApi(rankAPI);
 
-    nickAPI = new NickAPIImpl();
-    NickAPI.setApi(nickAPI);
+        prefixAPI = new PrefixAPIImpl();
+        PrefixAPI.setApi(prefixAPI);
 
-    toggleAPI = new ToggleAPIImpl();
-    ToggleAPI.setApi(toggleAPI);
+        statusAPI = new StatusAPIImpl();
+        StatusAPI.setApi(statusAPI);
 
-    coinAPI = new CoinAPIImpl();
-    CoinAPI.setApi(coinAPI);
+        nickAPI = new NickAPIImpl();
+        NickAPI.setApi(nickAPI);
 
-    questAPI = new QuestAPIImpl();
-    QuestAPI.setApi(questAPI);
+        toggleAPI = new ToggleAPIImpl();
+        ToggleAPI.setApi(toggleAPI);
 
-    timerAPI = new TimerAPIImpl();
-    TimerAPI.setApi(timerAPI);
+        coinAPI = new CoinAPIImpl();
+        CoinAPI.setApi(coinAPI);
 
-    boolean hasRealDb = ApiManager.getInstance().getDatabaseManager() instanceof DatabaseManager;
+        questAPI = new QuestAPIImpl();
+        QuestAPI.setApi(questAPI);
 
-    if (hasRealDb) {
-        serverSettingsAPI.createTables();
-        playerAPI.createTables();
-        languageAPI.createTables();
-        backpackAPI.createTables();
-        limitAPI.createTables();
-        banAPI.createTables();
-        courtAPI.createTables();
-        rankAPI.createTables();
-        prefixAPI.createTables();
-        statusAPI.createTables();
-        nickAPI.createTables();
-        toggleAPI.createTables();
-        coinAPI.createTables();
-        questAPI.createTables();
-        timerAPI.createTables();
-        Component message = Component.text()
-                .append(Component.text("[", NamedTextColor.DARK_GRAY))
-                .append(Component.text("ApiManager", NamedTextColor.GOLD))
-                .append(Component.text("]", NamedTextColor.DARK_GRAY))
-                .append(Component.text(" All APIs are ready!", NamedTextColor.DARK_GREEN))
-                .build();
-        Bukkit.getConsoleSender().sendMessage(message);
-    } else {
-        getLogger().warning("Database not connected — skipping table creation. APIs will run in safe mode (no DB).");
-    }
+        timerAPI = new TimerAPIImpl();
+        TimerAPI.setApi(timerAPI);
+
+        boolean hasRealDb = ApiManager.getInstance().getDatabaseManager() instanceof DatabaseManager;
+
+        if (hasRealDb) {
+            serverSettingsAPI.createTables();
+            chunkAPI.createTables();
+            homeAPI.createTables();
+            playerAPI.createTables();
+            languageAPI.createTables();
+            backpackAPI.createTables();
+            limitAPI.createTables();
+            banAPI.createTables();
+            courtAPI.createTables();
+            rankAPI.createTables();
+            prefixAPI.createTables();
+            statusAPI.createTables();
+            nickAPI.createTables();
+            toggleAPI.createTables();
+            coinAPI.createTables();
+            questAPI.createTables();
+            timerAPI.createTables();
+            Component message = Component.text()
+                    .append(Component.text("[", NamedTextColor.DARK_GRAY))
+                    .append(Component.text("ApiManager", NamedTextColor.GOLD))
+                    .append(Component.text("]", NamedTextColor.DARK_GRAY))
+                    .append(Component.text(" All APIs are ready!", NamedTextColor.DARK_GREEN))
+                    .build();
+            Bukkit.getConsoleSender().sendMessage(message);
+        } else {
+            getLogger().warning("Database not connected — skipping table creation. APIs will run in safe mode (no DB).");
+        }
 
         Bukkit.getPluginManager().registerEvents(new JoinListener(), this);
         Bukkit.getPluginManager().registerEvents(new QuitListener(), this);
@@ -171,6 +185,14 @@ public final class ApiManager extends JavaPlugin {
         serverSettingsAPI = new ServerSettingsAPIImpl();
         ServerSettingsAPI.setApi(serverSettingsAPI);
         serverSettingsAPI.createTables();
+
+        chunkAPI = new ChunkAPIImpl();
+        ChunkAPI.setApi(chunkAPI);
+        chunkAPI.createTables();
+
+        homeAPI = new HomeAPIImpl();
+        HomeAPI.setApi(homeAPI);
+        homeAPI.createTables();
 
         playerAPI = new PlayerAPIImpl();
         PlayerAPI.setApi(playerAPI);
@@ -254,6 +276,18 @@ public final class ApiManager extends JavaPlugin {
 
     public IDatabaseManager getDatabaseManager() {
         return databaseManager;
+    }
+
+    public ServerSettingsAPIImpl getServerSettingsAPI() {
+        return serverSettingsAPI;
+    }
+
+    public ChunkAPIImpl getChunkAPI() {
+        return chunkAPI;
+    }
+
+    public HomeAPIImpl getHomeAPI() {
+        return homeAPI;
     }
 
     public PlayerAPIImpl getPlayerAPI() {
