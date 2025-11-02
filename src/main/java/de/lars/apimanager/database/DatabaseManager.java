@@ -12,41 +12,50 @@ import java.util.concurrent.Executor;
 import java.util.logging.Level;
 
 public final class DatabaseManager implements IDatabaseManager{
-    private final HikariDataSource dataSource;
+    private HikariDataSource dataSource;
     private final Executor asyncExecutor;
 
     public DatabaseManager(String host, int port, String database, String username, String password) {
-        HikariConfig config = new HikariConfig();
-
-        config.setDriverClassName("org.mariadb.jdbc.Driver");
-        config.setJdbcUrl(String.format(
-                "jdbc:mariadb://%s:%d/%s?useUnicode=true&characterEncoding=UTF-8&useSSL=false&autoReconnect=true&allowPublicKeyRetrieval=true&serverTimezone=UTC",
-                host, port, database
-        ));
-        config.setUsername(username);
-        config.setPassword(password);
-
-        config.setMaximumPoolSize(10);
-        config.setMinimumIdle(2);
-        config.setConnectionTimeout(10000);
-        config.setIdleTimeout(120000);
-        config.setMaxLifetime(1800000);
-        config.setLeakDetectionThreshold(10000);
-
-        config.addDataSourceProperty("cachePrepStmts", "true");
-        config.addDataSourceProperty("prepStmtCacheSize", "250");
-        config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
-        config.addDataSourceProperty("useServerPrepStmts", "true");
-        config.addDataSourceProperty("useLocalSessionState", "true");
-        config.addDataSourceProperty("rewriteBatchedStatements", "true");
-        config.addDataSourceProperty("cacheResultSetMetadata", "true");
-        config.addDataSourceProperty("cacheServerConfiguration", "true");
-        config.addDataSourceProperty("maintainTimeStats", "false");
-
-        this.dataSource = new HikariDataSource(config);
         this.asyncExecutor = CompletableFuture.delayedExecutor(0, java.util.concurrent.TimeUnit.MILLISECONDS);
 
-        ApiManager.getInstance().getLogger().info("Connected to MariaDB via HikariCP");
+        CompletableFuture.runAsync(() -> {
+            while (true) {
+                try {
+                    HikariConfig config = new HikariConfig();
+                    config.setDriverClassName("org.mariadb.jdbc.Driver");
+                    config.setJdbcUrl(String.format(
+                            "jdbc:mariadb://%s:%d/%s?useUnicode=true&characterEncoding=UTF-8&useSSL=false&autoReconnect=true&allowPublicKeyRetrieval=true&serverTimezone=UTC",
+                            host, port, database
+                    ));
+                    config.setUsername(username);
+                    config.setPassword(password);
+                    config.setMaximumPoolSize(10);
+                    config.setMinimumIdle(2);
+                    config.setConnectionTimeout(30000);
+                    config.setValidationTimeout(10000);
+                    config.setIdleTimeout(600000);
+                    config.setMaxLifetime(1800000);
+                    config.setMinimumIdle(2);
+                    config.setMaximumPoolSize(10);
+
+                    config.addDataSourceProperty("autoReconnect", "true");
+                    config.addDataSourceProperty("socketTimeout", "600000");
+                    config.addDataSourceProperty("connectTimeout", "10000");
+                    config.addDataSourceProperty("tcpKeepAlive", "true");
+
+                    this.dataSource = new HikariDataSource(config);
+                    try (Connection conn = dataSource.getConnection()) {
+                        ApiManager.getInstance().getLogger().info("Connected to MariaDB via HikariCP");
+                    }
+                    break;
+                } catch (Exception e) {
+                    ApiManager.getInstance().getLogger().log(Level.WARNING, "Database connection failed, retrying in 5s...", e);
+                    try {
+                        Thread.sleep(5000);
+                    } catch (InterruptedException ignored) {}
+                }
+            }
+        });
     }
 
     public Connection getConnection() throws SQLException {
