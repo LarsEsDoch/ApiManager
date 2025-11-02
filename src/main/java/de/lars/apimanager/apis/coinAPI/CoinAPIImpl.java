@@ -238,7 +238,7 @@ public class CoinAPIImpl implements ICoinAPI {
     public void removeGift(OfflinePlayer player, int gift) {
         ValidateParameter.validatePlayer(player);
         List<Integer> gifts = new ArrayList<>(getGifts(player));
-        gifts.remove(Integer.valueOf(gift)); // Important: remove by value, not index
+        gifts.remove(Integer.valueOf(gift));
 
         String giftString = gifts.stream()
             .map(String::valueOf)
@@ -251,7 +251,7 @@ public class CoinAPIImpl implements ICoinAPI {
     public CompletableFuture<Void> removeGiftAsync(OfflinePlayer player, int gift) {
         ValidateParameter.validatePlayer(player);
         return getGiftsAsync(player).thenCompose(gifts -> {
-            gifts.remove(Integer.valueOf(gift)); // Important fix
+            gifts.remove(Integer.valueOf(gift));
 
             String giftString = gifts.stream()
                 .map(String::valueOf)

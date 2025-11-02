@@ -226,7 +226,7 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
                 maintenance_end = ?,
                 maintenance_max_end = ?
             WHERE id = 1
-        """, true, reason, Timestamp.from(endTime));
+        """, true, reason, Timestamp.from(start), Timestamp.from(endTime), Timestamp.from(maxEndTime));
     }
 
     @Override
@@ -239,7 +239,7 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
                 maintenance_end = ?,
                 maintenance_max_end = ?
             WHERE id = 1
-        """, true, reason, Timestamp.from(endTime));
+        """, true, reason, Timestamp.from(start), Timestamp.from(endTime), Timestamp.from(maxEndTime));
     }
 
     @Override
@@ -248,9 +248,11 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
             UPDATE server_settings
             SET maintenance_enabled = ?,
                 maintenance_reason = ?,
-                maintenance_end = ?
+                maintenance_start = ?,
+                maintenance_end = ?,
+                maintenance_max_end = ?
             WHERE id = 1
-        """, false, "", null);
+        """, false, "", null, null, null);
     }
 
     @Override
@@ -259,9 +261,11 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
             UPDATE server_settings
             SET maintenance_enabled = ?,
                 maintenance_reason = ?,
-                maintenance_end = ?
+                maintenance_start = ?,
+                maintenance_end = ?,
+                maintenance_max_end = ?
             WHERE id = 1
-        """, false, "", null);
+        """, false, "", null, null, null);
     }
 
     @Override
@@ -437,23 +441,23 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
     }
 
     @Override
-    public void setMaintenanceMaxEnd(Instant maxendTime) {
-        ValidateParameter.validateInstant(maxendTime);
+    public void setMaintenanceMaxEnd(Instant maxEndTime) {
+        ValidateParameter.validateInstant(maxEndTime);
         db().update("""
             UPDATE server_settings
             SET maintenance_max_end = ?
             WHERE id = 1
-        """, Timestamp.from(maxendTime));
+        """, Timestamp.from(maxEndTime));
     }
 
     @Override
-    public CompletableFuture<Void> setMaintenanceMaxEndAsync(Instant maxendTime) {
-        ValidateParameter.validateInstant(maxendTime);
+    public CompletableFuture<Void> setMaintenanceMaxEndAsync(Instant maxEndTime) {
+        ValidateParameter.validateInstant(maxEndTime);
         return db().updateAsync("""
             UPDATE server_settings
             SET maintenance_max_end = ?
             WHERE id = 1
-        """, Timestamp.from(maxendTime));
+        """, Timestamp.from(maxEndTime));
     }
 
     @Override
