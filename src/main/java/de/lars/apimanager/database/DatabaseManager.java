@@ -12,7 +12,6 @@ import java.util.concurrent.Executor;
 import java.util.logging.Level;
 
 public final class DatabaseManager implements IDatabaseManager{
-
     private final HikariDataSource dataSource;
     private final Executor asyncExecutor;
 

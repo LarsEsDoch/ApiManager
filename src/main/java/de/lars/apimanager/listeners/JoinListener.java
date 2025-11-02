@@ -22,9 +22,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerLoginEvent;
 
 public class JoinListener implements Listener {
-
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void onJoin(PlayerLoginEvent e) {
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void onLogin(PlayerLoginEvent e) {
         Player player = e.getPlayer();
 
         PlayerAPIImpl playerAPI = ApiManager.getInstance().getPlayerAPI();

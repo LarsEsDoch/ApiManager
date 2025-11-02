@@ -4,7 +4,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 
 public class SafeDatabaseManager implements IDatabaseManager{
-
     public void update(String sql, Object... params) {
         logSkip("update", sql);
     }
