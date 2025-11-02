@@ -15,12 +15,10 @@ import de.lars.apimanager.apis.rankAPI.RankAPIImpl;
 import de.lars.apimanager.apis.statusAPI.StatusAPIImpl;
 import de.lars.apimanager.apis.timerAPI.TimerAPIImpl;
 import de.lars.apimanager.apis.toggleAPI.ToggleAPIImpl;
-import io.papermc.paper.event.connection.PlayerConnectionValidateLoginEvent;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 
 public class JoinListener implements Listener {
