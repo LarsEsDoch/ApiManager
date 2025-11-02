@@ -53,6 +53,14 @@ public interface IChunkAPI {
 
     CompletableFuture<Void> removeFriendAsync(Chunk chunk, OfflinePlayer friend);
 
+    void setAllFriends(Chunk chunk);
+
+    CompletableFuture<Void> setAllFriendsAsync(Chunk chunk);
+
+    void clearFriends(Chunk chunk);
+
+    CompletableFuture<Void> clearFriendsAsync(Chunk chunk);
+
     boolean isFriend(Chunk chunk, OfflinePlayer friend);
 
     CompletableFuture<Boolean> isFriendAsync(Chunk chunk, OfflinePlayer friend);

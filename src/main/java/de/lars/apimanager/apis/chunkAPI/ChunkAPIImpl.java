@@ -316,33 +316,6 @@ public class ChunkAPIImpl implements IChunkAPI {
         });
     }
 
-
-    @Override
-    public List<OfflinePlayer> getFriendPlayers(Chunk chunk) {
-        ValidateParameter.validateChunk(chunk);
-        return getFriends(chunk).stream()
-            .map(uuid -> Bukkit.getOfflinePlayer(UUID.fromString(uuid)))
-            .collect(Collectors.toList());
-    }
-
-    @Override
-    public CompletableFuture<List<OfflinePlayer>> getFriendPlayersAsync(Chunk chunk) {
-        ValidateParameter.validateChunk(chunk);
-
-        return getFriendsAsync(chunk).thenApply(uuids ->
-            uuids.stream()
-                 .map(id -> {
-                     try {
-                         return Bukkit.getOfflinePlayer(UUID.fromString(id));
-                     } catch (IllegalArgumentException e) {
-                         return null;
-                     }
-                 })
-                 .filter(Objects::nonNull)
-                 .collect(Collectors.toList())
-        );
-    }
-
     @Override
     public List<String> getFriends(Chunk chunk) {
         ValidateParameter.validateChunk(chunk);
@@ -358,8 +331,12 @@ public class ChunkAPIImpl implements IChunkAPI {
                 try (ResultSet rs = ps.executeQuery()) {
                     if (rs.next()) {
                         String s = rs.getString("friends");
-                        if (s == null || s.isEmpty()) return new ArrayList<>();
+                        if (s == null) {
+                            return Collections.singletonList("*");
+                        }
+                        if (s.isEmpty()) return new ArrayList<>();
                         return Arrays.stream(s.split(","))
+                                .map(String::trim)
                                 .filter(tok -> !tok.isBlank())
                                 .collect(Collectors.toList());
                     }
@@ -384,8 +361,12 @@ public class ChunkAPIImpl implements IChunkAPI {
                 try (ResultSet rs = ps.executeQuery()) {
                     if (rs.next()) {
                         String s = rs.getString("friends");
-                        if (s == null || s.isEmpty()) return new ArrayList<>();
+                        if (s == null) {
+                            return Collections.singletonList("*");
+                        }
+                        if (s.isEmpty()) return new ArrayList<>();
                         return Arrays.stream(s.split(","))
+                                .map(String::trim)
                                 .filter(tok -> !tok.isBlank())
                                 .collect(Collectors.toList());
                     }
@@ -396,12 +377,54 @@ public class ChunkAPIImpl implements IChunkAPI {
     }
 
     @Override
+    public List<OfflinePlayer> getFriendPlayers(Chunk chunk) {
+        ValidateParameter.validateChunk(chunk);
+        List<String> friends = getFriends(chunk);
+        if (friends.contains("*")) {
+            return Arrays.asList(Bukkit.getOfflinePlayers());
+        }
+        return friends.stream()
+                .map(uuid -> {
+                    try {
+                        return Bukkit.getOfflinePlayer(UUID.fromString(uuid));
+                    } catch (IllegalArgumentException e) {
+                        return null;
+                    }
+                })
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public CompletableFuture<List<OfflinePlayer>> getFriendPlayersAsync(Chunk chunk) {
+        ValidateParameter.validateChunk(chunk);
+        return getFriendsAsync(chunk).thenApply(uuids -> {
+            if (uuids.contains("*")) {
+                return Arrays.asList(Bukkit.getOfflinePlayers());
+            }
+            return uuids.stream()
+                    .map(id -> {
+                        try {
+                            return Bukkit.getOfflinePlayer(UUID.fromString(id));
+                        } catch (IllegalArgumentException e) {
+                            return null;
+                        }
+                    })
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
+        });
+    }
+
+    @Override
     public void addFriend(Chunk chunk, OfflinePlayer friend) {
         ValidateParameter.validateChunk(chunk);
         ValidateParameter.validatePlayer(friend);
         String friendUuid = friend.getUniqueId().toString();
 
         List<String> friends = new ArrayList<>(getFriends(chunk));
+        if (friends.contains("*")) {
+            return;
+        }
         if (!friends.contains(friendUuid)) {
             friends.add(friendUuid);
             String joined = String.join(",", friends);
@@ -417,8 +440,12 @@ public class ChunkAPIImpl implements IChunkAPI {
         String friendUuid = friend.getUniqueId().toString();
 
         return getFriendsAsync(chunk).thenCompose(list -> {
-            if (!list.contains(friendUuid)) list.add(friendUuid);
-            String joined = String.join(",", list);
+            List<String> newList = new ArrayList<>(list);
+            if (newList.contains("*")) {
+                return CompletableFuture.completedFuture(null);
+            }
+            if (!newList.contains(friendUuid)) newList.add(friendUuid);
+            String joined = String.join(",", newList);
             return db().updateAsync("UPDATE claimed_chunks SET friends = ?, updated_at = CURRENT_TIMESTAMP WHERE world = ? AND x = ? AND z = ?",
                     joined, chunk.getWorld().getName(), chunk.getX(), chunk.getZ());
         });
@@ -431,6 +458,17 @@ public class ChunkAPIImpl implements IChunkAPI {
         String friendUuid = friend.getUniqueId().toString();
 
         List<String> friends = new ArrayList<>(getFriends(chunk));
+        if (friends.contains("*")) {
+            List<String> explicit = Arrays.stream(Bukkit.getOfflinePlayers())
+                    .map(p -> p.getUniqueId().toString())
+                    .filter(id -> !id.equals(friendUuid))
+                    .collect(Collectors.toList());
+            String joined = String.join(",", explicit);
+            db().update("UPDATE claimed_chunks SET friends = ?, updated_at = CURRENT_TIMESTAMP WHERE world = ? AND x = ? AND z = ?",
+                    joined, chunk.getWorld().getName(), chunk.getX(), chunk.getZ());
+            return;
+        }
+
         if (friends.remove(friendUuid)) {
             String joined = String.join(",", friends);
             db().update("UPDATE claimed_chunks SET friends = ?, updated_at = CURRENT_TIMESTAMP WHERE world = ? AND x = ? AND z = ?",
@@ -445,11 +483,49 @@ public class ChunkAPIImpl implements IChunkAPI {
         String friendUuid = friend.getUniqueId().toString();
 
         return getFriendsAsync(chunk).thenCompose(list -> {
-            list.remove(friendUuid);
-            String joined = String.join(",", list);
+            List<String> newList = new ArrayList<>(list);
+            if (newList.contains("*")) {
+                List<String> explicit = Arrays.stream(Bukkit.getOfflinePlayers())
+                        .map(p -> p.getUniqueId().toString())
+                        .filter(id -> !id.equals(friendUuid))
+                        .collect(Collectors.toList());
+                String joined = String.join(",", explicit);
+                return db().updateAsync("UPDATE claimed_chunks SET friends = ?, updated_at = CURRENT_TIMESTAMP WHERE world = ? AND x = ? AND z = ?",
+                        joined, chunk.getWorld().getName(), chunk.getX(), chunk.getZ());
+            }
+            newList.remove(friendUuid);
+            String joined = String.join(",", newList);
             return db().updateAsync("UPDATE claimed_chunks SET friends = ?, updated_at = CURRENT_TIMESTAMP WHERE world = ? AND x = ? AND z = ?",
                     joined, chunk.getWorld().getName(), chunk.getX(), chunk.getZ());
         });
+    }
+
+    @Override
+    public void setAllFriends(Chunk chunk) {
+        ValidateParameter.validateChunk(chunk);
+        db().update("UPDATE claimed_chunks SET friends = NULL, updated_at = CURRENT_TIMESTAMP WHERE world = ? AND x = ? AND z = ?",
+                chunk.getWorld().getName(), chunk.getX(), chunk.getZ());
+    }
+
+    @Override
+    public CompletableFuture<Void> setAllFriendsAsync(Chunk chunk) {
+        ValidateParameter.validateChunk(chunk);
+        return db().updateAsync("UPDATE claimed_chunks SET friends = NULL, updated_at = CURRENT_TIMESTAMP WHERE world = ? AND x = ? AND z = ?",
+                chunk.getWorld().getName(), chunk.getX(), chunk.getZ());
+    }
+
+    @Override
+    public void clearFriends(Chunk chunk) {
+        ValidateParameter.validateChunk(chunk);
+        db().update("UPDATE claimed_chunks SET friends = '', updated_at = CURRENT_TIMESTAMP WHERE world = ? AND x = ? AND z = ?",
+                chunk.getWorld().getName(), chunk.getX(), chunk.getZ());
+    }
+
+    @Override
+    public CompletableFuture<Void> clearFriendsAsync(Chunk chunk) {
+        ValidateParameter.validateChunk(chunk);
+        return db().updateAsync("UPDATE claimed_chunks SET friends = '', updated_at = CURRENT_TIMESTAMP WHERE world = ? AND x = ? AND z = ?",
+                chunk.getWorld().getName(), chunk.getX(), chunk.getZ());
     }
 
     @Override
@@ -458,7 +534,7 @@ public class ChunkAPIImpl implements IChunkAPI {
         ValidateParameter.validatePlayer(friend);
         String friendUuid = friend.getUniqueId().toString();
         List<String> friends = getFriends(chunk);
-        return friends.contains(friendUuid);
+        return friends.contains("*") || friends.contains(friendUuid);
     }
 
     @Override
@@ -466,7 +542,7 @@ public class ChunkAPIImpl implements IChunkAPI {
         ValidateParameter.validateChunk(chunk);
         ValidateParameter.validatePlayer(friend);
         String friendUuid = friend.getUniqueId().toString();
-        return getFriendsAsync(chunk).thenApply(list -> list.contains(friendUuid));
+        return getFriendsAsync(chunk).thenApply(list -> list.contains("*") || list.contains(friendUuid));
     }
 
     @Override
