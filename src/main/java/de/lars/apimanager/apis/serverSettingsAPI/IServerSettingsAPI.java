@@ -12,6 +12,14 @@ public interface IServerSettingsAPI {
 
     CompletableFuture<Instant> getUpdatedAtAsync();
 
+    void setServerOnline(boolean online);
+
+    CompletableFuture<Void> setServerOnlineAsync(boolean online);
+
+    boolean isServerOnline();
+
+    CompletableFuture<Boolean> isServerOnlineAsync();
+
     void setRealTimeEnabled(boolean enabled);
 
     CompletableFuture<Void> setRealTimeEnabledAsync(boolean enabled);

@@ -154,6 +154,8 @@ public final class ApiManager extends JavaPlugin {
             coinAPI.createTables();
             questAPI.createTables();
             timerAPI.createTables();
+
+            serverSettingsAPI.setServerOnline(true);
             Component message = Component.text()
                     .append(Component.text("[", NamedTextColor.DARK_GRAY))
                     .append(Component.text("ApiManager", NamedTextColor.GOLD))
@@ -256,6 +258,7 @@ public final class ApiManager extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        serverSettingsAPI.setServerOnline(false);
         if (databaseManager != null) {
             databaseManager.close();
         }

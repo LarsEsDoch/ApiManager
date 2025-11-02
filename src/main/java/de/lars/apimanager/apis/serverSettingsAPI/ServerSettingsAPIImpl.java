@@ -19,6 +19,7 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
         db().update("""
             CREATE TABLE IF NOT EXISTS server_settings (
                 id INT PRIMARY KEY CHECK (id = 1),
+                is_server_online BOOLEAN DEFAULT FALSE,
                 real_time_enabled BOOLEAN DEFAULT TRUE,
                 real_weather_enabled BOOLEAN DEFAULT TRUE,
                 maintenance_enabled BOOLEAN DEFAULT FALSE,
@@ -37,9 +38,9 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
         if (countRowsInTable() < 1) {
             db().update("""
                 INSERT INTO server_settings
-                (id, real_time_enabled, real_weather_enabled, maintenance_enabled, maintenance_reason, maintenance_end, max_players, server_name, server_version)
-                VALUES (1, ?, ?, ?, ?, ?, ?, ?, ?)
-            """, true, true, false, "", null, 1000000000, "A Server", "1.21.10");
+                (id, is_server_online, real_time_enabled, real_weather_enabled, maintenance_enabled, maintenance_reason, maintenance_end, max_players, server_name, server_version)
+                VALUES (1, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, false, true, true, false, "", null, 1000000000, "A Minecraft Server", "1.21.10");
         }
     }
 
@@ -91,6 +92,46 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
                  ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) return rs.getTimestamp("updated_at").toInstant();
                 return null;
+            }
+        });
+    }
+
+    @Override
+    public void setServerOnline(boolean online) {
+        db().update("""
+            UPDATE server_settings
+            SET is_server_online = ?
+            WHERE id = 1
+        """, online);
+    }
+
+    @Override
+    public CompletableFuture<Void> setServerOnlineAsync(boolean online) {
+        return db().updateAsync("""
+            UPDATE server_settings
+            SET is_server_online = ?
+            WHERE id = 1
+        """, online);
+    }
+
+    @Override
+    public boolean isServerOnline() {
+        return db().query(conn -> {
+            try (PreparedStatement ps = conn.prepareStatement("SELECT is_server_online FROM server_settings WHERE id = 1")) {
+                try (ResultSet rs = ps.executeQuery()) {
+                    return rs.next() && rs.getBoolean("is_server_online");
+                }
+            }
+        });
+    }
+
+    @Override
+    public CompletableFuture<Boolean> isServerOnlineAsync() {
+        return db().queryAsync(conn -> {
+            try (PreparedStatement ps = conn.prepareStatement("SELECT is_server_online FROM server_settings WHERE id = 1")) {
+                try (ResultSet rs = ps.executeQuery()) {
+                    return rs.next() && rs.getBoolean("is_server_online");
+                }
             }
         });
     }
