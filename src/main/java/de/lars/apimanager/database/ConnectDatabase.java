@@ -4,8 +4,9 @@ import de.lars.apimanager.ApiManager;
 
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.util.logging.Level;
 
-public class ConnectDatabase{
+public class ConnectDatabase {
     private final ApiManager plugin;
 
     public ConnectDatabase(ApiManager plugin) {
@@ -25,27 +26,33 @@ public class ConnectDatabase{
             password == null || password.isEmpty() || password.equalsIgnoreCase("Enter the password of the user") ||
             port <= 0) {
             plugin.getLogger().warning("Database configuration contains placeholder values. Connection skipped!");
-            plugin.databaseManager = new SafeDatabaseManager();
+            plugin.setDatabaseManager(new SafeDatabaseManager());
             return false;
         }
 
         if (!isHostReachable(host, port, 3000)) {
             plugin.getLogger().warning("Couldn't connect to " + host + " on port " + port + " with user " + user);
-            plugin.databaseManager = new SafeDatabaseManager();
+            plugin.setDatabaseManager(new SafeDatabaseManager());
             return false;
         }
 
-        if (plugin.databaseManager != null) {
-            plugin.databaseManager.close();
+        try {
+            IDatabaseManager previous = plugin.getDatabaseManager();
+            if (previous != null) {
+                previous.close();
+            }
+        } catch (Exception e) {
+            plugin.getLogger().log(Level.WARNING, "Error while closing previous database manager.", e);
         }
 
         try {
-            plugin.databaseManager = new DatabaseManager(host, port, database, user, password);
-            plugin.getLogger().info("Database successfully connected!");
+            DatabaseManager newManager = new DatabaseManager(host, port, database, user, password);
+            plugin.setDatabaseManager(newManager);
+            plugin.getLogger().info("Database manager instance created. Waiting for connection to become ready...");
             return true;
         } catch (Exception e) {
-            plugin.getLogger().warning("Couldn't connect to " + host + " on port " + port + " with user " + user);
-            plugin.databaseManager = new SafeDatabaseManager();
+            plugin.getLogger().log(Level.WARNING, "Couldn't instantiate DatabaseManager for " + host + ":" + port + " with user " + user, e);
+            plugin.setDatabaseManager(new SafeDatabaseManager());
             return false;
         }
     }

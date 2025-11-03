@@ -1,5 +1,7 @@
 package de.lars.apimanager.database;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 
@@ -21,6 +23,13 @@ public class SafeDatabaseManager implements IDatabaseManager{
     public <T> CompletableFuture<T> queryAsync(DatabaseManager.SQLFunction<java.sql.Connection, T> function) {
         logSkip("queryAsync", "function call");
         return CompletableFuture.completedFuture(null);
+    }
+
+    public Connection getConnection() throws SQLException {
+        de.lars.apimanager.ApiManager.getInstance().getLogger().log(
+                Level.INFO, "[SafeDatabaseManager] getConnection() called - no real database connection present."
+        );
+        throw new SQLException("No database connection available (SafeDatabaseManager).");
     }
 
     public void close() {

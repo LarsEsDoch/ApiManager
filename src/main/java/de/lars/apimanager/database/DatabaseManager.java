@@ -11,9 +11,10 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.logging.Level;
 
-public final class DatabaseManager implements IDatabaseManager{
-    private HikariDataSource dataSource;
+public final class DatabaseManager implements IDatabaseManager {
+    private volatile HikariDataSource dataSource;
     private final Executor asyncExecutor;
+    private final CompletableFuture<Void> ready = new CompletableFuture<>();
 
     public DatabaseManager(String host, int port, String database, String username, String password) {
         this.asyncExecutor = CompletableFuture.delayedExecutor(0, java.util.concurrent.TimeUnit.MILLISECONDS);
@@ -35,18 +36,20 @@ public final class DatabaseManager implements IDatabaseManager{
                     config.setValidationTimeout(10000);
                     config.setIdleTimeout(600000);
                     config.setMaxLifetime(1800000);
-                    config.setMinimumIdle(2);
-                    config.setMaximumPoolSize(10);
 
                     config.addDataSourceProperty("autoReconnect", "true");
                     config.addDataSourceProperty("socketTimeout", "600000");
                     config.addDataSourceProperty("connectTimeout", "10000");
                     config.addDataSourceProperty("tcpKeepAlive", "true");
 
-                    this.dataSource = new HikariDataSource(config);
-                    try (Connection conn = dataSource.getConnection()) {
+                    HikariDataSource ds = new HikariDataSource(config);
+
+                    try (Connection conn = ds.getConnection()) {
                         ApiManager.getInstance().getLogger().info("Connected to MariaDB via HikariCP");
                     }
+
+                    this.dataSource = ds;
+                    ready.complete(null);
                     break;
                 } catch (Exception e) {
                     ApiManager.getInstance().getLogger().log(Level.WARNING, "Database connection failed, retrying in 5s...", e);
@@ -58,10 +61,23 @@ public final class DatabaseManager implements IDatabaseManager{
         });
     }
 
+    public CompletableFuture<Void> readyFuture() {
+        return ready;
+    }
+
+    public boolean isReady() {
+        return ready.isDone() && dataSource != null;
+    }
+
+    @Override
     public Connection getConnection() throws SQLException {
+        if (dataSource == null) {
+            throw new SQLException("DataSource not initialized yet — connection pool is not ready.");
+        }
         return dataSource.getConnection();
     }
 
+    @Override
     public void close() {
         if (dataSource != null && !dataSource.isClosed()) {
             dataSource.close();
