@@ -34,15 +34,15 @@ import de.lars.apimanager.apis.timerAPI.TimerAPI;
 import de.lars.apimanager.apis.timerAPI.TimerAPIImpl;
 import de.lars.apimanager.apis.toggleAPI.ToggleAPI;
 import de.lars.apimanager.apis.toggleAPI.ToggleAPIImpl;
-import de.lars.apimanager.commands.ReloadCommand;
+import de.lars.apimanager.commands.ApiManagerCommand;
 import de.lars.apimanager.database.ConnectDatabase;
 import de.lars.apimanager.database.DatabaseManager;
 import de.lars.apimanager.database.IDatabaseManager;
 import de.lars.apimanager.listeners.JoinListener;
 import de.lars.apimanager.listeners.QuitListener;
+import de.lars.apimanager.utils.Statements;
 import io.papermc.paper.command.brigadier.Commands;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
-import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -83,7 +83,7 @@ public final class ApiManager extends JavaPlugin {
         connectDatabase = new ConnectDatabase(this);
 
         if (!connectDatabase.loadDatabaseConfig()) {
-            getLogger().warning("Invalid database configuration. Please adjust config.yml!");
+            Statements.logToConsole("Invalid database configuration. Please adjust config.yml!", NamedTextColor.RED);
         }
     }
 
@@ -99,7 +99,7 @@ public final class ApiManager extends JavaPlugin {
                 onApisReady();
             }));
         } else {
-            getLogger().warning("Database not connected — skipping table creation. APIs will run in safe mode (no DB).");
+             Statements.logToConsole("Database not connected. Skipping table creation. APIs will run in safe mode (no DB).", NamedTextColor.GOLD);
         }
 
         Bukkit.getPluginManager().registerEvents(new JoinListener(), this);
@@ -192,27 +192,19 @@ public final class ApiManager extends JavaPlugin {
             try {
                 r.run();
             } catch (Exception e) {
-                getLogger().warning("createTables() failed for one API: " + e.getMessage());
-                getLogger().throwing(getClass().getName(), "createTables", e);
+                Statements.logToConsole("createTables() failed for one API: " + e.getMessage(), NamedTextColor.GOLD);
             }
         }
     }
 
     private void onApisReady() {
         serverSettingsAPI.setServerOnline(true);
-        Component message = Component.text()
-                .append(Component.text("[", NamedTextColor.DARK_GRAY))
-                .append(Component.text("ApiManager", NamedTextColor.GOLD))
-                .append(Component.text("]", NamedTextColor.DARK_GRAY))
-                .append(Component.text(" All APIs are ready!", NamedTextColor.DARK_GREEN))
-                .build();
-        Bukkit.getConsoleSender().sendMessage(message);
-        getLogger().info("APIs are ready (tables created).");
+        Statements.logToConsole("All APIs are ready!", NamedTextColor.DARK_GREEN);
     }
 
     public synchronized void reinitializeApisAfterDbReconnect() {
         if (!(this.getDatabaseManager() instanceof DatabaseManager)) {
-            getLogger().warning("Database not a real DatabaseManager after reload — skipping API reinitialization.");
+            Statements.logToConsole("Database not a real DatabaseManager after reload. Skipping API reinitialization.", NamedTextColor.GOLD);
             return;
         }
 
@@ -221,7 +213,7 @@ public final class ApiManager extends JavaPlugin {
         DatabaseManager dbm = (DatabaseManager) getDatabaseManager();
         dbm.readyFuture().thenRun(() -> Bukkit.getScheduler().runTask(this, () -> {
             createAllTables();
-            getLogger().info("APIs reinitialized to use the new database connection.");
+            Statements.logToConsole("APIs reinitialized to use the new database connection.", NamedTextColor.GRAY);
         }));
     }
 
@@ -237,14 +229,7 @@ public final class ApiManager extends JavaPlugin {
             databaseManager.close();
         }
 
-        Component message = Component.text()
-                .append(Component.text("[", NamedTextColor.DARK_GRAY))
-                .append(Component.text("ApiManager", NamedTextColor.GOLD))
-                .append(Component.text("]", NamedTextColor.DARK_GRAY))
-                .append(Component.text(" Database successfully disconnected!", NamedTextColor.DARK_GREEN))
-                .build();
-
-        Bukkit.getConsoleSender().sendMessage(message);
+        Statements.logToConsole("Database successfully disconnected!", NamedTextColor.DARK_GREEN);
     }
 
     public static ApiManager getInstance() {

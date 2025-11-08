@@ -2,7 +2,9 @@ package de.lars.apimanager.apis.backpackAPI;
 
 import de.lars.apimanager.ApiManager;
 import de.lars.apimanager.database.IDatabaseManager;
+import de.lars.apimanager.utils.Statements;
 import de.lars.apimanager.utils.ValidateParameter;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.OfflinePlayer;
 
 import java.io.ByteArrayInputStream;
@@ -15,7 +17,6 @@ import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.Base64;
 import java.util.concurrent.CompletableFuture;
-import java.util.logging.Level;
 import java.util.zip.DeflaterOutputStream;
 import java.util.zip.InflaterInputStream;
 
@@ -204,7 +205,7 @@ public class BackpackAPIImpl implements IBackpackAPI {
             dos.finish();
             return Base64.getEncoder().encodeToString(bos.toByteArray());
         } catch (IOException e) {
-            ApiManager.getInstance().getLogger().log(Level.WARNING, "Failed to compress backpack data", e);
+            Statements.logToConsole("Failed to compress backpack data! " + e.getMessage(), NamedTextColor.GOLD);
             return "";
         }
     }
@@ -222,7 +223,7 @@ public class BackpackAPIImpl implements IBackpackAPI {
             }
             return bos.toString(StandardCharsets.UTF_8);
         } catch (IOException e) {
-            ApiManager.getInstance().getLogger().log(Level.WARNING, "Failed to decompress backpack data", e);
+            Statements.logToConsole("Failed to decompress backpack data! " + e.getMessage(), NamedTextColor.GOLD);
             return "";
         }
     }

@@ -1,9 +1,11 @@
 package de.lars.apimanager.database;
 
+import de.lars.apimanager.utils.Statements;
+import net.kyori.adventure.text.format.NamedTextColor;
+
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.concurrent.CompletableFuture;
-import java.util.logging.Level;
 
 public class SafeDatabaseManager implements IDatabaseManager{
     public void update(String sql, Object... params) {
@@ -26,22 +28,15 @@ public class SafeDatabaseManager implements IDatabaseManager{
     }
 
     public Connection getConnection() throws SQLException {
-        de.lars.apimanager.ApiManager.getInstance().getLogger().log(
-                Level.INFO, "[SafeDatabaseManager] getConnection() called - no real database connection present."
-        );
+        Statements.logToConsole("[SafeDatabaseManager] getConnection() called - no real database connection present.", NamedTextColor.RED);
         throw new SQLException("No database connection available (SafeDatabaseManager).");
     }
 
     public void close() {
-        de.lars.apimanager.ApiManager.getInstance().getLogger().log(
-                Level.INFO, "[SafeDatabaseManager] close() called - no real database connection present."
-        );
+        Statements.logToConsole("[SafeDatabaseManager] close() called - no real database connection present.", NamedTextColor.GOLD);
     }
 
     private void logSkip(String action, String detail) {
-        de.lars.apimanager.ApiManager.getInstance().getLogger().log(
-                Level.WARNING,
-                "[SafeDatabaseManager] Action [" + action + "] cannot be executed because the database isn't connected."
-        );
+        Statements.logToConsole("[SafeDatabaseManager] Action [" + action + "] cannot be executed because the database isn't connected.", NamedTextColor.GOLD);
     }
 }

@@ -2,14 +2,14 @@ package de.lars.apimanager.database;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import de.lars.apimanager.ApiManager;
+import de.lars.apimanager.utils.Statements;
+import net.kyori.adventure.text.format.NamedTextColor;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
-import java.util.logging.Level;
 
 public final class DatabaseManager implements IDatabaseManager {
     private volatile HikariDataSource dataSource;
@@ -45,14 +45,14 @@ public final class DatabaseManager implements IDatabaseManager {
                     HikariDataSource ds = new HikariDataSource(config);
 
                     try (Connection conn = ds.getConnection()) {
-                        ApiManager.getInstance().getLogger().info("Connected to MariaDB via HikariCP");
+                        Statements.logToConsole("Connected to MariaDB via HikariCP", NamedTextColor.GREEN);
                     }
 
                     this.dataSource = ds;
                     ready.complete(null);
                     break;
                 } catch (Exception e) {
-                    ApiManager.getInstance().getLogger().log(Level.WARNING, "Database connection failed, retrying in 5s...", e);
+                    Statements.logToConsole("Database connection failed, retrying in 5s... " + e.getMessage(), NamedTextColor.GOLD);
                     try {
                         Thread.sleep(5000);
                     } catch (InterruptedException ignored) {}
@@ -72,7 +72,7 @@ public final class DatabaseManager implements IDatabaseManager {
     @Override
     public Connection getConnection() throws SQLException {
         if (dataSource == null) {
-            throw new SQLException("DataSource not initialized yet — connection pool is not ready.");
+            throw new SQLException("DataSource not initialized yet. Connection pool is not ready.");
         }
         return dataSource.getConnection();
     }
@@ -81,7 +81,7 @@ public final class DatabaseManager implements IDatabaseManager {
     public void close() {
         if (dataSource != null && !dataSource.isClosed()) {
             dataSource.close();
-            ApiManager.getInstance().getLogger().info("HikariCP pool closed.");
+            Statements.logToConsole("HikariCP pool closed.", NamedTextColor.GRAY);
         }
     }
 
@@ -91,7 +91,7 @@ public final class DatabaseManager implements IDatabaseManager {
             setParams(ps, params);
             ps.executeUpdate();
         } catch (SQLException e) {
-            ApiManager.getInstance().getLogger().log(Level.SEVERE, "SQL update failed: " + sql, e);
+            Statements.logToConsole("SQL update failed: " + sql + " " + e.getMessage(), NamedTextColor.RED);
         }
     }
 
@@ -103,7 +103,7 @@ public final class DatabaseManager implements IDatabaseManager {
         try (Connection conn = getConnection()) {
             return function.apply(conn);
         } catch (SQLException e) {
-            ApiManager.getInstance().getLogger().log(Level.SEVERE, "SQL query failed", e);
+            Statements.logToConsole("SQL query failed: " + e.getMessage(), NamedTextColor.RED);
             return null;
         }
     }
