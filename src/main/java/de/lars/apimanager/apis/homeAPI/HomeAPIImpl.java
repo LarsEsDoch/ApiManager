@@ -1,21 +1,24 @@
 package de.lars.apimanager.apis.homeAPI;
 
 import de.lars.apimanager.ApiManager;
+import de.lars.apimanager.database.DatabaseRepository;
 import de.lars.apimanager.database.IDatabaseManager;
 import de.lars.apimanager.utils.FormatLocation;
 import de.lars.apimanager.utils.ValidateParameter;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.Timestamp;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public class HomeAPIImpl implements IHomeAPI {
+    private static final String TABLE = "player_homes";
+
+    private DatabaseRepository repo() {
+        return new DatabaseRepository();
+    }
+
     private IDatabaseManager db() {
         return ApiManager.getInstance().getDatabaseManager();
     }
@@ -38,90 +41,22 @@ public class HomeAPIImpl implements IHomeAPI {
 
     @Override
     public Instant getCreatedAt(int homeId) {
-        return db().query(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement(
-                     "SELECT created_at FROM player_homes WHERE id = ?"
-                 )) {
-                ps.setInt(1, homeId);
-                try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) {
-                        Timestamp ts = rs.getTimestamp("created_at");
-                        if (ts != null) {
-                            return ts.toInstant();
-                        } else {
-                            return null;
-                        }
-                    }
-                    return null;
-                }
-            }
-        });
+        return repo().getInstant(TABLE, "created_at", "id = ?", homeId);
     }
 
     @Override
     public CompletableFuture<Instant> getCreatedAtAsync(int homeId) {
-        return db().queryAsync(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement(
-                     "SELECT created_at FROM player_homes WHERE id = ?"
-                 )) {
-                ps.setInt(1, homeId);
-                try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) {
-                        Timestamp ts = rs.getTimestamp("created_at");
-                        if (ts != null) {
-                            return ts.toInstant();
-                        } else {
-                            return null;
-                        }
-                    }
-                    return null;
-                }
-            }
-        });
+        return repo().getInstantAsync(TABLE, "created_at", "id = ?", homeId);
     }
 
     @Override
     public Instant getUpdatedAt(int homeId) {
-        return db().query(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement(
-                     "SELECT updated_at FROM player_homes WHERE id = ?"
-                 )) {
-                ps.setInt(1, homeId);
-                try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) {
-                        Timestamp ts = rs.getTimestamp("updated_at");
-                        if (ts != null) {
-                            return ts.toInstant();
-                        } else {
-                            return null;
-                        }
-                    }
-                    return null;
-                }
-            }
-        });
+        return repo().getInstant(TABLE, "updated_at", "id = ?", homeId);
     }
 
     @Override
     public CompletableFuture<Instant> getUpdatedAtAsync(int homeId) {
-        return db().queryAsync(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement(
-                     "SELECT updated_at FROM player_homes WHERE id = ?"
-                 )) {
-                ps.setInt(1, homeId);
-                try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) {
-                        Timestamp ts = rs.getTimestamp("updated_at");
-                        if (ts != null) {
-                            return ts.toInstant();
-                        } else {
-                            return null;
-                        }
-                    }
-                    return null;
-                }
-            }
-        });
+        return repo().getInstantAsync(TABLE, "updated_at", "id = ?", homeId);
     }
 
     @Override
@@ -148,265 +83,135 @@ public class HomeAPIImpl implements IHomeAPI {
 
     @Override
     public void deleteHome(int homeId) {
-        db().update("DELETE FROM player_homes WHERE id = ?", homeId);
+        repo().delete(TABLE, "id = ?", homeId);
     }
 
     @Override
     public CompletableFuture<Void> deleteHomeAsync(int homeId) {
-        return db().updateAsync("DELETE FROM player_homes WHERE id = ?", homeId);
+        return repo().deleteAsync(TABLE, "id = ?", homeId);
     }
 
     @Override
     public void renameHome(int homeId, String newName) {
         ValidateParameter.validateName(newName);
-        db().update("UPDATE player_homes SET name = ? WHERE id = ?", newName, homeId);
+        repo().updateColumn(TABLE, "name", newName, "id = ?", homeId);
     }
 
     @Override
     public CompletableFuture<Void> renameHomeAsync(int homeId, String newName) {
         ValidateParameter.validateName(newName);
-        return db().updateAsync("UPDATE player_homes SET name = ? WHERE id = ?", newName, homeId);
+        return repo().updateColumnAsync(TABLE, "name", newName, "id = ?", homeId);
     }
 
     @Override
     public void setHomePublic(int homeId, boolean isPublic) {
-        db().update("UPDATE player_homes SET is_public = ? WHERE id = ?", isPublic, homeId);
+        repo().updateColumn(TABLE, "is_public", isPublic, "id = ?", homeId);
     }
 
     @Override
     public CompletableFuture<Void> setHomePublicAsync(int homeId, boolean isPublic) {
-        return db().updateAsync("UPDATE player_homes SET is_public = ? WHERE id = ?", isPublic, homeId);
+        return repo().updateColumnAsync(TABLE, "is_public", isPublic, "id = ?", homeId);
     }
 
     @Override
     public void updateHomeLocation(int homeId, Location location) {
         ValidateParameter.validateLocation(location);
-        db().update("UPDATE player_homes SET location = ? WHERE id = ?", FormatLocation.serializeLocation(location), homeId);
+        repo().updateColumn(TABLE, "location", FormatLocation.serializeLocation(location), "id = ?", homeId);
     }
 
     @Override
     public CompletableFuture<Void> updateHomeLocationAsync(int homeId, Location location) {
         ValidateParameter.validateLocation(location);
-        return db().updateAsync("UPDATE player_homes SET location = ? WHERE id = ?", FormatLocation.serializeLocation(location), homeId);
+        return repo().updateColumnAsync(TABLE, "location", FormatLocation.serializeLocation(location), "id = ?", homeId);
     }
 
     @Override
     public List<String> getHomes(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        return db().query(conn -> {
-            List<String> homes = new ArrayList<>();
-            try (PreparedStatement ps = conn.prepareStatement(
-                    "SELECT name FROM player_homes WHERE uuid = ? OR is_public = TRUE")) {
-                ps.setString(1, player.getUniqueId().toString());
-                try (ResultSet rs = ps.executeQuery()) {
-                    while (rs.next()) homes.add(rs.getString("name"));
-                }
-            }
-            return homes;
-        });
+        return repo().getStringList(TABLE, "name", "uuid = ? OR is_public = TRUE", player.getUniqueId().toString());
     }
 
     @Override
     public CompletableFuture<List<String>> getHomesAsync(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        return db().queryAsync(conn -> {
-            List<String> homes = new ArrayList<>();
-            try (PreparedStatement ps = conn.prepareStatement(
-                    "SELECT name FROM player_homes WHERE uuid = ? OR is_public = TRUE")) {
-                ps.setString(1, player.getUniqueId().toString());
-                try (ResultSet rs = ps.executeQuery()) {
-                    while (rs.next()) homes.add(rs.getString("name"));
-                }
-            }
-            return homes;
-        });
+        return repo().getStringListAsync(TABLE, "name", "uuid = ? OR is_public = TRUE", player.getUniqueId().toString());
     }
 
     @Override
     public List<String> getOwnHomes(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        return db().query(conn -> {
-            List<String> homes = new ArrayList<>();
-            try (PreparedStatement ps = conn.prepareStatement(
-                    "SELECT name FROM player_homes WHERE uuid = ?")) {
-                ps.setString(1, player.getUniqueId().toString());
-                try (ResultSet rs = ps.executeQuery()) {
-                    while (rs.next()) homes.add(rs.getString("name"));
-                }
-            }
-            return homes;
-        });
+        return repo().getStringList(TABLE, "name", "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public CompletableFuture<List<String>> getOwnHomesAsync(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        return db().queryAsync(conn -> {
-            List<String> homes = new ArrayList<>();
-            try (PreparedStatement ps = conn.prepareStatement(
-                    "SELECT name FROM player_homes WHERE uuid = ?")) {
-                ps.setString(1, player.getUniqueId().toString());
-                try (ResultSet rs = ps.executeQuery()) {
-                    while (rs.next()) homes.add(rs.getString("name"));
-                }
-            }
-            return homes;
-        });
+        return repo().getStringListAsync(TABLE, "name", "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public List<String> getAllHomes() {
-        return db().query(conn -> {
-            List<String> homes = new ArrayList<>();
-            try (PreparedStatement ps = conn.prepareStatement("SELECT name FROM player_homes");
-                 ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    homes.add(rs.getString("name"));
-                }
-            }
-            return homes;
-        });
+        return repo().getStringList(TABLE, "name", null);
     }
 
     @Override
     public CompletableFuture<List<String>> getAllHomesAsync() {
-        return db().queryAsync(conn -> {
-            List<String> homes = new ArrayList<>();
-            try (PreparedStatement ps = conn.prepareStatement("SELECT name FROM player_homes");
-                 ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    homes.add(rs.getString("name"));
-                }
-            }
-            return homes;
-        });
+        return repo().getStringListAsync(TABLE, "name", null);
     }
 
     @Override
     public Location getHomeLocation(int homeId) {
-        return db().query(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement(
-                    "SELECT location FROM player_homes WHERE id = ?")) {
-                ps.setInt(1, homeId);
-                try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) {
-                        String locData = rs.getString("location");
-                        return FormatLocation.deserializeLocation(locData);
-                    }
-                }
-            }
-            return null;
-        });
+        String locData = repo().getString(TABLE, "location", "id = ?", homeId);
+        return FormatLocation.deserializeLocation(locData);
     }
 
     @Override
     public CompletableFuture<Location> getHomeLocationAsync(int homeId) {
-        return db().queryAsync(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement(
-                    "SELECT location FROM player_homes WHERE id = ?")) {
-                ps.setInt(1, homeId);
-                try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) {
-                        String locData = rs.getString("location");
-                        return FormatLocation.deserializeLocation(locData);
-                    }
-                }
-            }
-            return null;
-        });
+        return repo().getStringAsync(TABLE, "location", "id = ?", homeId)
+            .thenApply(FormatLocation::deserializeLocation);
     }
 
     @Override
     public boolean doesHomeExist(String name) {
         ValidateParameter.validateName(name);
-        return db().query(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement(
-                    "SELECT 1 FROM player_homes WHERE name = ? LIMIT 1")) {
-                ps.setString(1, name);
-                try (ResultSet rs = ps.executeQuery()) {
-                    return rs.next();
-                }
-            }
-        });
+        return repo().exists(TABLE, "name = ?", name);
     }
 
     @Override
     public CompletableFuture<Boolean> doesHomeExistAsync(String name) {
         ValidateParameter.validateName(name);
-        return db().queryAsync(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement(
-                    "SELECT 1 FROM player_homes WHERE name = ? LIMIT 1")) {
-                ps.setString(1, name);
-                try (ResultSet rs = ps.executeQuery()) {
-                    return rs.next();
-                }
-            }
-        });
+        return repo().existsAsync(TABLE, "name = ?", name);
     }
 
     @Override
     public boolean doesOwnHomeExist(OfflinePlayer player, String name) {
         ValidateParameter.validatePlayer(player);
         ValidateParameter.validateName(name);
-        return db().query(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement(
-                    "SELECT 1 FROM player_homes WHERE uuid = ? AND name = ? LIMIT 1")) {
-                ps.setString(1, player.getUniqueId().toString());
-                ps.setString(2, name);
-                try (ResultSet rs = ps.executeQuery()) {
-                    return rs.next();
-                }
-            }
-        });
+        return repo().exists(TABLE, "uuid = ? AND name = ?", player.getUniqueId().toString(), name);
     }
 
     @Override
     public CompletableFuture<Boolean> doesOwnHomeExistAsync(OfflinePlayer player, String name) {
         ValidateParameter.validatePlayer(player);
         ValidateParameter.validateName(name);
-        return db().queryAsync(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement(
-                    "SELECT 1 FROM player_homes WHERE uuid = ? AND name = ? LIMIT 1")) {
-                ps.setString(1, player.getUniqueId().toString());
-                ps.setString(2, name);
-                try (ResultSet rs = ps.executeQuery()) {
-                    return rs.next();
-                }
-            }
-        });
+        return repo().existsAsync(TABLE, "uuid = ? AND name = ?", player.getUniqueId().toString(), name);
     }
 
     @Override
     public int getHomeId(OfflinePlayer player, String name) {
         ValidateParameter.validatePlayer(player);
         ValidateParameter.validateName(name);
-        return db().query(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement(
-                    "SELECT id FROM player_homes WHERE (uuid = ? OR is_public = TRUE) AND name = ? LIMIT 1")) {
-                ps.setString(1, player.getUniqueId().toString());
-                ps.setString(2, name);
-                try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) return rs.getInt("id");
-                }
-            }
-            return -1;
-        });
+        Integer id = repo().getInteger(TABLE, "id", "(uuid = ? OR is_public = TRUE) AND name = ?",
+            player.getUniqueId().toString(), name);
+        return id != null ? id : -1;
     }
 
     @Override
     public CompletableFuture<Integer> getHomeIdAsync(OfflinePlayer player, String name) {
         ValidateParameter.validatePlayer(player);
         ValidateParameter.validateName(name);
-        return db().queryAsync(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement(
-                    "SELECT id FROM player_homes WHERE (uuid = ? OR is_public = TRUE) AND name = ? LIMIT 1")) {
-                ps.setString(1, player.getUniqueId().toString());
-                ps.setString(2, name);
-                try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) return rs.getInt("id");
-                }
-            }
-            return -1;
-        });
+        return repo().getIntegerAsync(TABLE, "id", "(uuid = ? OR is_public = TRUE) AND name = ?",
+            player.getUniqueId().toString(), name)
+            .thenApply(id -> id != null ? id : -1);
     }
 }
