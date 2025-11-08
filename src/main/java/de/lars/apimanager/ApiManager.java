@@ -107,15 +107,9 @@ public final class ApiManager extends JavaPlugin {
 
         this.getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, event -> {
             final Commands commands = event.registrar();
-            ReloadCommand reloadCommand = new ReloadCommand(this, connectDatabase);
+            ApiManagerCommand apiManagerCommand = new ApiManagerCommand(this, connectDatabase);
 
-            commands.register("apimanager", "Main API Manager command", (stack, args) -> {
-                if (args.length > 0 && (args[0].equalsIgnoreCase("reload") || args[0].equalsIgnoreCase("rl"))) {
-                    reloadCommand.execute(stack, args);
-                } else {
-                    stack.getSender().sendMessage(Component.text("§eUsage: /apimanager reload"));
-                }
-            });
+            commands.register("apimanager", "ApiManager commands", apiManagerCommand);
         });
     }
 
