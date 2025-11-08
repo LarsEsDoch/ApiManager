@@ -1,20 +1,23 @@
 package de.lars.apimanager.apis.banAPI;
 
 import de.lars.apimanager.ApiManager;
+import de.lars.apimanager.database.DatabaseRepository;
 import de.lars.apimanager.database.IDatabaseManager;
 import de.lars.apimanager.utils.ValidateParameter;
 import org.bukkit.OfflinePlayer;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public class BanAPIImpl implements IBanAPI {
+    private static final String TABLE = "player_bans";
+
+    private DatabaseRepository repo() {
+        return new DatabaseRepository();
+    }
+
     private IDatabaseManager db() {
         return ApiManager.getInstance().getDatabaseManager();
     }
@@ -42,59 +45,32 @@ public class BanAPIImpl implements IBanAPI {
     }
 
     public boolean doesUserExist(OfflinePlayer player) {
-        return db().query(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT 1 FROM player_bans WHERE uuid = ? LIMIT 1")) {
-                ps.setString(1, player.getUniqueId().toString());
-                try (ResultSet rs = ps.executeQuery()) {
-                    return rs.next();
-                }
-            }
-        });
+        return repo().exists(TABLE, "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public Instant getCreatedAt(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        return getTimestamp(player, "created_at");
+        return repo().getInstant(TABLE, "created_at", "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public CompletableFuture<Instant> getCreatedAtAsync(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        return getTimestampAsync(player, "created_at");
+        return repo().getInstantAsync(TABLE, "created_at", "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public Instant getUpdatedAt(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        return getTimestamp(player, "updated_at");
+        return repo().getInstant(TABLE, "updated_at", "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public CompletableFuture<Instant> getUpdatedAtAsync(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        return getTimestampAsync(player, "updated_at");
+        return repo().getInstantAsync(TABLE, "updated_at", "uuid = ?", player.getUniqueId().toString());
     }
-
-    private Instant getTimestamp(OfflinePlayer player, String column) {
-        return db().query(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT " + column + " FROM player_bans WHERE uuid = ? LIMIT 1")) {
-                ps.setString(1, player.getUniqueId().toString());
-                try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) {
-                    Timestamp ts = rs.getTimestamp(column);
-                    if (ts != null) {
-                        return ts.toInstant();
-                    } else {
-                        return null;
-                    }
-                }
-                return null;
-                }
-            }
-        });
-    }
-
 
     @Override
     public void setBanned(OfflinePlayer player, String reason, Integer days) {
@@ -108,7 +84,7 @@ public class BanAPIImpl implements IBanAPI {
             UPDATE player_bans
             SET reason = ?, expires_at = ?, is_banned = TRUE, banned_at = CURRENT_TIMESTAMP
             WHERE uuid = ?
-        """, reason, expiresAt != null ? Timestamp.from(expiresAt) : null, player.getUniqueId().toString());
+        """, reason, expiresAt, player.getUniqueId().toString());
     }
 
     @Override
@@ -123,45 +99,51 @@ public class BanAPIImpl implements IBanAPI {
             UPDATE player_bans
             SET reason = ?, expires_at = ?, is_banned = TRUE, banned_at = CURRENT_TIMESTAMP
             WHERE uuid = ?
-        """, reason, expiresAt != null ? Timestamp.from(expiresAt) : null, player.getUniqueId().toString());
+        """, reason, expiresAt, player.getUniqueId().toString());
     }
 
     @Override
     public void setUnBanned(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        db().update("UPDATE player_bans SET is_banned = FALSE, banned_at = NULL, expires_at = NULL, reason = NULL WHERE uuid = ? LIMIT 1", player.getUniqueId().toString());
+        repo().updateColumns(TABLE,
+            new String[]{"is_banned", "banned_at", "expires_at", "reason"},
+            new Object[]{false, null, null, null},
+            "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public CompletableFuture<Void> setUnBannedAsync(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        return db().updateAsync("UPDATE player_bans SET is_banned = FALSE, banned_at = NULL, expires_at = NULL, reason = NULL WHERE uuid = ? LIMIT 1", player.getUniqueId().toString());
+        return repo().updateColumnsAsync(TABLE,
+            new String[]{"is_banned", "banned_at", "expires_at", "reason"},
+            new Object[]{false, null, null, null},
+            "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public void setReason(OfflinePlayer player, String reason) {
         ValidateParameter.validatePlayer(player);
         ValidateParameter.validateReason(reason);
-        db().update("UPDATE player_bans SET reason = ? WHERE uuid = ? LIMIT 1", reason, player.getUniqueId().toString());
+        repo().updateColumn(TABLE, "reason", reason, "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public CompletableFuture<Void> setReasonAsync(OfflinePlayer player, String reason) {
         ValidateParameter.validatePlayer(player);
         ValidateParameter.validateReason(reason);
-        return db().updateAsync("UPDATE player_bans SET reason = ? WHERE uuid = ? LIMIT 1", reason, player.getUniqueId().toString());
+        return repo().updateColumnAsync(TABLE, "reason", reason, "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public String getReason(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        return getString(player, "reason");
+        return repo().getString(TABLE, "reason", "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public CompletableFuture<String> getReasonAsync(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        return getStringAsync(player, "reason");
+        return repo().getStringAsync(TABLE, "reason", "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
@@ -170,7 +152,7 @@ public class BanAPIImpl implements IBanAPI {
         Instant expiresAt = (days != null && days > 0)
                 ? Instant.now().plus(days, ChronoUnit.DAYS)
                 : null;
-        db().update("UPDATE player_bans SET expires_at = ? WHERE uuid = ? LIMIT 1", expiresAt != null ? Timestamp.from(expiresAt) : null, player.getUniqueId().toString());
+        repo().updateColumn(TABLE, "expires_at", expiresAt, "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
@@ -179,118 +161,42 @@ public class BanAPIImpl implements IBanAPI {
         Instant expiresAt = (days != null && days > 0)
                 ? Instant.now().plus(days, ChronoUnit.DAYS)
                 : null;
-        return db().updateAsync("UPDATE player_bans SET expires_at = ? WHERE uuid = ? LIMIT 1", expiresAt != null ? Timestamp.from(expiresAt) : null, player.getUniqueId().toString());
+        return repo().updateColumnAsync(TABLE, "expires_at", expiresAt, "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public Instant getEnd(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        return getTimestamp(player, "expires_at");
+        return repo().getInstant(TABLE, "expires_at", "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public CompletableFuture<Instant> getEndAsync(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        return getTimestampAsync(player, "expires_at");
+        return repo().getInstantAsync(TABLE, "expires_at", "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public boolean isBanned(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        Boolean result = db().query(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT is_banned FROM player_bans WHERE uuid = ? LIMIT 1")) {
-                ps.setString(1, player.getUniqueId().toString());
-                try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) return rs.getBoolean("is_banned");
-                    return false;
-                }
-            }
-        });
+        Boolean result = repo().getBoolean(TABLE, "is_banned", "uuid = ?", player.getUniqueId().toString());
         return result != null && result;
     }
 
     @Override
     public CompletableFuture<Boolean> isBannedAsync(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        return db().queryAsync(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT is_banned FROM player_bans WHERE uuid = ? LIMIT 1")) {
-                ps.setString(1, player.getUniqueId().toString());
-                try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) return rs.getBoolean("is_banned");
-                    return false;
-                }
-            }
-        });
+        return repo().getBooleanAsync(TABLE, "is_banned", "uuid = ?", player.getUniqueId().toString())
+            .thenApply(result -> result != null && result);
     }
 
     @Override
     public List<String> getBannedPlayers() {
-        return db().query(conn -> {
-            List<String> bannedPlayers = new ArrayList<>();
-            try (PreparedStatement ps = conn.prepareStatement("SELECT uuid FROM player_bans WHERE is_banned = TRUE")) {
-                try (ResultSet rs = ps.executeQuery()) {
-                    while (rs.next()) {
-                        bannedPlayers.add(rs.getString("uuid"));
-                    }
-                }
-            }
-            return bannedPlayers;
-        });
+        return repo().getStringList(TABLE, "uuid", "is_banned = TRUE");
     }
 
     @Override
     public CompletableFuture<List<String>> getBannedPlayersAsync() {
-        return db().queryAsync(conn -> {
-            List<String> bannedPlayers = new ArrayList<>();
-            try (PreparedStatement ps = conn.prepareStatement("SELECT uuid FROM player_bans WHERE is_banned = TRUE")) {
-                try (ResultSet rs = ps.executeQuery()) {
-                    while (rs.next()) {
-                        bannedPlayers.add(rs.getString("uuid"));
-                    }
-                }
-            }
-            return bannedPlayers;
-        });
-    }
-
-    private String getString(OfflinePlayer player, String column) {
-        return db().query(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT " + column + " FROM player_bans WHERE uuid = ? LIMIT 1")) {
-                ps.setString(1, player.getUniqueId().toString());
-                try (ResultSet rs = ps.executeQuery()) {
-                    return rs.next() ? rs.getString(column) : null;
-                }
-            }
-        });
-    }
-
-    private CompletableFuture<String> getStringAsync(OfflinePlayer player, String column) {
-        return db().queryAsync(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT " + column + " FROM player_bans WHERE uuid = ? LIMIT 1")) {
-                ps.setString(1, player.getUniqueId().toString());
-                try (ResultSet rs = ps.executeQuery()) {
-                    return rs.next() ? rs.getString(column) : null;
-                }
-            }
-        });
-    }
-
-    private CompletableFuture<Instant> getTimestampAsync(OfflinePlayer player, String column) {
-        return db().queryAsync(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT " + column + " FROM player_bans WHERE uuid = ? LIMIT 1")) {
-                ps.setString(1, player.getUniqueId().toString());
-                try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) {
-                        Timestamp ts = rs.getTimestamp(column);
-                        if (ts != null) {
-                            return ts.toInstant();
-                        } else {
-                            return null;
-                        }
-                    }
-                    return null;
-                }
-            }
-        });
+        return repo().getStringListAsync(TABLE, "uuid", "is_banned = TRUE");
     }
 }
