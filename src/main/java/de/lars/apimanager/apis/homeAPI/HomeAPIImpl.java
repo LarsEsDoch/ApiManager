@@ -161,35 +161,35 @@ public class HomeAPIImpl implements IHomeAPI {
     @Override
     public void renameHome(int homeId, String newName) {
         ValidateParameter.validateName(newName);
-        db().update("UPDATE player_homes SET name = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?", newName, homeId);
+        db().update("UPDATE player_homes SET name = ? WHERE id = ?", newName, homeId);
     }
 
     @Override
     public CompletableFuture<Void> renameHomeAsync(int homeId, String newName) {
         ValidateParameter.validateName(newName);
-        return db().updateAsync("UPDATE player_homes SET name = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?", newName, homeId);
+        return db().updateAsync("UPDATE player_homes SET name = ? WHERE id = ?", newName, homeId);
     }
 
     @Override
     public void setHomePublic(int homeId, boolean isPublic) {
-        db().update("UPDATE player_homes SET is_public = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?", isPublic, homeId);
+        db().update("UPDATE player_homes SET is_public = ? WHERE id = ?", isPublic, homeId);
     }
 
     @Override
     public CompletableFuture<Void> setHomePublicAsync(int homeId, boolean isPublic) {
-        return db().updateAsync("UPDATE player_homes SET is_public = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?", isPublic, homeId);
+        return db().updateAsync("UPDATE player_homes SET is_public = ? WHERE id = ?", isPublic, homeId);
     }
 
     @Override
     public void updateHomeLocation(int homeId, Location location) {
         ValidateParameter.validateLocation(location);
-        db().update("UPDATE player_homes SET location = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?", serializeLocation(location), homeId);
+        db().update("UPDATE player_homes SET location = ? WHERE id = ?", FormatLocation.serializeLocation(location), homeId);
     }
 
     @Override
     public CompletableFuture<Void> updateHomeLocationAsync(int homeId, Location location) {
         ValidateParameter.validateLocation(location);
-        return db().updateAsync("UPDATE player_homes SET location = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?", serializeLocation(location), homeId);
+        return db().updateAsync("UPDATE player_homes SET location = ? WHERE id = ?", FormatLocation.serializeLocation(location), homeId);
     }
 
     @Override

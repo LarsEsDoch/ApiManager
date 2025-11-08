@@ -273,7 +273,7 @@ public class RankAPIImpl implements IRankAPI {
 
         db().update("""
             UPDATE player_ranks
-            SET expires_at = ?, updated_at = CURRENT_TIMESTAMP
+            SET expires_at = ?
             WHERE uuid = ?
         """, Timestamp.from(newExpires), player.getUniqueId().toString());
     }
@@ -295,7 +295,7 @@ public class RankAPIImpl implements IRankAPI {
             Instant newExpires = base.plus(days, ChronoUnit.DAYS);
             return db().updateAsync("""
                 UPDATE player_ranks
-                SET expires_at = ?, updated_at = CURRENT_TIMESTAMP
+                SET expires_at = ?
                 WHERE uuid = ?
             """, Timestamp.from(newExpires), player.getUniqueId().toString());
         });

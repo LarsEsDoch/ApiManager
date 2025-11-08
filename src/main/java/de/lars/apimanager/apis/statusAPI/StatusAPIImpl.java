@@ -138,7 +138,7 @@ public class StatusAPIImpl implements IStatusAPI {
     public void setStatus(OfflinePlayer player, String status) {
         ValidateParameter.validatePlayer(player);
         ValidateParameter.validateStatus(status);
-        db().update("UPDATE player_status SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE uuid = ? LIMIT 1",
+        db().update("UPDATE player_status SET status = ? WHERE uuid = ? LIMIT 1",
                 status, player.getUniqueId().toString());
     }
 
@@ -146,7 +146,7 @@ public class StatusAPIImpl implements IStatusAPI {
     public CompletableFuture<Void> setStatusAsync(OfflinePlayer player, String status) {
         ValidateParameter.validatePlayer(player);
         ValidateParameter.validateStatus(status);
-        return db().updateAsync("UPDATE player_status SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE uuid = ? LIMIT 1",
+        return db().updateAsync("UPDATE player_status SET status = ? WHERE uuid = ? LIMIT 1",
                 status, player.getUniqueId().toString());
     }
 

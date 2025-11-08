@@ -428,7 +428,7 @@ public class ChunkAPIImpl implements IChunkAPI {
         if (!friends.contains(friendUuid)) {
             friends.add(friendUuid);
             String joined = String.join(",", friends);
-            db().update("UPDATE claimed_chunks SET friends = ?, updated_at = CURRENT_TIMESTAMP WHERE world = ? AND x = ? AND z = ?",
+            db().update("UPDATE claimed_chunks SET friends = ? WHERE world = ? AND x = ? AND z = ?",
                     joined, chunk.getWorld().getName(), chunk.getX(), chunk.getZ());
         }
     }
@@ -446,7 +446,7 @@ public class ChunkAPIImpl implements IChunkAPI {
             }
             if (!newList.contains(friendUuid)) newList.add(friendUuid);
             String joined = String.join(",", newList);
-            return db().updateAsync("UPDATE claimed_chunks SET friends = ?, updated_at = CURRENT_TIMESTAMP WHERE world = ? AND x = ? AND z = ?",
+            return db().updateAsync("UPDATE claimed_chunks SET friends = ? WHERE world = ? AND x = ? AND z = ?",
                     joined, chunk.getWorld().getName(), chunk.getX(), chunk.getZ());
         });
     }
@@ -464,14 +464,14 @@ public class ChunkAPIImpl implements IChunkAPI {
                     .filter(id -> !id.equals(friendUuid))
                     .collect(Collectors.toList());
             String joined = String.join(",", explicit);
-            db().update("UPDATE claimed_chunks SET friends = ?, updated_at = CURRENT_TIMESTAMP WHERE world = ? AND x = ? AND z = ?",
+            db().update("UPDATE claimed_chunks SET friends = ? WHERE world = ? AND x = ? AND z = ?",
                     joined, chunk.getWorld().getName(), chunk.getX(), chunk.getZ());
             return;
         }
 
         if (friends.remove(friendUuid)) {
             String joined = String.join(",", friends);
-            db().update("UPDATE claimed_chunks SET friends = ?, updated_at = CURRENT_TIMESTAMP WHERE world = ? AND x = ? AND z = ?",
+            db().update("UPDATE claimed_chunks SET friends = ? WHERE world = ? AND x = ? AND z = ?",
                     joined, chunk.getWorld().getName(), chunk.getX(), chunk.getZ());
         }
     }
@@ -490,12 +490,12 @@ public class ChunkAPIImpl implements IChunkAPI {
                         .filter(id -> !id.equals(friendUuid))
                         .collect(Collectors.toList());
                 String joined = String.join(",", explicit);
-                return db().updateAsync("UPDATE claimed_chunks SET friends = ?, updated_at = CURRENT_TIMESTAMP WHERE world = ? AND x = ? AND z = ?",
+                return db().updateAsync("UPDATE claimed_chunks SET friends = ? WHERE world = ? AND x = ? AND z = ?",
                         joined, chunk.getWorld().getName(), chunk.getX(), chunk.getZ());
             }
             newList.remove(friendUuid);
             String joined = String.join(",", newList);
-            return db().updateAsync("UPDATE claimed_chunks SET friends = ?, updated_at = CURRENT_TIMESTAMP WHERE world = ? AND x = ? AND z = ?",
+            return db().updateAsync("UPDATE claimed_chunks SET friends = ? WHERE world = ? AND x = ? AND z = ?",
                     joined, chunk.getWorld().getName(), chunk.getX(), chunk.getZ());
         });
     }
@@ -503,28 +503,28 @@ public class ChunkAPIImpl implements IChunkAPI {
     @Override
     public void setAllFriends(Chunk chunk) {
         ValidateParameter.validateChunk(chunk);
-        db().update("UPDATE claimed_chunks SET friends = NULL, updated_at = CURRENT_TIMESTAMP WHERE world = ? AND x = ? AND z = ?",
+        db().update("UPDATE claimed_chunks SET friends = NULL WHERE world = ? AND x = ? AND z = ?",
                 chunk.getWorld().getName(), chunk.getX(), chunk.getZ());
     }
 
     @Override
     public CompletableFuture<Void> setAllFriendsAsync(Chunk chunk) {
         ValidateParameter.validateChunk(chunk);
-        return db().updateAsync("UPDATE claimed_chunks SET friends = NULL, updated_at = CURRENT_TIMESTAMP WHERE world = ? AND x = ? AND z = ?",
+        return db().updateAsync("UPDATE claimed_chunks SET friends = NULL WHERE world = ? AND x = ? AND z = ?",
                 chunk.getWorld().getName(), chunk.getX(), chunk.getZ());
     }
 
     @Override
     public void clearFriends(Chunk chunk) {
         ValidateParameter.validateChunk(chunk);
-        db().update("UPDATE claimed_chunks SET friends = '', updated_at = CURRENT_TIMESTAMP WHERE world = ? AND x = ? AND z = ?",
+        db().update("UPDATE claimed_chunks SET friends = '' WHERE world = ? AND x = ? AND z = ?",
                 chunk.getWorld().getName(), chunk.getX(), chunk.getZ());
     }
 
     @Override
     public CompletableFuture<Void> clearFriendsAsync(Chunk chunk) {
         ValidateParameter.validateChunk(chunk);
-        return db().updateAsync("UPDATE claimed_chunks SET friends = '', updated_at = CURRENT_TIMESTAMP WHERE world = ? AND x = ? AND z = ?",
+        return db().updateAsync("UPDATE claimed_chunks SET friends = '' WHERE world = ? AND x = ? AND z = ?",
                 chunk.getWorld().getName(), chunk.getX(), chunk.getZ());
     }
 

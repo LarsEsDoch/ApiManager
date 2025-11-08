@@ -156,7 +156,7 @@ public class CourtAPIImpl implements ICourtAPI {
         ValidateParameter.validateReason(reason);
         db().update("""
             UPDATE player_court
-            SET prosecutor = ?, reason = ?, status = ?, updated_at = CURRENT_TIMESTAMP
+            SET prosecutor = ?, reason = ?, status = ?
             WHERE uuid = ?
         """,
         prosecutor != null ? prosecutor.getUniqueId().toString() : null,
@@ -171,7 +171,7 @@ public class CourtAPIImpl implements ICourtAPI {
         ValidateParameter.validateReason(reason);
         return db().updateAsync("""
             UPDATE player_court
-            SET prosecutor = ?, reason = ?, status = ?, updated_at = CURRENT_TIMESTAMP
+            SET prosecutor = ?, reason = ?, status = ?
             WHERE uuid = ?
         """,
         prosecutor != null ? prosecutor.getUniqueId().toString() : null,

@@ -137,70 +137,70 @@ public class TimerAPIImpl implements ITimerAPI {
     @Override
     public void setTime(OfflinePlayer player, int time) {
         ValidateParameter.validatePlayer(player);
-        db().update("UPDATE player_timers SET time = ?, updated_at = CURRENT_TIMESTAMP WHERE uuid = ? LIMIT 1",
+        db().update("UPDATE player_timers SET time = ? WHERE uuid = ? LIMIT 1",
                 time, player.getUniqueId().toString());
     }
 
     @Override
     public CompletableFuture<Void> setTimeAsync(OfflinePlayer player, int time) {
         ValidateParameter.validatePlayer(player);
-        return db().updateAsync("UPDATE player_timers SET time = ?, updated_at = CURRENT_TIMESTAMP WHERE uuid = ? LIMIT 1",
+        return db().updateAsync("UPDATE player_timers SET time = ? WHERE uuid = ? LIMIT 1",
                 time, player.getUniqueId().toString());
     }
 
     @Override
     public void setOff(OfflinePlayer player, boolean off) {
         ValidateParameter.validatePlayer(player);
-        db().update("UPDATE player_timers SET off = ?, updated_at = CURRENT_TIMESTAMP WHERE uuid = ? LIMIT 1",
+        db().update("UPDATE player_timers SET off = ? WHERE uuid = ? LIMIT 1",
                 off, player.getUniqueId().toString());
     }
 
     @Override
     public CompletableFuture<Void> setOffAsync(OfflinePlayer player, boolean off) {
         ValidateParameter.validatePlayer(player);
-        return db().updateAsync("UPDATE player_timers SET off = ?, updated_at = CURRENT_TIMESTAMP WHERE uuid = ? LIMIT 1",
+        return db().updateAsync("UPDATE player_timers SET off = ? WHERE uuid = ? LIMIT 1",
                 off, player.getUniqueId().toString());
     }
 
     @Override
     public void setRunning(OfflinePlayer player, boolean running) {
         ValidateParameter.validatePlayer(player);
-        db().update("UPDATE player_timers SET running = ?, updated_at = CURRENT_TIMESTAMP WHERE uuid = ? LIMIT 1",
+        db().update("UPDATE player_timers SET running = ? WHERE uuid = ? LIMIT 1",
                 running, player.getUniqueId().toString());
     }
 
     @Override
     public CompletableFuture<Void> setRunningAsync(OfflinePlayer player, boolean running) {
         ValidateParameter.validatePlayer(player);
-        return db().updateAsync("UPDATE player_timers SET running = ?, updated_at = CURRENT_TIMESTAMP WHERE uuid = ? LIMIT 1",
+        return db().updateAsync("UPDATE player_timers SET running = ? WHERE uuid = ? LIMIT 1",
                 running, player.getUniqueId().toString());
     }
 
     @Override
     public void setTimer(OfflinePlayer player, boolean timer) {
         ValidateParameter.validatePlayer(player);
-        db().update("UPDATE player_timers SET timer_enabled = ?, updated_at = CURRENT_TIMESTAMP WHERE uuid = ? LIMIT 1",
+        db().update("UPDATE player_timers SET timer_enabled = ? WHERE uuid = ? LIMIT 1",
                 timer, player.getUniqueId().toString());
     }
 
     @Override
     public CompletableFuture<Void> setTimerAsync(OfflinePlayer player, boolean timer) {
         ValidateParameter.validatePlayer(player);
-        return db().updateAsync("UPDATE player_timers SET timer_enabled = ?, updated_at = CURRENT_TIMESTAMP WHERE uuid = ? LIMIT 1",
+        return db().updateAsync("UPDATE player_timers SET timer_enabled = ? WHERE uuid = ? LIMIT 1",
                 timer, player.getUniqueId().toString());
     }
 
     @Override
     public void setPublic(OfflinePlayer player, boolean isPublic) {
         ValidateParameter.validatePlayer(player);
-        db().update("UPDATE player_timers SET public_timer = ?, updated_at = CURRENT_TIMESTAMP WHERE uuid = ? LIMIT 1",
+        db().update("UPDATE player_timers SET public_timer = ? WHERE uuid = ? LIMIT 1",
                 isPublic, player.getUniqueId().toString());
     }
 
     @Override
     public CompletableFuture<Void> setPublicAsync(OfflinePlayer player, boolean isPublic) {
         ValidateParameter.validatePlayer(player);
-        return db().updateAsync("UPDATE player_timers SET public_timer = ?, updated_at = CURRENT_TIMESTAMP WHERE uuid = ? LIMIT 1",
+        return db().updateAsync("UPDATE player_timers SET public_timer = ? WHERE uuid = ? LIMIT 1",
                 isPublic, player.getUniqueId().toString());
     }
 
