@@ -1,13 +1,13 @@
 package de.lars.apimanager.apis.coinAPI;
 
 import de.lars.apimanager.ApiManager;
+import de.lars.apimanager.database.DatabaseRepository;
 import de.lars.apimanager.database.IDatabaseManager;
 import de.lars.apimanager.utils.ValidateParameter;
 import org.bukkit.OfflinePlayer;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -16,6 +16,12 @@ import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 public class CoinAPIImpl implements ICoinAPI {
+    private static final String TABLE = "player_coins";
+
+    private DatabaseRepository repo() {
+        return new DatabaseRepository();
+    }
+
     private IDatabaseManager db() {
         return ApiManager.getInstance().getDatabaseManager();
     }
@@ -41,118 +47,43 @@ public class CoinAPIImpl implements ICoinAPI {
     }
 
     public boolean doesUserExist(OfflinePlayer player) {
-        return db().query(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT 1 FROM player_coins WHERE uuid=? LIMIT 1")) {
-                ps.setString(1, player.getUniqueId().toString());
-                try (ResultSet rs = ps.executeQuery()) {
-                    return rs.next();
-                }
-            }
-        });
+        return repo().exists(TABLE, "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public Instant getCreatedAt(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        return db().query(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement(
-                     "SELECT created_at FROM player_coins WHERE uuid = ? LIMIT 1"
-                 )) {
-                ps.setString(1, player.getUniqueId().toString());
-                try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) {
-                        Timestamp ts = rs.getTimestamp("created_at");
-                        if (ts != null) {
-                            return ts.toInstant();
-                        } else {
-                            return null;
-                        }
-                    }
-                    return null;
-                }
-            }
-        });
+        return repo().getInstant(TABLE, "created_at", "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public CompletableFuture<Instant> getCreatedAtAsync(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        return db().queryAsync(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement(
-                     "SELECT created_at FROM player_coins WHERE uuid = ? LIMIT 1"
-                 )) {
-                ps.setString(1, player.getUniqueId().toString());
-                try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) {
-                        Timestamp ts = rs.getTimestamp("created_at");
-                        if (ts != null) {
-                            return ts.toInstant();
-                        } else {
-                            return null;
-                        }
-                    }
-                    return null;
-                }
-            }
-        });
+        return repo().getInstantAsync(TABLE, "created_at", "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public Instant getUpdatedAt(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        return db().query(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement(
-                     "SELECT updated_at FROM player_coins WHERE uuid = ? LIMIT 1"
-                 )) {
-                ps.setString(1, player.getUniqueId().toString());
-                try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) {
-                        Timestamp ts = rs.getTimestamp("updated_at");
-                        if (ts != null) {
-                            return ts.toInstant();
-                        } else {
-                            return null;
-                        }
-                    }
-                    return null;
-                }
-            }
-        });
+        return repo().getInstant(TABLE, "updated_at", "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public CompletableFuture<Instant> getUpdatedAtAsync(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        return db().queryAsync(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement(
-                     "SELECT updated_at FROM player_coins WHERE uuid = ? LIMIT 1"
-                 )) {
-                ps.setString(1, player.getUniqueId().toString());
-                try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) {
-                        Timestamp ts = rs.getTimestamp("updated_at");
-                        if (ts != null) {
-                            return ts.toInstant();
-                        } else {
-                            return null;
-                        }
-                    }
-                    return null;
-                }
-            }
-        });
+        return repo().getInstantAsync(TABLE, "updated_at", "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public void setCoins(OfflinePlayer player, int amount) {
         ValidateParameter.validatePlayer(player);
-        db().update("UPDATE player_coins SET coins=? WHERE uuid=?", amount, player.getUniqueId().toString());
+        repo().updateColumn(TABLE, "coins", amount, "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public CompletableFuture<Void> setCoinsAsync(OfflinePlayer player, int amount) {
         ValidateParameter.validatePlayer(player);
-        return db().updateAsync("UPDATE player_coins SET coins=? WHERE uuid=?", amount, player.getUniqueId().toString());
+        return repo().updateColumnAsync(TABLE, "coins", amount, "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
@@ -182,29 +113,15 @@ public class CoinAPIImpl implements ICoinAPI {
     @Override
     public Integer getCoins(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        return db().query(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT coins FROM player_coins WHERE uuid=?")) {
-                ps.setString(1, player.getUniqueId().toString());
-                try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) return rs.getInt("coins");
-                    return 0;
-                }
-            }
-        });
+        Integer coins = repo().getInteger(TABLE, "coins", "uuid = ?", player.getUniqueId().toString());
+        return coins != null ? coins : 0;
     }
 
     @Override
     public CompletableFuture<Integer> getCoinsAsync(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        return db().queryAsync(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT coins FROM player_coins WHERE uuid=?")) {
-                ps.setString(1, player.getUniqueId().toString());
-                try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) return rs.getInt("coins");
-                    return 0;
-                }
-            }
-        });
+        return repo().getIntegerAsync(TABLE, "coins", "uuid = ?", player.getUniqueId().toString())
+            .thenApply(coins -> coins != null ? coins : 0);
     }
 
     @Override
@@ -212,12 +129,8 @@ public class CoinAPIImpl implements ICoinAPI {
         ValidateParameter.validatePlayer(player);
         List<Integer> gifts = new ArrayList<>(getGifts(player));
         gifts.add(gift);
-
-        String giftString = gifts.stream()
-            .map(String::valueOf)
-            .collect(Collectors.joining(","));
-
-        db().update("UPDATE player_coins SET gifts=? WHERE uuid=?", giftString, player.getUniqueId().toString());
+        String giftString = gifts.stream().map(String::valueOf).collect(Collectors.joining(","));
+        repo().updateColumn(TABLE, "gifts", giftString, "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
@@ -225,12 +138,8 @@ public class CoinAPIImpl implements ICoinAPI {
         ValidateParameter.validatePlayer(player);
         return getGiftsAsync(player).thenCompose(gifts -> {
             gifts.add(gift);
-
-            String giftString = gifts.stream()
-                .map(String::valueOf)
-                .collect(Collectors.joining(","));
-
-            return db().updateAsync("UPDATE player_coins SET gifts=? WHERE uuid=?", giftString, player.getUniqueId().toString());
+            String giftString = gifts.stream().map(String::valueOf).collect(Collectors.joining(","));
+            return repo().updateColumnAsync(TABLE, "gifts", giftString, "uuid = ?", player.getUniqueId().toString());
         });
     }
 
@@ -239,12 +148,8 @@ public class CoinAPIImpl implements ICoinAPI {
         ValidateParameter.validatePlayer(player);
         List<Integer> gifts = new ArrayList<>(getGifts(player));
         gifts.remove(Integer.valueOf(gift));
-
-        String giftString = gifts.stream()
-            .map(String::valueOf)
-            .collect(Collectors.joining(","));
-
-        db().update("UPDATE player_coins SET gifts=? WHERE uuid=?", giftString, player.getUniqueId().toString());
+        String giftString = gifts.stream().map(String::valueOf).collect(Collectors.joining(","));
+        repo().updateColumn(TABLE, "gifts", giftString, "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
@@ -252,12 +157,8 @@ public class CoinAPIImpl implements ICoinAPI {
         ValidateParameter.validatePlayer(player);
         return getGiftsAsync(player).thenCompose(gifts -> {
             gifts.remove(Integer.valueOf(gift));
-
-            String giftString = gifts.stream()
-                .map(String::valueOf)
-                .collect(Collectors.joining(","));
-
-            return db().updateAsync("UPDATE player_coins SET gifts=? WHERE uuid=?", giftString, player.getUniqueId().toString());
+            String giftString = gifts.stream().map(String::valueOf).collect(Collectors.joining(","));
+            return repo().updateColumnAsync(TABLE, "gifts", giftString, "uuid = ?", player.getUniqueId().toString());
         });
     }
 
