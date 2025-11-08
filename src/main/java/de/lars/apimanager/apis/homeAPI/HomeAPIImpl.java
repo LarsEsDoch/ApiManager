@@ -2,8 +2,8 @@ package de.lars.apimanager.apis.homeAPI;
 
 import de.lars.apimanager.ApiManager;
 import de.lars.apimanager.database.IDatabaseManager;
+import de.lars.apimanager.utils.FormatLocation;
 import de.lars.apimanager.utils.ValidateParameter;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 
@@ -13,8 +13,6 @@ import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
-import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
 public class HomeAPIImpl implements IHomeAPI {
@@ -134,7 +132,7 @@ public class HomeAPIImpl implements IHomeAPI {
         db().update("""
             INSERT INTO player_homes (uuid, name, location, is_public)
             VALUES (?, ?, ?, ?)
-        """, player.getUniqueId().toString(), name, serializeLocation(location), isPublic);
+        """, player.getUniqueId().toString(), name, FormatLocation.serializeLocation(location), isPublic);
     }
 
     @Override
@@ -145,7 +143,7 @@ public class HomeAPIImpl implements IHomeAPI {
         return db().updateAsync("""
             INSERT INTO player_homes (uuid, name, location, is_public)
             VALUES (?, ?, ?, ?)
-        """, player.getUniqueId().toString(), name, serializeLocation(location), isPublic);
+        """, player.getUniqueId().toString(), name, FormatLocation.serializeLocation(location), isPublic);
     }
 
     @Override
@@ -293,7 +291,7 @@ public class HomeAPIImpl implements IHomeAPI {
                 try (ResultSet rs = ps.executeQuery()) {
                     if (rs.next()) {
                         String locData = rs.getString("location");
-                        return deserializeLocation(locData);
+                        return FormatLocation.deserializeLocation(locData);
                     }
                 }
             }
@@ -310,7 +308,7 @@ public class HomeAPIImpl implements IHomeAPI {
                 try (ResultSet rs = ps.executeQuery()) {
                     if (rs.next()) {
                         String locData = rs.getString("location");
-                        return deserializeLocation(locData);
+                        return FormatLocation.deserializeLocation(locData);
                     }
                 }
             }
@@ -410,27 +408,5 @@ public class HomeAPIImpl implements IHomeAPI {
             }
             return -1;
         });
-    }
-
-    private String serializeLocation(Location loc) {
-        return String.format(Locale.ENGLISH, "%s,%.3f,%.3f,%.3f,%.3f,%.3f",
-                Objects.requireNonNull(loc.getWorld()).getName(),
-                loc.getX(), loc.getY(), loc.getZ(),
-                loc.getYaw(), loc.getPitch()
-        );
-    }
-
-    private Location deserializeLocation(String data) {
-        if (data == null || data.isEmpty()) return null;
-        String[] parts = data.split(",");
-        if (parts.length != 6) return null;
-        return new Location(
-                Bukkit.getWorld(parts[0]),
-                Double.parseDouble(parts[1]),
-                Double.parseDouble(parts[2]),
-                Double.parseDouble(parts[3]),
-                Float.parseFloat(parts[4]),
-                Float.parseFloat(parts[5])
-        );
     }
 }
