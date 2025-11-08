@@ -2,7 +2,9 @@ package de.lars.apimanager.apis.serverSettingsAPI;
 
 import de.lars.apimanager.ApiManager;
 import de.lars.apimanager.database.IDatabaseManager;
+import de.lars.apimanager.utils.FormatLocation;
 import de.lars.apimanager.utils.ValidateParameter;
+import org.bukkit.Location;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -20,8 +22,8 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
             CREATE TABLE IF NOT EXISTS server_settings (
                 id INT PRIMARY KEY CHECK (id = 1),
                 is_server_online BOOLEAN DEFAULT FALSE,
-                real_time_enabled BOOLEAN DEFAULT TRUE,
-                real_weather_enabled BOOLEAN DEFAULT TRUE,
+                real_time_enabled BOOLEAN DEFAULT FALSE,
+                real_weather_enabled BOOLEAN DEFAULT FALSE,
                 maintenance_enabled BOOLEAN DEFAULT FALSE,
                 maintenance_reason VARCHAR(255) DEFAULT '',
                 maintenance_start TIMESTAMP DEFAULT NULL,
@@ -30,6 +32,7 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
                 max_players INT DEFAULT 100,
                 server_name VARCHAR(255) DEFAULT 'A Minecraft Server',
                 server_version VARCHAR(50) DEFAULT '1.21.10',
+                spawn_location VARCHAR(255) DEFAULT NULL,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -38,9 +41,9 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
         if (countRowsInTable() < 1) {
             db().update("""
                 INSERT INTO server_settings
-                (id, is_server_online, real_time_enabled, real_weather_enabled, maintenance_enabled, maintenance_reason, maintenance_end, max_players, server_name, server_version)
-                VALUES (1, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """, false, true, true, false, "", null, 1000000000, "A Minecraft Server", "1.21.10");
+                (id, is_server_online, real_time_enabled, real_weather_enabled, maintenance_enabled, maintenance_reason, maintenance_end, max_players, server_name, server_version, spawn_location)
+                VALUES (1, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, false, false, false, false, "", null, 1000000000, "A Minecraft Server", "1.21.10", null);
         }
     }
 
@@ -620,6 +623,50 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
                     else return null;
                 }
             }
+        });
+    }
+
+    @Override
+    public void setSpawnLocation(Location location) {
+        ValidateParameter.validateLocation(location);
+        db().update("UPDATE server_settings SET spawn_location = ? WHERE id = 1", FormatLocation.serializeLocation(location));
+    }
+
+    @Override
+    public CompletableFuture<Void> setSpawnLocationAsync(Location location) {
+        ValidateParameter.validateLocation(location);
+        return db().updateAsync("UPDATE server_settings SET spawn_location = ? WHERE id = 1", FormatLocation.serializeLocation(location));
+    }
+
+    @Override
+    public Location getSpawnLocation() {
+        return db().query(conn -> {
+            try (PreparedStatement ps = conn.prepareStatement(
+                    "SELECT spawn_location FROM server_settings WHERE id = 1")) {
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        String locData = rs.getString("spawn_location");
+                        return FormatLocation.deserializeLocation(locData);
+                    }
+                }
+            }
+            return null;
+        });
+    }
+
+    @Override
+    public CompletableFuture<Location> getSpawnLocationAsync() {
+        return db().queryAsync(conn -> {
+            try (PreparedStatement ps = conn.prepareStatement(
+                    "SELECT spawn_location FROM server_settings WHERE id = 1")) {
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        String locData = rs.getString("spawn_location");
+                        return FormatLocation.deserializeLocation(locData);
+                    }
+                }
+            }
+            return null;
         });
     }
 

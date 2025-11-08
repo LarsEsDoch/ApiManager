@@ -1,5 +1,7 @@
 package de.lars.apimanager.apis.serverSettingsAPI;
 
+import org.bukkit.Location;
+
 import java.time.Instant;
 import java.util.concurrent.CompletableFuture;
 
@@ -103,4 +105,12 @@ public interface IServerSettingsAPI {
     String getServerVersion();
 
     CompletableFuture<String> getServerVersionAsync();
+
+    void setSpawnLocation(Location location);
+
+    CompletableFuture<Void> setSpawnLocationAsync(Location location);
+
+    Location getSpawnLocation();
+
+    CompletableFuture<Location> getSpawnLocationAsync();
 }
