@@ -1,6 +1,7 @@
 package de.lars.apimanager.apis.backpackAPI;
 
 import de.lars.apimanager.ApiManager;
+import de.lars.apimanager.database.DatabaseRepository;
 import de.lars.apimanager.database.IDatabaseManager;
 import de.lars.apimanager.utils.Statements;
 import de.lars.apimanager.utils.ValidateParameter;
@@ -11,9 +12,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.Base64;
 import java.util.concurrent.CompletableFuture;
@@ -21,6 +19,12 @@ import java.util.zip.DeflaterOutputStream;
 import java.util.zip.InflaterInputStream;
 
 public class BackpackAPIImpl implements IBackpackAPI {
+    private static final String TABLE = "player_backpacks";
+
+    private DatabaseRepository repo() {
+        return new DatabaseRepository();
+    }
+
     private IDatabaseManager db() {
         return ApiManager.getInstance().getDatabaseManager();
     }
@@ -45,156 +49,59 @@ public class BackpackAPIImpl implements IBackpackAPI {
     }
 
     public boolean doesUserExist(OfflinePlayer player) {
-        return db().query(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT 1 FROM player_backpacks WHERE uuid = ? LIMIT 1")) {
-                ps.setString(1, player.getUniqueId().toString());
-                try (ResultSet rs = ps.executeQuery()) {
-                    return rs.next();
-                }
-            }
-        });
+        return repo().exists(TABLE, "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public Instant getCreatedAt(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        return db().query(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement(
-                     "SELECT created_at FROM player_backpacks WHERE uuid = ? LIMIT 1"
-                 )) {
-                ps.setString(1, player.getUniqueId().toString());
-                try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) {
-                        Timestamp ts = rs.getTimestamp("created_at");
-                        if (ts != null) {
-                            return ts.toInstant();
-                        } else {
-                            return null;
-                        }
-                    }
-                    return null;
-                }
-            }
-        });
+        return repo().getInstant(TABLE, "created_at", "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public CompletableFuture<Instant> getCreatedAtAsync(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        return db().queryAsync(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement(
-                     "SELECT created_at FROM player_backpacks WHERE uuid = ? LIMIT 1"
-                 )) {
-                ps.setString(1, player.getUniqueId().toString());
-                try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) {
-                        Timestamp ts = rs.getTimestamp("created_at");
-                        if (ts != null) {
-                            return ts.toInstant();
-                        } else {
-                            return null;
-                        }
-                    }
-                    return null;
-                }
-            }
-        });
+        return repo().getInstantAsync(TABLE, "created_at", "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public Instant getUpdatedAt(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        return db().query(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement(
-                     "SELECT updated_at FROM player_backpacks WHERE uuid = ? LIMIT 1"
-                 )) {
-                ps.setString(1, player.getUniqueId().toString());
-                try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) {
-                        Timestamp ts = rs.getTimestamp("updated_at");
-                        if (ts != null) {
-                            return ts.toInstant();
-                        } else {
-                            return null;
-                        }
-                    }
-                    return null;
-                }
-            }
-        });
+        return repo().getInstant(TABLE, "updated_at", "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public CompletableFuture<Instant> getUpdatedAtAsync(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        return db().queryAsync(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement(
-                     "SELECT updated_at FROM player_backpacks WHERE uuid = ? LIMIT 1"
-                 )) {
-                ps.setString(1, player.getUniqueId().toString());
-                try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) {
-                        Timestamp ts = rs.getTimestamp("updated_at");
-                        if (ts != null) {
-                            return ts.toInstant();
-                        } else {
-                            return null;
-                        }
-                    }
-                    return null;
-                }
-            }
-        });
+        return repo().getInstantAsync(TABLE, "updated_at", "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public void setBackpack(OfflinePlayer player, String data) {
         ValidateParameter.validatePlayer(player);
         String compressed = compressToBase64(data);
-        db().update("UPDATE player_backpacks SET data = ? WHERE uuid = ? LIMIT 1",
-                compressed, player.getUniqueId().toString());
+        repo().updateColumn(TABLE, "data", compressed, "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public CompletableFuture<Void> setBackpackAsync(OfflinePlayer player, String data) {
         ValidateParameter.validatePlayer(player);
         String compressed = compressToBase64(data);
-        return db().updateAsync("UPDATE player_backpacks SET data = ? WHERE uuid = ? LIMIT 1",
-                    compressed, player.getUniqueId().toString());
+        return repo().updateColumnAsync(TABLE, "data", compressed, "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public String getBackpack(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        return db().query(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT data FROM player_backpacks WHERE uuid = ? LIMIT 1")) {
-                ps.setString(1, player.getUniqueId().toString());
-                try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) {
-                        String base64 = rs.getString("data");
-                        return base64 == null ? "" : decompressFromBase64(base64);
-                    }
-                }
-            }
-            return "";
-        });
+        String base64 = repo().getString(TABLE, "data", "uuid = ?", player.getUniqueId().toString());
+        return base64 == null || base64.isEmpty() ? "" : decompressFromBase64(base64);
     }
 
     @Override
     public CompletableFuture<String> getBackpackAsync(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        return db().queryAsync(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT data FROM player_backpacks WHERE uuid = ? LIMIT 1")) {
-                ps.setString(1, player.getUniqueId().toString());
-                try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) {
-                        String base64 = rs.getString("data");
-                        return base64 == null ? "" : decompressFromBase64(base64);
-                    }
-                }
-            }
-            return "";
-        });
+        return repo().getStringAsync(TABLE, "data", "uuid = ?", player.getUniqueId().toString())
+            .thenApply(base64 -> base64 == null || base64.isEmpty() ? "" : decompressFromBase64(base64));
     }
 
     private String compressToBase64(String input) {
