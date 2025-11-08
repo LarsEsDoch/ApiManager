@@ -1,17 +1,21 @@
 package de.lars.apimanager.apis.languageAPI;
 
 import de.lars.apimanager.ApiManager;
+import de.lars.apimanager.database.DatabaseRepository;
 import de.lars.apimanager.database.IDatabaseManager;
 import de.lars.apimanager.utils.ValidateParameter;
 import org.bukkit.OfflinePlayer;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.concurrent.CompletableFuture;
 
 public class LanguageAPIImpl implements ILanguageAPI {
+    private static final String TABLE = "player_languages";
+
+    private DatabaseRepository repo() {
+        return new DatabaseRepository();
+    }
+
     private IDatabaseManager db() {
         return ApiManager.getInstance().getDatabaseManager();
     }
@@ -36,159 +40,52 @@ public class LanguageAPIImpl implements ILanguageAPI {
     }
 
     public boolean doesUserExist(OfflinePlayer player) {
-        return db().query(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT 1 FROM player_languages WHERE uuid = ? LIMIT 1")) {
-                ps.setString(1, player.getUniqueId().toString());
-                try (ResultSet rs = ps.executeQuery()) {
-                    return rs.next();
-                }
-            }
-        });
+        return repo().exists(TABLE, "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public Instant getCreatedAt(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        return db().query(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement(
-                     "SELECT created_at FROM player_languages WHERE uuid = ? LIMIT 1"
-                 )) {
-                ps.setString(1, player.getUniqueId().toString());
-                try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) {
-                        Timestamp ts = rs.getTimestamp("created_at");
-                        if (ts != null) {
-                            return ts.toInstant();
-                        } else {
-                            return null;
-                        }
-                    }
-                    return null;
-                }
-            }
-        });
+        return repo().getInstant(TABLE, "created_at", "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public CompletableFuture<Instant> getCreatedAtAsync(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        return db().queryAsync(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement(
-                     "SELECT created_at FROM player_languages WHERE uuid = ? LIMIT 1"
-                 )) {
-                ps.setString(1, player.getUniqueId().toString());
-                try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) {
-                        Timestamp ts = rs.getTimestamp("created_at");
-                        if (ts != null) {
-                            return ts.toInstant();
-                        } else {
-                            return null;
-                        }
-                    }
-                    return null;
-                }
-            }
-        });
+        return repo().getInstantAsync(TABLE, "created_at", "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public Instant getUpdatedAt(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        return db().query(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement(
-                     "SELECT updated_at FROM player_languages WHERE uuid = ? LIMIT 1"
-                 )) {
-                ps.setString(1, player.getUniqueId().toString());
-                try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) {
-                        Timestamp ts = rs.getTimestamp("updated_at");
-                        if (ts != null) {
-                            return ts.toInstant();
-                        } else {
-                            return null;
-                        }
-                    }
-                    return null;
-                }
-            }
-        });
+        return repo().getInstant(TABLE, "updated_at", "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public CompletableFuture<Instant> getUpdatedAtAsync(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        return db().queryAsync(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement(
-                     "SELECT updated_at FROM player_languages WHERE uuid = ? LIMIT 1"
-                 )) {
-                ps.setString(1, player.getUniqueId().toString());
-                try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) {
-                        Timestamp ts = rs.getTimestamp("updated_at");
-                        if (ts != null) {
-                            return ts.toInstant();
-                        } else {
-                            return null;
-                        }
-                    }
-                    return null;
-                }
-            }
-        });
+        return repo().getInstantAsync(TABLE, "updated_at", "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public void setLanguage(OfflinePlayer player, Integer id) {
-        db().update("""
-            UPDATE player_languages
-            SET language_id = ?
-            WHERE uuid = ?
-        """, id, player.getUniqueId().toString());
+        repo().updateColumn(TABLE, "language_id", id, "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public CompletableFuture<Void> setLanguageAsync(OfflinePlayer player, Integer id) {
-        return db().updateAsync("""
-            UPDATE player_languages
-            SET language_id = ?
-            WHERE uuid = ?
-        """, id, player.getUniqueId().toString());
+        return repo().updateColumnAsync(TABLE, "language_id", id, "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public Integer getLanguage(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        return db().query(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT language_id FROM player_languages WHERE uuid = ? LIMIT 1")) {
-                ps.setString(1, player.getUniqueId().toString());
-                try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) {
-                        int value = rs.getInt("language_id");
-                        return rs.wasNull() ? null : value;
-                    } else {
-                        return null;
-                    }
-                }
-            }
-        });
+        return repo().getInteger(TABLE, "language_id", "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public CompletableFuture<Integer> getLanguageAsync(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        return db().queryAsync(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT language_id FROM player_languages WHERE uuid = ? LIMIT 1")) {
-                ps.setString(1, player.getUniqueId().toString());
-                try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) {
-                        int value = rs.getInt("language_id");
-                        return rs.wasNull() ? null : value;
-                    } else {
-                        return null;
-                    }
-                }
-            }
-        });
+        return repo().getIntegerAsync(TABLE, "language_id", "uuid = ?", player.getUniqueId().toString());
     }
 }
