@@ -1,17 +1,21 @@
 package de.lars.apimanager.apis.nickAPI;
 
 import de.lars.apimanager.ApiManager;
+import de.lars.apimanager.database.DatabaseRepository;
 import de.lars.apimanager.database.IDatabaseManager;
 import de.lars.apimanager.utils.ValidateParameter;
 import org.bukkit.OfflinePlayer;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.concurrent.CompletableFuture;
 
 public class NickAPIImpl implements INickAPI {
+    private static final String TABLE = "player_nicknames";
+
+    private DatabaseRepository repo() {
+        return new DatabaseRepository();
+    }
+
     private IDatabaseManager db() {
         return ApiManager.getInstance().getDatabaseManager();
     }
@@ -37,195 +41,96 @@ public class NickAPIImpl implements INickAPI {
     }
 
     public boolean doesUserExist(OfflinePlayer player) {
-        return db().query(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT 1 FROM player_nicknames WHERE uuid = ? LIMIT 1")) {
-                ps.setString(1, player.getUniqueId().toString());
-                try (ResultSet rs = ps.executeQuery()) {
-                    return rs.next();
-                }
-            }
-        });
+        return repo().exists(TABLE, "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public Instant getCreatedAt(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        return db().query(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT created_at FROM player_nicknames WHERE uuid = ? LIMIT 1")) {
-                ps.setString(1, player.getUniqueId().toString());
-                try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) {
-                        Timestamp ts = rs.getTimestamp("created_at");
-                        if (ts != null) {
-                            return ts.toInstant();
-                        } else {
-                            return null;
-                        }
-                    }
-                    return null;
-                }
-            }
-        });
+        return repo().getInstant(TABLE, "created_at", "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public CompletableFuture<Instant> getCreatedAtAsync(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        return db().queryAsync(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT created_at FROM player_nicknames WHERE uuid = ? LIMIT 1")) {
-                ps.setString(1, player.getUniqueId().toString());
-                try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) {
-                        Timestamp ts = rs.getTimestamp("created_at");
-                        if (ts != null) {
-                            return ts.toInstant();
-                        } else {
-                            return null;
-                        }
-                    }
-                    return null;
-                }
-            }
-        });
+        return repo().getInstantAsync(TABLE, "created_at", "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public Instant getUpdatedAt(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        return db().query(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT updated_at FROM player_nicknames WHERE uuid = ? LIMIT 1")) {
-                ps.setString(1, player.getUniqueId().toString());
-                try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) {
-                        Timestamp ts = rs.getTimestamp("updated_at");
-                        if (ts != null) {
-                            return ts.toInstant();
-                        } else {
-                            return null;
-                        }
-                    }
-                    return null;
-                }
-            }
-        });
+        return repo().getInstant(TABLE, "updated_at", "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public CompletableFuture<Instant> getUpdatedAtAsync(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        return db().queryAsync(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT updated_at FROM player_nicknames WHERE uuid = ? LIMIT 1")) {
-                ps.setString(1, player.getUniqueId().toString());
-                try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) {
-                        Timestamp ts = rs.getTimestamp("updated_at");
-                        if (ts != null) {
-                            return ts.toInstant();
-                        } else {
-                            return null;
-                        }
-                    }
-                    return null;
-                }
-            }
-        });
+        return repo().getInstantAsync(TABLE, "updated_at", "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public void setNickname(OfflinePlayer player, String nickname) {
         ValidateParameter.validatePlayer(player);
         ValidateParameter.validateNickName(nickname);
-        db().update("UPDATE player_nicknames SET nickname=? WHERE uuid=?", nickname, player.getUniqueId().toString());
+        repo().updateColumn(TABLE, "nickname", nickname, "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public CompletableFuture<Void> setNicknameAsync(OfflinePlayer player, String nickname) {
         ValidateParameter.validatePlayer(player);
         ValidateParameter.validateNickName(nickname);
-        return db().updateAsync("UPDATE player_nicknames SET nickname=? WHERE uuid=?", nickname, player.getUniqueId().toString());
+        return repo().updateColumnAsync(TABLE, "nickname", nickname, "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public void resetNickname(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        db().update("UPDATE player_nicknames SET nickname=?,fake_rank=? WHERE uuid=?", null, null, player.getUniqueId().toString());
+        repo().updateColumns(TABLE,
+            new String[]{"nickname", "fake_rank"},
+            new Object[]{null, null},
+            "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public CompletableFuture<Void> resetNicknameAsync(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        return db().updateAsync("UPDATE player_nicknames SET nickname=?,fake_rank=? WHERE uuid=?", null, null, player.getUniqueId().toString());
+        return repo().updateColumnsAsync(TABLE,
+            new String[]{"nickname", "fake_rank"},
+            new Object[]{null, null},
+            "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public String getNickname(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        return db().query(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT nickname FROM player_nicknames WHERE uuid=?")) {
-                ps.setString(1, player.getUniqueId().toString());
-                try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) return rs.getString("nickname");
-                }
-            }
-            return null;
-        });
+        return repo().getString(TABLE, "nickname", "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public CompletableFuture<String> getNicknameAsync(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        return db().queryAsync(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT nickname FROM player_nicknames WHERE uuid=?")) {
-                ps.setString(1, player.getUniqueId().toString());
-                try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) return rs.getString("nickname");
-                }
-            }
-            return null;
-        });
+        return repo().getStringAsync(TABLE, "nickname", "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public void setFakeRank(OfflinePlayer player, Integer rankId) {
-        db().update("UPDATE player_nicknames SET fake_rank=? WHERE uuid=?", rankId, player.getUniqueId().toString());
+        repo().updateColumn(TABLE, "fake_rank", rankId, "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public CompletableFuture<Void> setFakeRankAsync(OfflinePlayer player, Integer rankId) {
-        return db().updateAsync("UPDATE player_nicknames SET fake_rank=? WHERE uuid=?", rankId, player.getUniqueId().toString());
+        return repo().updateColumnAsync(TABLE, "fake_rank", rankId, "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public Integer getFakeRank(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        return db().query(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT fake_rank FROM player_nicknames WHERE uuid=?")) {
-                ps.setString(1, player.getUniqueId().toString());
-                try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) {
-                        int v = rs.getInt("fake_rank");
-                        return rs.wasNull() ? null : v;
-                    }
-                }
-            }
-            return null;
-        });
+        return repo().getInteger(TABLE, "fake_rank", "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public CompletableFuture<Integer> getFakeRankAsync(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        return db().queryAsync(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT fake_rank FROM player_nicknames WHERE uuid=?")) {
-                ps.setString(1, player.getUniqueId().toString());
-                try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) {
-                        int v = rs.getInt("fake_rank");
-                        return rs.wasNull() ? null : v;
-                    }
-                }
-            }
-            return null;
-        });
+        return repo().getIntegerAsync(TABLE, "fake_rank", "uuid = ?", player.getUniqueId().toString());
     }
 }
