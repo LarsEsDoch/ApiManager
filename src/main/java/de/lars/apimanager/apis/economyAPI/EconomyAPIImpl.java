@@ -1,4 +1,4 @@
-package de.lars.apimanager.apis.coinAPI;
+package de.lars.apimanager.apis.economyAPI;
 
 import de.lars.apimanager.ApiManager;
 import de.lars.apimanager.database.DatabaseRepository;
@@ -15,8 +15,8 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
-public class CoinAPIImpl implements ICoinAPI {
-    private static final String TABLE = "player_coins";
+public class EconomyAPIImpl implements IEconomyAPI {
+    private static final String TABLE = "player_economy";
 
     private DatabaseRepository repo() {
         return new DatabaseRepository();
@@ -28,9 +28,9 @@ public class CoinAPIImpl implements ICoinAPI {
 
     public void createTables() {
         db().update("""
-            CREATE TABLE IF NOT EXISTS player_coins (
+            CREATE TABLE IF NOT EXISTS player_economy (
                 uuid CHAR(36) NOT NULL PRIMARY KEY,
-                coins INT DEFAULT 0,
+                balance INT DEFAULT 0,
                 gifts VARCHAR(255) DEFAULT '',
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -41,7 +41,7 @@ public class CoinAPIImpl implements ICoinAPI {
 
     public void initPlayer(OfflinePlayer player) {
         db().update("""
-            INSERT IGNORE INTO player_coins (uuid, coins, gifts)
+            INSERT IGNORE INTO player_economy (uuid, balance, gifts)
             VALUES (?, ?, ?)
         """, player.getUniqueId().toString(), 0, "");
     }
@@ -75,53 +75,53 @@ public class CoinAPIImpl implements ICoinAPI {
     }
 
     @Override
-    public void setCoins(OfflinePlayer player, int amount) {
+    public void setBalance(OfflinePlayer player, int amount) {
         ValidateParameter.validatePlayer(player);
-        repo().updateColumn(TABLE, "coins", amount, "uuid = ?", player.getUniqueId().toString());
+        repo().updateColumn(TABLE, "balance", amount, "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
-    public CompletableFuture<Void> setCoinsAsync(OfflinePlayer player, int amount) {
+    public CompletableFuture<Void> setBalanceAsync(OfflinePlayer player, int amount) {
         ValidateParameter.validatePlayer(player);
-        return repo().updateColumnAsync(TABLE, "coins", amount, "uuid = ?", player.getUniqueId().toString());
+        return repo().updateColumnAsync(TABLE, "balance", amount, "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
-    public void addCoins(OfflinePlayer player, int amount) {
+    public void increaseBalance(OfflinePlayer player, int amount) {
         ValidateParameter.validatePlayer(player);
-        db().update("UPDATE player_coins SET coins = coins + ? WHERE uuid=?", amount, player.getUniqueId().toString());
+        repo().increaseColumn(TABLE, "balance", amount, "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
-    public CompletableFuture<Void> addCoinsAsync(OfflinePlayer player, int amount) {
+    public CompletableFuture<Void> increaseBalanceAsync(OfflinePlayer player, int amount) {
         ValidateParameter.validatePlayer(player);
-        return db().updateAsync("UPDATE player_coins SET coins = coins + ? WHERE uuid=?", amount, player.getUniqueId().toString());
+        return repo().increaseColumnAsync(TABLE, "balance", amount, "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
-    public void removeCoins(OfflinePlayer player, int amount) {
+    public void decreaseBalance(OfflinePlayer player, int amount) {
         ValidateParameter.validatePlayer(player);
-        db().update("UPDATE player_coins SET coins = GREATEST(coins - ?, 0) WHERE uuid=?", amount, player.getUniqueId().toString());
+        repo().decreaseColumn(TABLE, "balance", amount, "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
-    public CompletableFuture<Void> removeCoinsAsync(OfflinePlayer player, int amount) {
+    public CompletableFuture<Void> decreaseBalanceAsync(OfflinePlayer player, int amount) {
         ValidateParameter.validatePlayer(player);
-        return db().updateAsync("UPDATE player_coins SET coins = GREATEST(coins - ?, 0) WHERE uuid=?", amount, player.getUniqueId().toString());
+        return repo().decreaseColumnAsync(TABLE, "balance", amount, "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
-    public Integer getCoins(OfflinePlayer player) {
+    public Integer getBalance(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        Integer coins = repo().getInteger(TABLE, "coins", "uuid = ?", player.getUniqueId().toString());
-        return coins != null ? coins : 0;
+        Integer balance = repo().getInteger(TABLE, "balance", "uuid = ?", player.getUniqueId().toString());
+        return balance != null ? balance : 0;
     }
 
     @Override
-    public CompletableFuture<Integer> getCoinsAsync(OfflinePlayer player) {
+    public CompletableFuture<Integer> getBalanceAsync(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        return repo().getIntegerAsync(TABLE, "coins", "uuid = ?", player.getUniqueId().toString())
-            .thenApply(coins -> coins != null ? coins : 0);
+        return repo().getIntegerAsync(TABLE, "balance", "uuid = ?", player.getUniqueId().toString())
+            .thenApply(balance -> balance != null ? balance : 0);
     }
 
     @Override
@@ -166,7 +166,7 @@ public class CoinAPIImpl implements ICoinAPI {
     public List<Integer> getGifts(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
         return db().query(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT gifts FROM player_coins WHERE uuid=?")) {
+            try (PreparedStatement ps = conn.prepareStatement("SELECT gifts FROM player_economy WHERE uuid=?")) {
                 ps.setString(1, player.getUniqueId().toString());
                 try (ResultSet rs = ps.executeQuery()) {
                     if (rs.next()) {
@@ -189,7 +189,7 @@ public class CoinAPIImpl implements ICoinAPI {
     public CompletableFuture<List<Integer>> getGiftsAsync(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
         return db().queryAsync(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT gifts FROM player_coins WHERE uuid=?")) {
+            try (PreparedStatement ps = conn.prepareStatement("SELECT gifts FROM player_economy WHERE uuid=?")) {
                 ps.setString(1, player.getUniqueId().toString());
                 try (ResultSet rs = ps.executeQuery()) {
                     if (rs.next()) {

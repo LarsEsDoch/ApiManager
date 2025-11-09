@@ -1,4 +1,4 @@
-package de.lars.apimanager.apis.coinAPI;
+package de.lars.apimanager.apis.economyAPI;
 
 import org.bukkit.OfflinePlayer;
 
@@ -6,7 +6,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-public interface ICoinAPI {
+public interface IEconomyAPI {
     Instant getCreatedAt(OfflinePlayer player);
 
     CompletableFuture<Instant> getCreatedAtAsync(OfflinePlayer player);
@@ -15,21 +15,21 @@ public interface ICoinAPI {
 
     CompletableFuture<Instant> getUpdatedAtAsync(OfflinePlayer player);
 
-    void setCoins(OfflinePlayer player, int amount);
+    void setBalance(OfflinePlayer player, int amount);
 
-    CompletableFuture<Void> setCoinsAsync(OfflinePlayer player, int amount);
+    CompletableFuture<Void> setBalanceAsync(OfflinePlayer player, int amount);
 
-    void addCoins(OfflinePlayer player, int amount);
+    void increaseBalance(OfflinePlayer player, int amount);
 
-    CompletableFuture<Void> addCoinsAsync(OfflinePlayer player, int amount);
+    CompletableFuture<Void> increaseBalanceAsync(OfflinePlayer player, int amount);
 
-    void removeCoins(OfflinePlayer player, int amount);
+    void decreaseBalance(OfflinePlayer player, int amount);
 
-    CompletableFuture<Void> removeCoinsAsync(OfflinePlayer player, int amount);
+    CompletableFuture<Void> decreaseBalanceAsync(OfflinePlayer player, int amount);
 
-    Integer getCoins(OfflinePlayer player);
+    Integer getBalance(OfflinePlayer player);
 
-    CompletableFuture<Integer> getCoinsAsync(OfflinePlayer player);
+    CompletableFuture<Integer> getBalanceAsync(OfflinePlayer player);
 
     void addGift(OfflinePlayer player, int gift);
 
