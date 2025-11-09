@@ -6,8 +6,6 @@ import de.lars.apimanager.database.IDatabaseManager;
 import de.lars.apimanager.utils.ValidateParameter;
 import org.bukkit.OfflinePlayer;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.time.Instant;
 import java.util.concurrent.CompletableFuture;
 
@@ -85,49 +83,27 @@ public class PlayerAPIImpl implements IPlayerAPI {
     }
 
     @Override
-    public void setPlaytime(OfflinePlayer player, long playtime) {
+    public void setPlaytime(OfflinePlayer player, int playtime) {
         ValidateParameter.validatePlayer(player);
-        db().update("UPDATE players SET playtime = ? WHERE uuid = ?", playtime, player.getUniqueId().toString());
+        repo().updateColumn(TABLE, "playtime", playtime, "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
-    public CompletableFuture<Void> setPlaytimeAsync(OfflinePlayer player, long playtime) {
+    public CompletableFuture<Void> setPlaytimeAsync(OfflinePlayer player, int playtime) {
         ValidateParameter.validatePlayer(player);
-        return db().updateAsync("UPDATE players SET playtime = ? WHERE uuid = ?", playtime, player.getUniqueId().toString());
+        return repo().updateColumnAsync(TABLE, "playtime", playtime, "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
-    public Long getPlaytime(OfflinePlayer player) {
+    public Integer getPlaytime(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        return db().query(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT playtime FROM players WHERE uuid = ?")) {
-                ps.setString(1, player.getUniqueId().toString());
-                try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) {
-                        long value = rs.getLong("playtime");
-                        return rs.wasNull() ? null : value;
-                    }
-                    return null;
-                }
-            }
-        });
+        return repo().getInteger(TABLE, "playtime", "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
-    public CompletableFuture<Long> getPlaytimeAsync(OfflinePlayer player) {
+    public CompletableFuture<Integer> getPlaytimeAsync(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        return db().queryAsync(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT playtime FROM players WHERE uuid = ?")) {
-                ps.setString(1, player.getUniqueId().toString());
-                try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) {
-                        long value = rs.getLong("playtime");
-                        return rs.wasNull() ? null : value;
-                    }
-                    return null;
-                }
-            }
-        });
+        return repo().getIntegerAsync(TABLE, "playtime", "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
