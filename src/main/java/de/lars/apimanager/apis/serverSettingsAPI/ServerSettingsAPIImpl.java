@@ -1,18 +1,23 @@
 package de.lars.apimanager.apis.serverSettingsAPI;
 
 import de.lars.apimanager.ApiManager;
+import de.lars.apimanager.database.DatabaseRepository;
 import de.lars.apimanager.database.IDatabaseManager;
 import de.lars.apimanager.utils.FormatLocation;
 import de.lars.apimanager.utils.ValidateParameter;
 import org.bukkit.Location;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.concurrent.CompletableFuture;
 
 public class ServerSettingsAPIImpl implements IServerSettingsAPI {
+    private static final String TABLE = "server_settings";
+    private static final String WHERE_ID = "id = 1";
+
+    private DatabaseRepository repo() {
+        return new DatabaseRepository();
+    }
+
     private IDatabaseManager db() {
         return ApiManager.getInstance().getDatabaseManager();
     }
@@ -38,7 +43,7 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
         """);
 
-        if (countRowsInTable() < 1) {
+        if (repo().count(TABLE, WHERE_ID) < 1) {
             db().update("""
                 INSERT INTO server_settings
                 (id, is_server_online, real_time_enabled, real_weather_enabled, maintenance_enabled, maintenance_reason, maintenance_end, max_players, server_name, server_version, spawn_location)
@@ -49,634 +54,307 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
 
     @Override
     public Instant getCreatedAt() {
-        return db().query(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement(
-                     "SELECT created_at FROM server_settings WHERE id = 1"
-                 );
-                 ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) return rs.getTimestamp("created_at").toInstant();
-                return null;
-            }
-        });
+        return repo().getInstant(TABLE, "created_at", WHERE_ID);
     }
 
     @Override
     public CompletableFuture<Instant> getCreatedAtAsync() {
-        return db().queryAsync(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement(
-                     "SELECT created_at FROM server_settings WHERE id = 1"
-                 );
-                 ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) return rs.getTimestamp("created_at").toInstant();
-                return null;
-            }
-        });
+        return repo().getInstantAsync(TABLE, "created_at", WHERE_ID);
     }
 
     @Override
     public Instant getUpdatedAt() {
-        return db().query(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement(
-                     "SELECT updated_at FROM server_settings WHERE id = 1"
-                 );
-                 ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) return rs.getTimestamp("updated_at").toInstant();
-                return null;
-            }
-        });
+        return repo().getInstant(TABLE, "updated_at", WHERE_ID);
     }
 
     @Override
     public CompletableFuture<Instant> getUpdatedAtAsync() {
-        return db().queryAsync(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement(
-                     "SELECT updated_at FROM server_settings WHERE id = 1"
-                 );
-                 ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) return rs.getTimestamp("updated_at").toInstant();
-                return null;
-            }
-        });
+        return repo().getInstantAsync(TABLE, "updated_at", WHERE_ID);
     }
 
     @Override
     public void setServerOnline(boolean online) {
-        db().update("""
-            UPDATE server_settings
-            SET is_server_online = ?
-            WHERE id = 1
-        """, online);
+        repo().updateColumn(TABLE, "is_server_online", online, WHERE_ID);
     }
 
     @Override
     public CompletableFuture<Void> setServerOnlineAsync(boolean online) {
-        return db().updateAsync("""
-            UPDATE server_settings
-            SET is_server_online = ?
-            WHERE id = 1
-        """, online);
+        return repo().updateColumnAsync(TABLE, "is_server_online", online, WHERE_ID);
     }
 
     @Override
     public boolean isServerOnline() {
-        return db().query(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT is_server_online FROM server_settings WHERE id = 1")) {
-                try (ResultSet rs = ps.executeQuery()) {
-                    return rs.next() && rs.getBoolean("is_server_online");
-                }
-            }
-        });
+        Boolean result = repo().getBoolean(TABLE, "is_server_online", WHERE_ID);
+        return result != null && result;
     }
 
     @Override
     public CompletableFuture<Boolean> isServerOnlineAsync() {
-        return db().queryAsync(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT is_server_online FROM server_settings WHERE id = 1")) {
-                try (ResultSet rs = ps.executeQuery()) {
-                    return rs.next() && rs.getBoolean("is_server_online");
-                }
-            }
-        });
+        return repo().getBooleanAsync(TABLE, "is_server_online", WHERE_ID)
+            .thenApply(result -> result != null && result);
     }
 
     @Override
     public void setRealTimeEnabled(boolean enabled) {
-        db().update("""
-            UPDATE server_settings
-            SET real_time_enabled = ?
-            WHERE id = 1
-        """, enabled);
+        repo().updateColumn(TABLE, "real_time_enabled", enabled, WHERE_ID);
     }
 
     @Override
     public CompletableFuture<Void> setRealTimeEnabledAsync(boolean enabled) {
-        return db().updateAsync("""
-            UPDATE server_settings
-            SET real_time_enabled = ?
-            WHERE id = 1
-        """, enabled);
+        return repo().updateColumnAsync(TABLE, "real_time_enabled", enabled, WHERE_ID);
     }
 
     @Override
     public boolean isRealTimeEnabled() {
-        return db().query(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT real_time_enabled FROM server_settings WHERE id = 1")) {
-                try (ResultSet rs = ps.executeQuery()) {
-                    return rs.next() && rs.getBoolean("real_time_enabled");
-                }
-            }
-        });
+        Boolean result = repo().getBoolean(TABLE, "real_time_enabled", WHERE_ID);
+        return result != null && result;
     }
 
     @Override
     public CompletableFuture<Boolean> isRealTimeEnabledAsync() {
-        return db().queryAsync(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT real_time_enabled FROM server_settings WHERE id = 1")) {
-                try (ResultSet rs = ps.executeQuery()) {
-                    return rs.next() && rs.getBoolean("real_time_enabled");
-                }
-            }
-        });
+        return repo().getBooleanAsync(TABLE, "real_time_enabled", WHERE_ID)
+            .thenApply(result -> result != null && result);
     }
 
     @Override
     public void setRealWeatherEnabled(boolean enabled) {
-        db().update("""
-            UPDATE server_settings
-            SET real_weather_enabled = ?
-            WHERE id = 1
-        """, enabled);
+        repo().updateColumn(TABLE, "real_weather_enabled", enabled, WHERE_ID);
     }
 
     @Override
     public CompletableFuture<Void> setRealWeatherEnabledAsync(boolean enabled) {
-        return db().updateAsync("""
-            UPDATE server_settings
-            SET real_weather_enabled = ?
-            WHERE id = 1
-        """, enabled);
+        return repo().updateColumnAsync(TABLE, "real_weather_enabled", enabled, WHERE_ID);
     }
 
     @Override
     public boolean isRealWeatherEnabled() {
-        return db().query(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT real_weather_enabled FROM server_settings WHERE id = 1")) {
-                try (ResultSet rs = ps.executeQuery()) {
-                    return rs.next() && rs.getBoolean("real_weather_enabled");
-                }
-            }
-        });
+        Boolean result = repo().getBoolean(TABLE, "real_weather_enabled", WHERE_ID);
+        return result != null && result;
     }
 
     @Override
     public CompletableFuture<Boolean> isRealWeatherEnabledAsync() {
-        return db().queryAsync(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT real_weather_enabled FROM server_settings WHERE id = 1")) {
-                try (ResultSet rs = ps.executeQuery()) {
-                    return rs.next() && rs.getBoolean("real_weather_enabled");
-                }
-            }
-        });
+        return repo().getBooleanAsync(TABLE, "real_weather_enabled", WHERE_ID)
+            .thenApply(result -> result != null && result);
     }
 
     @Override
     public void enableMaintenance(String reason, Instant start, Instant endTime, Instant maxEndTime) {
-        db().update("""
-            UPDATE server_settings
-            SET maintenance_enabled = ?,
-                maintenance_reason = ?,
-                maintenance_start = ?,
-                maintenance_end = ?,
-                maintenance_max_end = ?
-            WHERE id = 1
-        """, true, reason, Timestamp.from(start), Timestamp.from(endTime), Timestamp.from(maxEndTime));
+        repo().updateColumns(TABLE,
+            new String[]{"maintenance_enabled", "maintenance_reason", "maintenance_start", "maintenance_end", "maintenance_max_end"},
+            new Object[]{true, reason, start, endTime, maxEndTime},
+            WHERE_ID);
     }
 
     @Override
     public CompletableFuture<Void> enableMaintenanceAsync(String reason, Instant start, Instant endTime, Instant maxEndTime) {
-        return db().updateAsync("""
-            UPDATE server_settings
-            SET maintenance_enabled = ?,
-                maintenance_reason = ?,
-                maintenance_start = ?,
-                maintenance_end = ?,
-                maintenance_max_end = ?
-            WHERE id = 1
-        """, true, reason, Timestamp.from(start), Timestamp.from(endTime), Timestamp.from(maxEndTime));
+        return repo().updateColumnsAsync(TABLE,
+            new String[]{"maintenance_enabled", "maintenance_reason", "maintenance_start", "maintenance_end", "maintenance_max_end"},
+            new Object[]{true, reason, start, endTime, maxEndTime},
+            WHERE_ID);
     }
 
     @Override
     public void disableMaintenance() {
-        db().update("""
-            UPDATE server_settings
-            SET maintenance_enabled = ?,
-                maintenance_reason = ?,
-                maintenance_start = ?,
-                maintenance_end = ?,
-                maintenance_max_end = ?
-            WHERE id = 1
-        """, false, "", null, null, null);
+        repo().updateColumns(TABLE,
+            new String[]{"maintenance_enabled", "maintenance_reason", "maintenance_start", "maintenance_end", "maintenance_max_end"},
+            new Object[]{false, "", null, null, null},
+            WHERE_ID);
     }
 
     @Override
     public CompletableFuture<Void> disableMaintenanceAsync() {
-        return db().updateAsync("""
-            UPDATE server_settings
-            SET maintenance_enabled = ?,
-                maintenance_reason = ?,
-                maintenance_start = ?,
-                maintenance_end = ?,
-                maintenance_max_end = ?
-            WHERE id = 1
-        """, false, "", null, null, null);
+        return repo().updateColumnsAsync(TABLE,
+            new String[]{"maintenance_enabled", "maintenance_reason", "maintenance_start", "maintenance_end", "maintenance_max_end"},
+            new Object[]{false, "", null, null, null},
+            WHERE_ID);
     }
 
     @Override
     public boolean isMaintenanceEnabled() {
-        return db().query(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT maintenance_enabled FROM server_settings WHERE id = 1")) {
-                try (ResultSet rs = ps.executeQuery()) {
-                    return rs.next() && rs.getBoolean("maintenance_enabled");
-                }
-            }
-        });
+        Boolean result = repo().getBoolean(TABLE, "maintenance_enabled", WHERE_ID);
+        return result != null && result;
     }
 
     @Override
     public CompletableFuture<Boolean> isMaintenanceEnabledAsync() {
-        return db().queryAsync(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT maintenance_enabled FROM server_settings WHERE id = 1")) {
-                try (ResultSet rs = ps.executeQuery()) {
-                    return rs.next() && rs.getBoolean("maintenance_enabled");
-                }
-            }
-        });
+        return repo().getBooleanAsync(TABLE, "maintenance_enabled", WHERE_ID)
+            .thenApply(result -> result != null && result);
     }
 
     @Override
     public void setMaintenanceReason(String reason) {
         ValidateParameter.validateReason(reason);
-        db().update("""
-            UPDATE server_settings
-            SET maintenance_reason = ?
-            WHERE id = 1
-        """, reason);
+        repo().updateColumn(TABLE, "maintenance_reason", reason, WHERE_ID);
     }
 
     @Override
     public CompletableFuture<Void> setMaintenanceReasonAsync(String reason) {
         ValidateParameter.validateReason(reason);
-        return db().updateAsync("""
-            UPDATE server_settings
-            SET maintenance_reason = ?
-            WHERE id = 1
-        """, reason);
+        return repo().updateColumnAsync(TABLE, "maintenance_reason", reason, WHERE_ID);
     }
 
     @Override
     public String getMaintenanceReason() {
-        return db().query(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT maintenance_reason FROM server_settings WHERE id = 1")) {
-                try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) return rs.getString("maintenance_reason");
-                    else return null;
-                }
-            }
-        });
+        return repo().getString(TABLE, "maintenance_reason", WHERE_ID);
     }
 
     @Override
     public CompletableFuture<String> getMaintenanceReasonAsync() {
-        return db().queryAsync(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT maintenance_reason FROM server_settings WHERE id = 1")) {
-                try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) return rs.getString("maintenance_reason");
-                    else return null;
-                }
-            }
-        });
+        return repo().getStringAsync(TABLE, "maintenance_reason", WHERE_ID);
     }
 
     @Override
     public void setMaintenanceStart(Instant startTime) {
         ValidateParameter.validateInstant(startTime);
-        db().update("""
-            UPDATE server_settings
-            SET maintenance_start = ?
-            WHERE id = 1
-        """, Timestamp.from(startTime));
+        repo().updateColumn(TABLE, "maintenance_start", startTime, WHERE_ID);
     }
 
     @Override
     public CompletableFuture<Void> setMaintenanceStartAsync(Instant startTime) {
         ValidateParameter.validateInstant(startTime);
-        return db().updateAsync("""
-            UPDATE server_settings
-            SET maintenance_start = ?
-            WHERE id = 1
-        """, Timestamp.from(startTime));
+        return repo().updateColumnAsync(TABLE, "maintenance_start", startTime, WHERE_ID);
     }
 
     @Override
     public Instant getMaintenanceStart() {
-        return db().query(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement(
-                "SELECT maintenance_start FROM server_settings WHERE id = 1"
-            );
-            ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    Timestamp ts = rs.getTimestamp("maintenance_start");
-                    return ts != null ? ts.toInstant() : null;
-                }
-                return null;
-            }
-        });
+        return repo().getInstant(TABLE, "maintenance_start", WHERE_ID);
     }
-
 
     @Override
     public CompletableFuture<Instant> getMaintenanceStartAsync() {
-        return db().queryAsync(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement(
-                "SELECT maintenance_start FROM server_settings WHERE id = 1"
-            );
-            ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    Timestamp ts = rs.getTimestamp("maintenance_start");
-                    return ts != null ? ts.toInstant() : null;
-                }
-                return null;
-            }
-        });
+        return repo().getInstantAsync(TABLE, "maintenance_start", WHERE_ID);
     }
 
     @Override
     public void setMaintenanceEnd(Instant endTime) {
         ValidateParameter.validateInstant(endTime);
-        db().update("""
-            UPDATE server_settings
-            SET maintenance_end = ?
-            WHERE id = 1
-        """, Timestamp.from(endTime));
+        repo().updateColumn(TABLE, "maintenance_end", endTime, WHERE_ID);
     }
 
     @Override
     public CompletableFuture<Void> setMaintenanceEndAsync(Instant endTime) {
         ValidateParameter.validateInstant(endTime);
-        return db().updateAsync("""
-            UPDATE server_settings
-            SET maintenance_end = ?
-            WHERE id = 1
-        """, Timestamp.from(endTime));
+        return repo().updateColumnAsync(TABLE, "maintenance_end", endTime, WHERE_ID);
     }
 
     @Override
     public Instant getMaintenanceEnd() {
-        return db().query(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement(
-                "SELECT maintenance_end FROM server_settings WHERE id = 1"
-            );
-            ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    Timestamp ts = rs.getTimestamp("maintenance_end");
-                    return ts != null ? ts.toInstant() : null;
-                }
-                return null;
-            }
-        });
+        return repo().getInstant(TABLE, "maintenance_end", WHERE_ID);
     }
-
 
     @Override
     public CompletableFuture<Instant> getMaintenanceEndAsync() {
-        return db().queryAsync(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement(
-                "SELECT maintenance_end FROM server_settings WHERE id = 1"
-            );
-            ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    Timestamp ts = rs.getTimestamp("maintenance_end");
-                    return ts != null ? ts.toInstant() : null;
-                }
-                return null;
-            }
-        });
+        return repo().getInstantAsync(TABLE, "maintenance_end", WHERE_ID);
     }
 
     @Override
     public void setMaintenanceMaxEnd(Instant maxEndTime) {
         ValidateParameter.validateInstant(maxEndTime);
-        db().update("""
-            UPDATE server_settings
-            SET maintenance_max_end = ?
-            WHERE id = 1
-        """, Timestamp.from(maxEndTime));
+        repo().updateColumn(TABLE, "maintenance_max_end", maxEndTime, WHERE_ID);
     }
 
     @Override
     public CompletableFuture<Void> setMaintenanceMaxEndAsync(Instant maxEndTime) {
         ValidateParameter.validateInstant(maxEndTime);
-        return db().updateAsync("""
-            UPDATE server_settings
-            SET maintenance_max_end = ?
-            WHERE id = 1
-        """, Timestamp.from(maxEndTime));
+        return repo().updateColumnAsync(TABLE, "maintenance_max_end", maxEndTime, WHERE_ID);
     }
 
     @Override
     public Instant getMaintenanceMaxEnd() {
-        return db().query(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement(
-                "SELECT maintenance_max_end FROM server_settings WHERE id = 1"
-            );
-            ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    Timestamp ts = rs.getTimestamp("maintenance_max_end");
-                    return ts != null ? ts.toInstant() : null;
-                }
-                return null;
-            }
-        });
+        return repo().getInstant(TABLE, "maintenance_max_end", WHERE_ID);
     }
-
 
     @Override
     public CompletableFuture<Instant> getMaintenanceMaxEndAsync() {
-        return db().queryAsync(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement(
-                "SELECT maintenance_max_end FROM server_settings WHERE id = 1"
-            );
-            ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    Timestamp ts = rs.getTimestamp("maintenance_max_end");
-                    return ts != null ? ts.toInstant() : null;
-                }
-                return null;
-            }
-        });
+        return repo().getInstantAsync(TABLE, "maintenance_max_end", WHERE_ID);
     }
 
     @Override
     public void setMaxPlayers(int maxPlayers) {
-        db().update("""
-            UPDATE server_settings
-            SET max_players = ?
-            WHERE id = 1
-        """, maxPlayers);
+        repo().updateColumn(TABLE, "max_players", maxPlayers, WHERE_ID);
     }
 
     @Override
     public CompletableFuture<Void> setMaxPlayersAsync(int maxPlayers) {
-        return db().updateAsync("""
-            UPDATE server_settings
-            SET max_players = ?
-            WHERE id = 1
-        """, maxPlayers);
+        return repo().updateColumnAsync(TABLE, "max_players", maxPlayers, WHERE_ID);
     }
 
     @Override
     public Integer getMaxPlayers() {
-        return db().query(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT max_players FROM server_settings WHERE id = 1")) {
-                try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) return rs.getInt("max_players");
-                    else return null;
-                }
-            }
-        });
+        return repo().getInteger(TABLE, "max_players", WHERE_ID);
     }
 
     @Override
     public CompletableFuture<Integer> getMaxPlayersAsync() {
-        return db().queryAsync(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT max_players FROM server_settings WHERE id = 1")) {
-                try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) return rs.getInt("max_players");
-                    else return null;
-                }
-            }
-        });
+        return repo().getIntegerAsync(TABLE, "max_players", WHERE_ID);
     }
 
     @Override
     public void setServerName(String serverName) {
         ValidateParameter.validateServerName(serverName);
-        db().update("""
-            UPDATE server_settings
-            SET server_name = ?
-            WHERE id = 1
-        """, serverName);
+        repo().updateColumn(TABLE, "server_name", serverName, WHERE_ID);
     }
 
     @Override
     public CompletableFuture<Void> setServerNameAsync(String serverName) {
         ValidateParameter.validateServerName(serverName);
-        return db().updateAsync("""
-            UPDATE server_settings
-            SET server_name = ?
-            WHERE id = 1
-        """, serverName);
+        return repo().updateColumnAsync(TABLE, "server_name", serverName, WHERE_ID);
     }
 
     @Override
     public String getServerName() {
-        return db().query(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT server_name FROM server_settings WHERE id = 1")) {
-                try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) return rs.getString("server_name");
-                    else return null;
-                }
-            }
-        });
+        return repo().getString(TABLE, "server_name", WHERE_ID);
     }
 
     @Override
     public CompletableFuture<String> getServerNameAsync() {
-        return db().queryAsync(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT server_name FROM server_settings WHERE id = 1")) {
-                try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) return rs.getString("server_name");
-                    else return null;
-                }
-            }
-        });
+        return repo().getStringAsync(TABLE, "server_name", WHERE_ID);
     }
 
     @Override
     public void setServerVersion(String serverVersion) {
-       ValidateParameter.validateServerVersion(serverVersion);
-        db().update("""
-            UPDATE server_settings
-            SET server_version = ?
-            WHERE id = 1
-        """, serverVersion);
+        ValidateParameter.validateServerVersion(serverVersion);
+        repo().updateColumn(TABLE, "server_version", serverVersion, WHERE_ID);
     }
 
     @Override
     public CompletableFuture<Void> setServerVersionAsync(String serverVersion) {
         ValidateParameter.validateServerVersion(serverVersion);
-        return db().updateAsync("""
-            UPDATE server_settings
-            SET server_version = ?
-            WHERE id = 1
-        """, serverVersion);
+        return repo().updateColumnAsync(TABLE, "server_version", serverVersion, WHERE_ID);
     }
 
     @Override
     public String getServerVersion() {
-        return db().query(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT server_version FROM server_settings WHERE id = 1")) {
-                try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) return rs.getString("server_version");
-                    else return null;
-                }
-            }
-        });
+        return repo().getString(TABLE, "server_version", WHERE_ID);
     }
 
     @Override
     public CompletableFuture<String> getServerVersionAsync() {
-        return db().queryAsync(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT server_version FROM server_settings WHERE id = 1")) {
-                try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) return rs.getString("server_version");
-                    else return null;
-                }
-            }
-        });
+        return repo().getStringAsync(TABLE, "server_version", WHERE_ID);
     }
 
     @Override
     public void setSpawnLocation(Location location) {
         ValidateParameter.validateLocation(location);
-        db().update("UPDATE server_settings SET spawn_location = ? WHERE id = 1", FormatLocation.serializeLocation(location));
+        repo().updateColumn(TABLE, "spawn_location", FormatLocation.serializeLocation(location), WHERE_ID);
     }
 
     @Override
     public CompletableFuture<Void> setSpawnLocationAsync(Location location) {
         ValidateParameter.validateLocation(location);
-        return db().updateAsync("UPDATE server_settings SET spawn_location = ? WHERE id = 1", FormatLocation.serializeLocation(location));
+        return repo().updateColumnAsync(TABLE, "spawn_location", FormatLocation.serializeLocation(location), WHERE_ID);
     }
 
     @Override
     public Location getSpawnLocation() {
-        return db().query(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement(
-                    "SELECT spawn_location FROM server_settings WHERE id = 1")) {
-                try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) {
-                        String locData = rs.getString("spawn_location");
-                        return FormatLocation.deserializeLocation(locData);
-                    }
-                }
-            }
-            return null;
-        });
+        String locData = repo().getString(TABLE, "spawn_location", WHERE_ID);
+        return FormatLocation.deserializeLocation(locData);
     }
 
     @Override
     public CompletableFuture<Location> getSpawnLocationAsync() {
-        return db().queryAsync(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement(
-                    "SELECT spawn_location FROM server_settings WHERE id = 1")) {
-                try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) {
-                        String locData = rs.getString("spawn_location");
-                        return FormatLocation.deserializeLocation(locData);
-                    }
-                }
-            }
-            return null;
-        });
-    }
-
-    public int countRowsInTable() {
-        return db().query(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT COUNT(*) AS row_count FROM server_settings WHERE id = 1");
-                 ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) return rs.getInt("row_count");
-            }
-            return 0;
-        });
+        return repo().getStringAsync(TABLE, "spawn_location", WHERE_ID)
+            .thenApply(FormatLocation::deserializeLocation);
     }
 }
