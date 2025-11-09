@@ -79,12 +79,12 @@ public class BanAPIImpl implements IBanAPI {
         Instant expiresAt = (days != null && days > 0)
                 ? Instant.now().plus(days, ChronoUnit.DAYS)
                 : null;
+        Instant bannedAt = Instant.now();
 
-        db().update("""
-            UPDATE player_bans
-            SET reason = ?, expires_at = ?, is_banned = TRUE, banned_at = CURRENT_TIMESTAMP
-            WHERE uuid = ?
-        """, reason, expiresAt, player.getUniqueId().toString());
+        repo().updateColumns(TABLE,
+            new String[]{"reason", "expires_at", "is_banned", "banned_at"},
+            new Object[]{reason, expiresAt, true, bannedAt},
+            "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
@@ -94,12 +94,12 @@ public class BanAPIImpl implements IBanAPI {
         Instant expiresAt = (days != null && days > 0)
                 ? Instant.now().plus(days, ChronoUnit.DAYS)
                 : null;
+        Instant bannedAt = Instant.now();
 
-        return db().updateAsync("""
-            UPDATE player_bans
-            SET reason = ?, expires_at = ?, is_banned = TRUE, banned_at = CURRENT_TIMESTAMP
-            WHERE uuid = ?
-        """, reason, expiresAt, player.getUniqueId().toString());
+        return repo().updateColumnsAsync(TABLE,
+            new String[]{"reason", "expires_at", "is_banned", "banned_at"},
+            new Object[]{reason, expiresAt, true, bannedAt},
+            "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
