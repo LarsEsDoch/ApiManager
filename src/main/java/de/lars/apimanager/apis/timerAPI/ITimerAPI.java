@@ -18,9 +18,9 @@ public interface ITimerAPI {
 
     CompletableFuture<Void> setTimeAsync(OfflinePlayer player, int time);
 
-    void setOff(OfflinePlayer player, boolean off);
+    void setEnabled(OfflinePlayer player, boolean off);
 
-    CompletableFuture<Void> setOffAsync(OfflinePlayer player, boolean off);
+    CompletableFuture<Void> setEnabledAsync(OfflinePlayer player, boolean off);
 
     void setRunning(OfflinePlayer player, boolean running);
 
@@ -42,9 +42,9 @@ public interface ITimerAPI {
 
     CompletableFuture<Boolean> isPublicAsync(OfflinePlayer player);
 
-    boolean isOff(OfflinePlayer player);
+    boolean isEnabled(OfflinePlayer player);
 
-    CompletableFuture<Boolean> isOffAsync(OfflinePlayer player);
+    CompletableFuture<Boolean> isEnabledAsync(OfflinePlayer player);
 
     boolean isRunning(OfflinePlayer player);
 

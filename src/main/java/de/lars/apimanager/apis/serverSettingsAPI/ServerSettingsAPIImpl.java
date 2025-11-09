@@ -30,11 +30,11 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
                 real_time_enabled BOOLEAN DEFAULT FALSE,
                 real_weather_enabled BOOLEAN DEFAULT FALSE,
                 maintenance_enabled BOOLEAN DEFAULT FALSE,
-                maintenance_reason VARCHAR(255) DEFAULT '',
+                maintenance_reason VARCHAR(255) DEFAULT NULL,
                 maintenance_start TIMESTAMP DEFAULT NULL,
                 maintenance_end TIMESTAMP DEFAULT NULL,
                 maintenance_max_end TIMESTAMP DEFAULT NULL,
-                max_players INT DEFAULT 100,
+                max_players INT DEFAULT 10,
                 server_name VARCHAR(255) DEFAULT 'A Minecraft Server',
                 server_version VARCHAR(50) DEFAULT '1.21.10',
                 spawn_location VARCHAR(255) DEFAULT NULL,
@@ -48,7 +48,7 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
                 INSERT INTO server_settings
                 (id, is_server_online, real_time_enabled, real_weather_enabled, maintenance_enabled, maintenance_reason, maintenance_end, max_players, server_name, server_version, spawn_location)
                 VALUES (1, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """, false, false, false, false, "", null, 1000000000, "A Minecraft Server", "1.21.10", null);
+            """, false, false, false, false, null, null, 10, "A Minecraft Server", "1.21.10", null);
         }
     }
 

@@ -25,10 +25,10 @@ public class TimerAPIImpl implements ITimerAPI {
             CREATE TABLE IF NOT EXISTS player_timers (
                 uuid CHAR(36) NOT NULL PRIMARY KEY,
                 time INT NOT NULL DEFAULT 0,
-                off BOOLEAN NOT NULL DEFAULT 1,
+                enabled BOOLEAN NOT NULL DEFAULT 1,
                 public_timer BOOLEAN NOT NULL DEFAULT 0,
                 running BOOLEAN NOT NULL DEFAULT 0,
-                timer_enabled BOOLEAN NOT NULL DEFAULT 0,
+                timer_mode_enabled BOOLEAN NOT NULL DEFAULT 0,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                 FOREIGN KEY (uuid) REFERENCES players(uuid) ON DELETE CASCADE
@@ -38,7 +38,7 @@ public class TimerAPIImpl implements ITimerAPI {
 
     public void initPlayer(OfflinePlayer player) {
         db().update("""
-            INSERT IGNORE INTO player_timers (uuid, time, off, public_timer, running, timer_enabled)
+            INSERT IGNORE INTO player_timers (uuid, time, enabled, public_timer, running, timer_mode_enabled)
             VALUES (?, ?, ?, ?, ?, ?)
         """, player.getUniqueId().toString(), 0, true, false, false, false);
     }
@@ -84,15 +84,15 @@ public class TimerAPIImpl implements ITimerAPI {
     }
 
     @Override
-    public void setOff(OfflinePlayer player, boolean off) {
+    public void setEnabled(OfflinePlayer player, boolean enabled) {
         ValidateParameter.validatePlayer(player);
-        repo().updateColumn(TABLE, "off", off, "uuid = ?", player.getUniqueId().toString());
+        repo().updateColumn(TABLE, "enabled", enabled, "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
-    public CompletableFuture<Void> setOffAsync(OfflinePlayer player, boolean off) {
+    public CompletableFuture<Void> setEnabledAsync(OfflinePlayer player, boolean enabled) {
         ValidateParameter.validatePlayer(player);
-        return repo().updateColumnAsync(TABLE, "off", off, "uuid = ?", player.getUniqueId().toString());
+        return repo().updateColumnAsync(TABLE, "enabled", enabled, "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
@@ -110,13 +110,13 @@ public class TimerAPIImpl implements ITimerAPI {
     @Override
     public void setTimer(OfflinePlayer player, boolean timer) {
         ValidateParameter.validatePlayer(player);
-        repo().updateColumn(TABLE, "timer_enabled", timer, "uuid = ?", player.getUniqueId().toString());
+        repo().updateColumn(TABLE, "timer_mode_enabled", timer, "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public CompletableFuture<Void> setTimerAsync(OfflinePlayer player, boolean timer) {
         ValidateParameter.validatePlayer(player);
-        return repo().updateColumnAsync(TABLE, "timer_enabled", timer, "uuid = ?", player.getUniqueId().toString());
+        return repo().updateColumnAsync(TABLE, "timer_mode_enabled", timer, "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
@@ -158,16 +158,16 @@ public class TimerAPIImpl implements ITimerAPI {
     }
 
     @Override
-    public boolean isOff(OfflinePlayer player) {
+    public boolean isEnabled(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        Boolean result = repo().getBoolean(TABLE, "off", "uuid = ?", player.getUniqueId().toString());
+        Boolean result = repo().getBoolean(TABLE, "enabled", "uuid = ?", player.getUniqueId().toString());
         return result != null && result;
     }
 
     @Override
-    public CompletableFuture<Boolean> isOffAsync(OfflinePlayer player) {
+    public CompletableFuture<Boolean> isEnabledAsync(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        return repo().getBooleanAsync(TABLE, "off", "uuid = ?", player.getUniqueId().toString())
+        return repo().getBooleanAsync(TABLE, "enabled", "uuid = ?", player.getUniqueId().toString())
             .thenApply(result -> result != null && result);
     }
 
@@ -188,22 +188,22 @@ public class TimerAPIImpl implements ITimerAPI {
     @Override
     public boolean isTimerEnabled(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        Boolean result = repo().getBoolean(TABLE, "timer_enabled", "uuid = ?", player.getUniqueId().toString());
+        Boolean result = repo().getBoolean(TABLE, "timer_mode_enabled", "uuid = ?", player.getUniqueId().toString());
         return result != null && result;
     }
 
     @Override
     public CompletableFuture<Boolean> isTimerEnabledAsync(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        return repo().getBooleanAsync(TABLE, "timer_enabled", "uuid = ?", player.getUniqueId().toString())
+        return repo().getBooleanAsync(TABLE, "timer_mode_enabled", "uuid = ?", player.getUniqueId().toString())
             .thenApply(result -> result != null && result);
     }
 
     @Override
     public boolean publicTimerExists(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        Integer count = repo().count(TABLE, "uuid = ? AND public_timer = 1", player.getUniqueId().toString());
-        return count != null && count > 0;
+        int count = repo().count(TABLE, "uuid = ? AND public_timer = 1", player.getUniqueId().toString());
+        return count > 0;
     }
 
     @Override

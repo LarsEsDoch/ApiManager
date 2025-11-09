@@ -10,19 +10,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-/**
- * Centralized database repository with generic CRUD operations
- */
 public class DatabaseRepository {
     private IDatabaseManager db() {
         return ApiManager.getInstance().getDatabaseManager();
     }
 
-    // ==================== Generic Getters ====================
-
-    /**
-     * Get a String value from a table
-     */
     public String getString(String table, String column, String whereClause, Object... params) {
         return db().query(conn -> {
             String sql = "SELECT " + column + " FROM " + table + " WHERE " + whereClause + " LIMIT 1";
@@ -49,9 +41,6 @@ public class DatabaseRepository {
         });
     }
 
-    /**
-     * Get an Integer value from a table
-     */
     public Integer getInteger(String table, String column, String whereClause, Object... params) {
         return db().query(conn -> {
             String sql = "SELECT " + column + " FROM " + table + " WHERE " + whereClause + " LIMIT 1";
@@ -78,9 +67,6 @@ public class DatabaseRepository {
         });
     }
 
-    /**
-     * Get a Boolean value from a table
-     */
     public Boolean getBoolean(String table, String column, String whereClause, Object... params) {
         return db().query(conn -> {
             String sql = "SELECT " + column + " FROM " + table + " WHERE " + whereClause + " LIMIT 1";
@@ -107,9 +93,6 @@ public class DatabaseRepository {
         });
     }
 
-    /**
-     * Get an Instant (timestamp) value from a table
-     */
     public Instant getInstant(String table, String column, String whereClause, Object... params) {
         return db().query(conn -> {
             String sql = "SELECT " + column + " FROM " + table + " WHERE " + whereClause + " LIMIT 1";
@@ -142,9 +125,6 @@ public class DatabaseRepository {
         });
     }
 
-    /**
-     * Get a list of Strings from a table
-     */
     public List<String> getStringList(String table, String column, String whereClause, Object... params) {
         return db().query(conn -> {
             String sql = "SELECT " + column + " FROM " + table;
@@ -183,9 +163,6 @@ public class DatabaseRepository {
         });
     }
 
-    /**
-     * Check if a record exists
-     */
     public boolean exists(String table, String whereClause, Object... params) {
         return db().query(conn -> {
             String sql = "SELECT 1 FROM " + table + " WHERE " + whereClause + " LIMIT 1";
@@ -210,11 +187,6 @@ public class DatabaseRepository {
         });
     }
 
-    // ==================== Generic Setters ====================
-
-    /**
-     * Update a single column value
-     */
     public void updateColumn(String table, String column, Object value, String whereClause, Object... whereParams) {
         String sql = "UPDATE " + table + " SET " + column + " = ? WHERE " + whereClause;
         Object[] allParams = combineParams(new Object[]{value}, whereParams);
@@ -227,9 +199,6 @@ public class DatabaseRepository {
         return db().updateAsync(sql, allParams);
     }
 
-    /**
-     * Update multiple columns at once
-     */
     public void updateColumns(String table, String[] columns, Object[] values, String whereClause, Object... whereParams) {
         StringBuilder sql = new StringBuilder("UPDATE " + table + " SET ");
         for (int i = 0; i < columns.length; i++) {
@@ -254,9 +223,6 @@ public class DatabaseRepository {
         return db().updateAsync(sql.toString(), allParams);
     }
 
-    /**
-     * Delete records from table
-     */
     public void delete(String table, String whereClause, Object... params) {
         String sql = "DELETE FROM " + table + " WHERE " + whereClause;
         db().update(sql, params);
@@ -267,9 +233,6 @@ public class DatabaseRepository {
         return db().updateAsync(sql, params);
     }
 
-    /**
-     * Count rows in table
-     */
     public int count(String table, String whereClause, Object... params) {
         return db().query(conn -> {
             String sql = "SELECT COUNT(*) AS row_count FROM " + table;
@@ -302,11 +265,6 @@ public class DatabaseRepository {
         });
     }
 
-    // ==================== Helper Methods ====================
-
-    /**
-     * Set parameters on a PreparedStatement
-     */
     private void setParameters(PreparedStatement ps, Object... params) throws SQLException {
         for (int i = 0; i < params.length; i++) {
             Object param = params[i];
@@ -320,9 +278,6 @@ public class DatabaseRepository {
         }
     }
 
-    /**
-     * Combine two parameter arrays
-     */
     private Object[] combineParams(Object[] first, Object[] second) {
         Object[] result = new Object[first.length + second.length];
         System.arraycopy(first, 0, result, 0, first.length);
