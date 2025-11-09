@@ -25,10 +25,10 @@ public class TimerAPIImpl implements ITimerAPI {
             CREATE TABLE IF NOT EXISTS player_timers (
                 uuid CHAR(36) NOT NULL PRIMARY KEY,
                 time INT NOT NULL DEFAULT 0,
-                enabled BOOLEAN NOT NULL DEFAULT 1,
-                public_timer BOOLEAN NOT NULL DEFAULT 0,
-                running BOOLEAN NOT NULL DEFAULT 0,
-                timer_mode_enabled BOOLEAN NOT NULL DEFAULT 0,
+                enabled BOOLEAN NOT NULL DEFAULT FALSE,
+                public_timer BOOLEAN NOT NULL DEFAULT FALSE,
+                running BOOLEAN NOT NULL DEFAULT FALSE,
+                timer_mode_enabled BOOLEAN NOT NULL DEFAULT FALSE,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                 FOREIGN KEY (uuid) REFERENCES players(uuid) ON DELETE CASCADE
@@ -40,7 +40,7 @@ public class TimerAPIImpl implements ITimerAPI {
         db().update("""
             INSERT IGNORE INTO player_timers (uuid, time, enabled, public_timer, running, timer_mode_enabled)
             VALUES (?, ?, ?, ?, ?, ?)
-        """, player.getUniqueId().toString(), 0, true, false, false, false);
+        """, player.getUniqueId().toString(), 0, false, false, false, false);
     }
 
     public boolean doesUserExist(OfflinePlayer player) {
