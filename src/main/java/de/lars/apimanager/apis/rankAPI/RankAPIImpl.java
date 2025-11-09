@@ -6,9 +6,6 @@ import de.lars.apimanager.database.IDatabaseManager;
 import de.lars.apimanager.utils.ValidateParameter;
 import org.bukkit.OfflinePlayer;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.concurrent.CompletableFuture;
@@ -78,13 +75,11 @@ public class RankAPIImpl implements IRankAPI {
         Instant expires = (days != null && days > 0)
                 ? Instant.now().plus(days, ChronoUnit.DAYS)
                 : null;
-        db().update("""
-            UPDATE player_ranks
-            SET rank_id = ?,
-                expires_at = ?,
-                updated_at = CURRENT_TIMESTAMP
-            WHERE uuid = ?
-        """, rankId, expires, player.getUniqueId().toString());
+
+        repo().updateColumns(TABLE,
+            new String[]{"rank_id", "expires_at"},
+            new Object[]{rankId, expires},
+            "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
@@ -93,13 +88,10 @@ public class RankAPIImpl implements IRankAPI {
         Instant expires = (days != null && days > 0)
                 ? Instant.now().plus(days, ChronoUnit.DAYS)
                 : null;
-        return db().updateAsync("""
-            UPDATE player_ranks
-            SET rank_id = ?,
-                expires_at = ?,
-                updated_at = CURRENT_TIMESTAMP
-            WHERE uuid = ?
-        """, rankId, expires, player.getUniqueId().toString());
+        return repo().updateColumnsAsync(TABLE,
+            new String[]{"rank_id", "expires_at"},
+            new Object[]{rankId, expires},
+            "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
@@ -156,17 +148,9 @@ public class RankAPIImpl implements IRankAPI {
         ValidateParameter.validatePlayer(player);
         if (days == 0) return;
 
-        Timestamp current = db().query(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT expires_at FROM player_ranks WHERE uuid = ?")) {
-                ps.setString(1, player.getUniqueId().toString());
-                try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) return rs.getTimestamp("expires_at");
-                    return null;
-                }
-            }
-        });
+        Instant current = repo().getInstant(TABLE, "expires_at", "uuid = ?", player.getUniqueId().toString());
 
-        Instant base = (current == null) ? Instant.now() : current.toInstant();
+        Instant base = (current == null) ? Instant.now() : current;
         Instant newExpires = base.plus(days, ChronoUnit.DAYS);
 
         repo().updateColumn(TABLE, "expires_at", newExpires, "uuid = ?", player.getUniqueId().toString());
@@ -176,16 +160,8 @@ public class RankAPIImpl implements IRankAPI {
         ValidateParameter.validatePlayer(player);
         if (days == 0) return CompletableFuture.completedFuture(null);
 
-        return db().queryAsync(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT expires_at FROM player_ranks WHERE uuid = ?")) {
-                ps.setString(1, player.getUniqueId().toString());
-                try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) return rs.getTimestamp("expires_at");
-                    return null;
-                }
-            }
-        }).thenCompose(current -> {
-            Instant base = (current == null) ? Instant.now() : current.toInstant();
+        return repo().getInstantAsync(TABLE, "expires_at", "uuid = ?", player.getUniqueId().toString()).thenCompose(current -> {
+            Instant base = (current == null) ? Instant.now() : current;
             Instant newExpires = base.plus(days, ChronoUnit.DAYS);
             return repo().updateColumnAsync(TABLE, "expires_at", newExpires, "uuid = ?", player.getUniqueId().toString());
         });
