@@ -27,9 +27,9 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
             CREATE TABLE IF NOT EXISTS server_settings (
                 id INT PRIMARY KEY CHECK (id = 1),
                 is_server_online BOOLEAN DEFAULT FALSE,
-                real_time_enabled BOOLEAN DEFAULT FALSE,
-                real_weather_enabled BOOLEAN DEFAULT FALSE,
-                maintenance_enabled BOOLEAN DEFAULT FALSE,
+                is_real_time_enabled BOOLEAN DEFAULT FALSE,
+                is_real_weather_enabled BOOLEAN DEFAULT FALSE,
+                is_maintenance_enabled BOOLEAN DEFAULT FALSE,
                 maintenance_reason VARCHAR(255) DEFAULT NULL,
                 maintenance_start TIMESTAMP DEFAULT NULL,
                 maintenance_end TIMESTAMP DEFAULT NULL,
@@ -46,7 +46,7 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
         if (repo().count(TABLE, WHERE_ID) < 1) {
             db().update("""
                 INSERT INTO server_settings
-                (id, is_server_online, real_time_enabled, real_weather_enabled, maintenance_enabled, maintenance_reason, maintenance_end, max_players, server_name, server_version, spawn_location)
+                (id, is_server_online, is_real_time_enabled, is_real_weather_enabled, is_maintenance_enabled, maintenance_reason, maintenance_end, max_players, server_name, server_version, spawn_location)
                 VALUES (1, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """, false, false, false, false, null, null, 10, "A Minecraft Server", "1.21.10", null);
         }
@@ -96,52 +96,52 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
 
     @Override
     public void setRealTimeEnabled(boolean enabled) {
-        repo().updateColumn(TABLE, "real_time_enabled", enabled, WHERE_ID);
+        repo().updateColumn(TABLE, "is_real_time_enabled", enabled, WHERE_ID);
     }
 
     @Override
     public CompletableFuture<Void> setRealTimeEnabledAsync(boolean enabled) {
-        return repo().updateColumnAsync(TABLE, "real_time_enabled", enabled, WHERE_ID);
+        return repo().updateColumnAsync(TABLE, "is_real_time_enabled", enabled, WHERE_ID);
     }
 
     @Override
     public boolean isRealTimeEnabled() {
-        Boolean result = repo().getBoolean(TABLE, "real_time_enabled", WHERE_ID);
+        Boolean result = repo().getBoolean(TABLE, "is_real_time_enabled", WHERE_ID);
         return result != null && result;
     }
 
     @Override
     public CompletableFuture<Boolean> isRealTimeEnabledAsync() {
-        return repo().getBooleanAsync(TABLE, "real_time_enabled", WHERE_ID)
+        return repo().getBooleanAsync(TABLE, "is_real_time_enabled", WHERE_ID)
             .thenApply(result -> result != null && result);
     }
 
     @Override
     public void setRealWeatherEnabled(boolean enabled) {
-        repo().updateColumn(TABLE, "real_weather_enabled", enabled, WHERE_ID);
+        repo().updateColumn(TABLE, "is_real_weather_enabled", enabled, WHERE_ID);
     }
 
     @Override
     public CompletableFuture<Void> setRealWeatherEnabledAsync(boolean enabled) {
-        return repo().updateColumnAsync(TABLE, "real_weather_enabled", enabled, WHERE_ID);
+        return repo().updateColumnAsync(TABLE, "is_real_weather_enabled", enabled, WHERE_ID);
     }
 
     @Override
     public boolean isRealWeatherEnabled() {
-        Boolean result = repo().getBoolean(TABLE, "real_weather_enabled", WHERE_ID);
+        Boolean result = repo().getBoolean(TABLE, "is_real_weather_enabled", WHERE_ID);
         return result != null && result;
     }
 
     @Override
     public CompletableFuture<Boolean> isRealWeatherEnabledAsync() {
-        return repo().getBooleanAsync(TABLE, "real_weather_enabled", WHERE_ID)
+        return repo().getBooleanAsync(TABLE, "is_real_weather_enabled", WHERE_ID)
             .thenApply(result -> result != null && result);
     }
 
     @Override
     public void enableMaintenance(String reason, Instant start, Instant endTime, Instant maxEndTime) {
         repo().updateColumns(TABLE,
-            new String[]{"maintenance_enabled", "maintenance_reason", "maintenance_start", "maintenance_end", "maintenance_max_end"},
+            new String[]{"is_maintenance_enabled", "maintenance_reason", "maintenance_start", "maintenance_end", "maintenance_max_end"},
             new Object[]{true, reason, start, endTime, maxEndTime},
             WHERE_ID);
     }
@@ -149,7 +149,7 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
     @Override
     public CompletableFuture<Void> enableMaintenanceAsync(String reason, Instant start, Instant endTime, Instant maxEndTime) {
         return repo().updateColumnsAsync(TABLE,
-            new String[]{"maintenance_enabled", "maintenance_reason", "maintenance_start", "maintenance_end", "maintenance_max_end"},
+            new String[]{"is_maintenance_enabled", "maintenance_reason", "maintenance_start", "maintenance_end", "maintenance_max_end"},
             new Object[]{true, reason, start, endTime, maxEndTime},
             WHERE_ID);
     }
@@ -157,7 +157,7 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
     @Override
     public void disableMaintenance() {
         repo().updateColumns(TABLE,
-            new String[]{"maintenance_enabled", "maintenance_reason", "maintenance_start", "maintenance_end", "maintenance_max_end"},
+            new String[]{"is_maintenance_enabled", "maintenance_reason", "maintenance_start", "maintenance_end", "maintenance_max_end"},
             new Object[]{false, "", null, null, null},
             WHERE_ID);
     }
@@ -165,20 +165,20 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
     @Override
     public CompletableFuture<Void> disableMaintenanceAsync() {
         return repo().updateColumnsAsync(TABLE,
-            new String[]{"maintenance_enabled", "maintenance_reason", "maintenance_start", "maintenance_end", "maintenance_max_end"},
+            new String[]{"is_maintenance_enabled", "maintenance_reason", "maintenance_start", "maintenance_end", "maintenance_max_end"},
             new Object[]{false, "", null, null, null},
             WHERE_ID);
     }
 
     @Override
     public boolean isMaintenanceEnabled() {
-        Boolean result = repo().getBoolean(TABLE, "maintenance_enabled", WHERE_ID);
+        Boolean result = repo().getBoolean(TABLE, "is_maintenance_enabled", WHERE_ID);
         return result != null && result;
     }
 
     @Override
     public CompletableFuture<Boolean> isMaintenanceEnabledAsync() {
-        return repo().getBooleanAsync(TABLE, "maintenance_enabled", WHERE_ID)
+        return repo().getBooleanAsync(TABLE, "is_maintenance_enabled", WHERE_ID)
             .thenApply(result -> result != null && result);
     }
 

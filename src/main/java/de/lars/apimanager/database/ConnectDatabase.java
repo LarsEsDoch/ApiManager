@@ -8,7 +8,6 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 
 public record ConnectDatabase(ApiManager plugin) {
-
     public boolean loadDatabaseConfig() {
         String host = plugin.getConfig().getString("database.host");
         int port = plugin.getConfig().getInt("database.port");

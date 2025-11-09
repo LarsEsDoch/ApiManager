@@ -42,17 +42,17 @@ public interface IQuestAPI {
 
     CompletableFuture<Void> setQuestNameAsync(OfflinePlayer player, String name);
 
-    boolean isDailyQuestComplete(OfflinePlayer player);
+    boolean isQuestComplete(OfflinePlayer player);
 
-    CompletableFuture<Boolean> isDailyQuestCompleteAsync(OfflinePlayer player);
+    CompletableFuture<Boolean> isQuestCompleteAsync(OfflinePlayer player);
 
     String getQuestName(OfflinePlayer player);
 
     CompletableFuture<String> getQuestNameAsync(OfflinePlayer player);
 
-    Integer getDailyQuest(OfflinePlayer player);
+    Integer getQuest(OfflinePlayer player);
 
-    CompletableFuture<Integer> getDailyQuestAsync(OfflinePlayer player);
+    CompletableFuture<Integer> getQuestAsync(OfflinePlayer player);
 
     Integer getTargetAmount(OfflinePlayer player);
 
