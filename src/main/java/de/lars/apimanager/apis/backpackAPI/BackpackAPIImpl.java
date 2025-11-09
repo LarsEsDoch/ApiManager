@@ -42,10 +42,10 @@ public class BackpackAPIImpl implements IBackpackAPI {
     }
 
     public void initPlayer(OfflinePlayer player) {
-        if (!doesUserExist(player)) {
-            db().update("INSERT IGNORE INTO player_backpacks (uuid, data) VALUES (?, ?)",
-                    player.getUniqueId().toString(), null);
-        }
+        db().update("""
+            INSERT IGNORE INTO player_backpacks (uuid, data)
+            VALUES (?, ?)
+        """, player.getUniqueId().toString(), null);
     }
 
     public boolean doesUserExist(OfflinePlayer player) {
