@@ -1,7 +1,13 @@
-# Database configuration
+# ============================================
+#  ApiManager - Database Configuration
+# ============================================
+# Enter your MySQL connection details below.
+# Make sure the database exists and the user has access.
+# ============================================
+
 database:
-    host: "Enter the IP of your database"
-    port: 3306 # Normally 3306
-    database: "Enter the name of the database"
-    username: "Enter the database user"
-    password: "Enter the password of the user"
+  host: "127.0.0.1"          # IP or hostname of your database server
+  port: 3306                 # Default MySQL port
+  name: "my_database"        # Name of the database (schema)
+  username: "root"           # Database user
+  password: "password123"    # User password
