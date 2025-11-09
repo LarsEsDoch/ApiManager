@@ -1,4 +1,4 @@
-package de.lars.apimanager.apis.toggleAPI;
+package de.lars.apimanager.apis.playerSettingsAPI;
 
 import de.lars.apimanager.ApiManager;
 import de.lars.apimanager.database.DatabaseRepository;
@@ -9,8 +9,8 @@ import org.bukkit.OfflinePlayer;
 import java.time.Instant;
 import java.util.concurrent.CompletableFuture;
 
-public class ToggleAPIImpl implements IToggleAPI {
-    private static final String TABLE = "player_toggles";
+public class PlayerSettingsAPIImpl implements IPlayerSettingsAPI {
+    private static final String TABLE = "player_settings";
 
     private DatabaseRepository repo() {
         return new DatabaseRepository();
@@ -22,7 +22,7 @@ public class ToggleAPIImpl implements IToggleAPI {
 
     public void createTables() {
         db().update("""
-            CREATE TABLE IF NOT EXISTS player_toggles (
+            CREATE TABLE IF NOT EXISTS player_settings (
                 uuid CHAR(36) NOT NULL PRIMARY KEY,
                 bed_toggle BOOLEAN DEFAULT TRUE,
                 scoreboard_toggle BOOLEAN DEFAULT TRUE,
@@ -33,7 +33,7 @@ public class ToggleAPIImpl implements IToggleAPI {
 
     public void initPlayer(OfflinePlayer player) {
         db().update("""
-            INSERT IGNORE INTO player_toggles (uuid, bed_toggle, scoreboard_toggle)
+            INSERT IGNORE INTO player_settings (uuid, bed_toggle, scoreboard_toggle)
             VALUES (?, ?, ?)
         """, player.getUniqueId().toString(), true, true);
     }

@@ -1,11 +1,11 @@
-package de.lars.apimanager.apis.toggleAPI;
+package de.lars.apimanager.apis.playerSettingsAPI;
 
 import org.bukkit.OfflinePlayer;
 
 import java.time.Instant;
 import java.util.concurrent.CompletableFuture;
 
-public interface IToggleAPI {
+public interface IPlayerSettingsAPI {
     Instant getCreatedAt(OfflinePlayer player);
 
     CompletableFuture<Instant> getCreatedAtAsync(OfflinePlayer player);
