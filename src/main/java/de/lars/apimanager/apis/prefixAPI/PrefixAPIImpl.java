@@ -1,6 +1,7 @@
 package de.lars.apimanager.apis.prefixAPI;
 
 import de.lars.apimanager.ApiManager;
+import de.lars.apimanager.database.DatabaseRepository;
 import de.lars.apimanager.database.IDatabaseManager;
 import de.lars.apimanager.utils.TextFormation;
 import de.lars.apimanager.utils.ValidateParameter;
@@ -8,16 +9,18 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.OfflinePlayer;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
 public class PrefixAPIImpl implements IPrefixAPI {
+    private static final String TABLE = "player_prefixes";
+
+    private DatabaseRepository repo() {
+        return new DatabaseRepository();
+    }
+
     private IDatabaseManager db() {
         return ApiManager.getInstance().getDatabaseManager();
     }
@@ -43,149 +46,59 @@ public class PrefixAPIImpl implements IPrefixAPI {
     }
 
     public boolean doesUserExist(OfflinePlayer player) {
-        return db().query(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT 1 FROM player_prefixes WHERE uuid = ? LIMIT 1")) {
-                ps.setString(1, player.getUniqueId().toString());
-                try (ResultSet rs = ps.executeQuery()) {
-                    return rs.next();
-                }
-            }
-        });
+        return repo().exists(TABLE, "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public Instant getCreatedAt(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        return db().query(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT created_at FROM player_prefixes WHERE uuid = ? LIMIT 1")) {
-                ps.setString(1, player.getUniqueId().toString());
-                try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) {
-                        Timestamp ts = rs.getTimestamp("created_at");
-                        if (ts != null) {
-                            return ts.toInstant();
-                        } else {
-                            return null;
-                        }
-                    }
-                    return null;
-                }
-            }
-        });
+        return repo().getInstant(TABLE, "created_at", "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public CompletableFuture<Instant> getCreatedAtAsync(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        return db().queryAsync(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT created_at FROM player_prefixes WHERE uuid = ? LIMIT 1")) {
-                ps.setString(1, player.getUniqueId().toString());
-                try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) {
-                        Timestamp ts = rs.getTimestamp("created_at");
-                        if (ts != null) {
-                            return ts.toInstant();
-                        } else {
-                            return null;
-                        }
-                    }
-                    return null;
-                }
-            }
-        });
+        return repo().getInstantAsync(TABLE, "created_at", "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public Instant getUpdatedAt(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        return db().query(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT updated_at FROM player_prefixes WHERE uuid = ? LIMIT 1")) {
-                ps.setString(1, player.getUniqueId().toString());
-                try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) {
-                        Timestamp ts = rs.getTimestamp("updated_at");
-                        if (ts != null) {
-                            return ts.toInstant();
-                        } else {
-                            return null;
-                        }
-                    }
-                    return null;
-                }
-            }
-        });
+        return repo().getInstant(TABLE, "updated_at", "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public CompletableFuture<Instant> getUpdatedAtAsync(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        return db().queryAsync(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT updated_at FROM player_prefixes WHERE uuid = ? LIMIT 1")) {
-                ps.setString(1, player.getUniqueId().toString());
-                try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) {
-                        Timestamp ts = rs.getTimestamp("updated_at");
-                        if (ts != null) {
-                            return ts.toInstant();
-                        } else {
-                            return null;
-                        }
-                    }
-                    return null;
-                }
-            }
-        });
+        return repo().getInstantAsync(TABLE, "updated_at", "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public void setColor(OfflinePlayer player, NamedTextColor color) {
         ValidateParameter.validatePlayer(player);
         ValidateParameter.validateNamedTextColor(color);
-        db().update("UPDATE player_prefixes SET color = ? WHERE uuid = ? LIMIT 1",
-                TextFormation.getColorId(color), player.getUniqueId().toString());
+        repo().updateColumn(TABLE, "color", TextFormation.getColorId(color), "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public CompletableFuture<Void> setColorAsync(OfflinePlayer player, NamedTextColor color) {
         ValidateParameter.validatePlayer(player);
         ValidateParameter.validateNamedTextColor(color);
-        return db().updateAsync("UPDATE player_prefixes SET color = ? WHERE uuid = ? LIMIT 1",
-                        TextFormation.getColorId(color), player.getUniqueId().toString());
+        return repo().updateColumnAsync(TABLE, "color", TextFormation.getColorId(color), "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public NamedTextColor getColor(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        return TextFormation.getNamedTextColor(Objects.requireNonNull(db().query(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT color FROM player_prefixes WHERE uuid = ? LIMIT 1")) {
-                ps.setString(1, player.getUniqueId().toString());
-                try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) {
-                        int color = rs.getInt("color");
-                        return rs.wasNull() ? null : color;
-                    } else {
-                        return null;
-                    }
-                }
-            }
-        })));
+        Integer colorId = repo().getInteger(TABLE, "color", "uuid = ?", player.getUniqueId().toString());
+        return colorId != null ? TextFormation.getNamedTextColor(colorId) : null;
     }
 
     @Override
     public CompletableFuture<NamedTextColor> getColorAsync(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        return db().queryAsync(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT color FROM player_prefixes WHERE uuid = ? LIMIT 1")) {
-                ps.setString(1, player.getUniqueId().toString());
-                try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) {
-                        int color = rs.getInt("color");
-                        return rs.wasNull() ? null : color;
-                    }
-                    return null;
-                }
-            }
-        }).thenApply(colorID -> colorID != null ? TextFormation.getNamedTextColor(colorID) : null);
+        return repo().getIntegerAsync(TABLE, "color", "uuid = ?", player.getUniqueId().toString())
+            .thenApply(colorId -> colorId != null ? TextFormation.getNamedTextColor(colorId) : null);
     }
 
     @Override
@@ -206,7 +119,7 @@ public class PrefixAPIImpl implements IPrefixAPI {
     public void setDecoration(OfflinePlayer player, Set<TextDecoration> decorations) {
         ValidateParameter.validatePlayer(player);
         int bitmask = TextFormation.combineDecorations(decorations);
-        db().update("UPDATE player_prefixes SET decoration=? WHERE uuid=?", bitmask, player.getUniqueId().toString());
+        repo().updateColumn(TABLE, "decoration", bitmask, "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
@@ -214,7 +127,7 @@ public class PrefixAPIImpl implements IPrefixAPI {
         ValidateParameter.validatePlayer(player);
         ValidateParameter.validateTextDecorations(decorations);
         int bitmask = TextFormation.combineDecorations(decorations);
-        return db().updateAsync("UPDATE player_prefixes SET decoration=? WHERE uuid=?", bitmask, player.getUniqueId().toString());
+        return repo().updateColumnAsync(TABLE, "decoration", bitmask, "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
@@ -223,11 +136,9 @@ public class PrefixAPIImpl implements IPrefixAPI {
         ValidateParameter.validateTextDecoration(decoration);
         Set<TextDecoration> current = getDecoration(player);
         if (current == null) current = new HashSet<>();
-
         current.add(decoration);
-
         int bitmask = TextFormation.combineDecorations(current);
-        db().update("UPDATE player_prefixes SET decoration=? WHERE uuid=?", bitmask, player.getUniqueId().toString());
+        repo().updateColumn(TABLE, "decoration", bitmask, "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
@@ -238,7 +149,7 @@ public class PrefixAPIImpl implements IPrefixAPI {
             if (current == null) current = new HashSet<>();
             current.add(decoration);
             int bitmask = TextFormation.combineDecorations(current);
-            return db().updateAsync("UPDATE player_prefixes SET decoration=? WHERE uuid=?", bitmask, player.getUniqueId().toString());
+            return repo().updateColumnAsync(TABLE, "decoration", bitmask, "uuid = ?", player.getUniqueId().toString());
         });
     }
 
@@ -248,11 +159,9 @@ public class PrefixAPIImpl implements IPrefixAPI {
         ValidateParameter.validateTextDecoration(decoration);
         Set<TextDecoration> current = getDecoration(player);
         if (current == null) current = new HashSet<>();
-
         current.remove(decoration);
-
         int bitmask = TextFormation.combineDecorations(current);
-        db().update("UPDATE player_prefixes SET decoration=? WHERE uuid=?", bitmask, player.getUniqueId().toString());
+        repo().updateColumn(TABLE, "decoration", bitmask, "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
@@ -263,41 +172,21 @@ public class PrefixAPIImpl implements IPrefixAPI {
             if (current == null) current = new HashSet<>();
             current.remove(decoration);
             int bitmask = TextFormation.combineDecorations(current);
-            return db().updateAsync("UPDATE player_prefixes SET decoration=? WHERE uuid=?", bitmask, player.getUniqueId().toString());
+            return repo().updateColumnAsync(TABLE, "decoration", bitmask, "uuid = ?", player.getUniqueId().toString());
         });
     }
 
     @Override
     public Set<TextDecoration> getDecoration(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        return db().query(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT decoration FROM player_prefixes WHERE uuid = ? LIMIT 1")) {
-                ps.setString(1, player.getUniqueId().toString());
-                try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) {
-                        int bitmask = rs.getInt("decoration");
-                        return TextFormation.getTextDecorations(bitmask);
-                    }
-                }
-            }
-            return new HashSet<>();
-        });
+        Integer bitmask = repo().getInteger(TABLE, "decoration", "uuid = ?", player.getUniqueId().toString());
+        return bitmask != null ? TextFormation.getTextDecorations(bitmask) : new HashSet<>();
     }
 
     @Override
     public CompletableFuture<Set<TextDecoration>> getDecorationAsync(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        return db().queryAsync(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT decoration FROM player_prefixes WHERE uuid = ? LIMIT 1")) {
-                ps.setString(1, player.getUniqueId().toString());
-                try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) {
-                        int bitmask = rs.getInt("decoration");
-                        return TextFormation.getTextDecorations(bitmask);
-                    }
-                }
-                return new HashSet<>();
-            }
-        });
+        return repo().getIntegerAsync(TABLE, "decoration", "uuid = ?", player.getUniqueId().toString())
+            .thenApply(bitmask -> bitmask != null ? TextFormation.getTextDecorations(bitmask) : new HashSet<>());
     }
 }
