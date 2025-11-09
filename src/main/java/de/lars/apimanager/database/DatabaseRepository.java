@@ -224,6 +224,30 @@ public class DatabaseRepository {
         return db().updateAsync(sql.toString(), allParams);
     }
 
+    public void increaseColumn(String table, String column, Number amount, String whereClause, Object... whereParams) {
+        String sql = "UPDATE " + table + " SET " + column + " = " + column + " + ? WHERE " + whereClause;
+        Object[] allParams = combineParams(new Object[]{amount}, whereParams);
+        db().update(sql, allParams);
+    }
+
+    public CompletableFuture<Void> increaseColumnAsync(String table, String column, Number amount, String whereClause, Object... whereParams) {
+        String sql = "UPDATE " + table + " SET " + column + " = " + column + " + ? WHERE " + whereClause;
+        Object[] allParams = combineParams(new Object[]{amount}, whereParams);
+        return db().updateAsync(sql, allParams);
+    }
+
+    public void decreaseColumn(String table, String column, Number amount, String whereClause, Object... whereParams) {
+        String sql = "UPDATE " + table + " SET " + column + " = " + column + " - ? WHERE " + whereClause;
+        Object[] allParams = combineParams(new Object[]{amount}, whereParams);
+        db().update(sql, allParams);
+    }
+
+    public CompletableFuture<Void> decreaseColumnAsync(String table, String column, Number amount, String whereClause, Object... whereParams) {
+        String sql = "UPDATE " + table + " SET " + column + " = " + column + " - ? WHERE " + whereClause;
+        Object[] allParams = combineParams(new Object[]{amount}, whereParams);
+        return db().updateAsync(sql, allParams);
+    }
+
     public void delete(String table, String whereClause, Object... params) {
         String sql = "DELETE FROM " + table + " WHERE " + whereClause;
         db().update(sql, params);
