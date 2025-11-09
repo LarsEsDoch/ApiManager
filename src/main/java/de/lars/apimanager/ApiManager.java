@@ -6,10 +6,10 @@ import de.lars.apimanager.apis.banAPI.BanAPI;
 import de.lars.apimanager.apis.banAPI.BanAPIImpl;
 import de.lars.apimanager.apis.chunkAPI.ChunkAPI;
 import de.lars.apimanager.apis.chunkAPI.ChunkAPIImpl;
-import de.lars.apimanager.apis.coinAPI.CoinAPI;
-import de.lars.apimanager.apis.coinAPI.CoinAPIImpl;
 import de.lars.apimanager.apis.courtAPI.CourtAPI;
 import de.lars.apimanager.apis.courtAPI.CourtAPIImpl;
+import de.lars.apimanager.apis.economyAPI.EconomyAPI;
+import de.lars.apimanager.apis.economyAPI.EconomyAPIImpl;
 import de.lars.apimanager.apis.homeAPI.HomeAPI;
 import de.lars.apimanager.apis.homeAPI.HomeAPIImpl;
 import de.lars.apimanager.apis.languageAPI.LanguageAPI;
@@ -20,6 +20,8 @@ import de.lars.apimanager.apis.nickAPI.NickAPI;
 import de.lars.apimanager.apis.nickAPI.NickAPIImpl;
 import de.lars.apimanager.apis.playerAPI.PlayerAPI;
 import de.lars.apimanager.apis.playerAPI.PlayerAPIImpl;
+import de.lars.apimanager.apis.playerSettingsAPI.PlayerSettingsAPI;
+import de.lars.apimanager.apis.playerSettingsAPI.PlayerSettingsAPIImpl;
 import de.lars.apimanager.apis.prefixAPI.PrefixAPI;
 import de.lars.apimanager.apis.prefixAPI.PrefixAPIImpl;
 import de.lars.apimanager.apis.questAPI.QuestAPI;
@@ -32,8 +34,6 @@ import de.lars.apimanager.apis.statusAPI.StatusAPI;
 import de.lars.apimanager.apis.statusAPI.StatusAPIImpl;
 import de.lars.apimanager.apis.timerAPI.TimerAPI;
 import de.lars.apimanager.apis.timerAPI.TimerAPIImpl;
-import de.lars.apimanager.apis.toggleAPI.ToggleAPI;
-import de.lars.apimanager.apis.toggleAPI.ToggleAPIImpl;
 import de.lars.apimanager.commands.ApiManagerCommand;
 import de.lars.apimanager.database.ConnectDatabase;
 import de.lars.apimanager.database.DatabaseManager;
@@ -69,8 +69,8 @@ public final class ApiManager extends JavaPlugin {
     private PrefixAPIImpl prefixAPI;
     private StatusAPIImpl statusAPI;
     private NickAPIImpl nickAPI;
-    private ToggleAPIImpl toggleAPI;
-    private CoinAPIImpl coinAPI;
+    private PlayerSettingsAPIImpl playerSettingsAPI;
+    private EconomyAPIImpl economyAPI;
     private QuestAPIImpl questAPI;
     private TimerAPIImpl timerAPI;
 
@@ -153,11 +153,11 @@ public final class ApiManager extends JavaPlugin {
         nickAPI = new NickAPIImpl();
         NickAPI.setApi(nickAPI);
 
-        toggleAPI = new ToggleAPIImpl();
-        ToggleAPI.setApi(toggleAPI);
+        playerSettingsAPI = new PlayerSettingsAPIImpl();
+        PlayerSettingsAPI.setApi(playerSettingsAPI);
 
-        coinAPI = new CoinAPIImpl();
-        CoinAPI.setApi(coinAPI);
+        economyAPI = new EconomyAPIImpl();
+        EconomyAPI.setApi(economyAPI);
 
         questAPI = new QuestAPIImpl();
         QuestAPI.setApi(questAPI);
@@ -181,8 +181,8 @@ public final class ApiManager extends JavaPlugin {
         createTableRunnables.add(() -> prefixAPI.createTables());
         createTableRunnables.add(() -> statusAPI.createTables());
         createTableRunnables.add(() -> nickAPI.createTables());
-        createTableRunnables.add(() -> toggleAPI.createTables());
-        createTableRunnables.add(() -> coinAPI.createTables());
+        createTableRunnables.add(() -> playerSettingsAPI.createTables());
+        createTableRunnables.add(() -> economyAPI.createTables());
         createTableRunnables.add(() -> questAPI.createTables());
         createTableRunnables.add(() -> timerAPI.createTables());
     }
@@ -292,12 +292,12 @@ public final class ApiManager extends JavaPlugin {
         return nickAPI;
     }
 
-    public ToggleAPIImpl getToggleAPI() {
-        return toggleAPI;
+    public PlayerSettingsAPIImpl getPlayerSettingsAPI() {
+        return playerSettingsAPI;
     }
 
-    public CoinAPIImpl getCoinAPI() {
-        return coinAPI;
+    public EconomyAPIImpl getEconomyAPI() {
+        return economyAPI;
     }
 
     public QuestAPIImpl getQuestAPI() {
