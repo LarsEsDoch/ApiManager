@@ -31,7 +31,7 @@ public class CourtAPIImpl implements ICourtAPI {
         db().update("""
             CREATE TABLE IF NOT EXISTS player_court (
                 uuid CHAR(36) NOT NULL PRIMARY KEY,
-                prosecutor CHAR(36) DEFAULT NULL,
+                prosecutor_uuid CHAR(36) DEFAULT NULL,
                 status INT DEFAULT 0,
                 reason VARCHAR(255) DEFAULT NULL,
                 time INT DEFAULT 0,
@@ -45,7 +45,7 @@ public class CourtAPIImpl implements ICourtAPI {
 
     public void initPlayer(OfflinePlayer player) {
         db().update("""
-            INSERT IGNORE INTO player_court (uuid, prosecutor, status, reason, time, cell)
+            INSERT IGNORE INTO player_court (uuid, prosecutor_uuid, status, reason, time, cell)
             VALUES (?, NULL, ?, NULL, ?, ?)
         """, player.getUniqueId().toString(), STATUS_FREE, 0, 0);
     }
@@ -79,23 +79,23 @@ public class CourtAPIImpl implements ICourtAPI {
     }
 
     @Override
-    public void report(OfflinePlayer target, OfflinePlayer prosecutor, String reason) {
-        ValidateParameter.validatePlayer(target);
+    public void report(OfflinePlayer player, OfflinePlayer prosecutor_uuid, String reason) {
+        ValidateParameter.validatePlayer(player);
         ValidateParameter.validateReason(reason);
         repo().updateColumns(TABLE,
-            new String[]{"prosecutor", "reason", "status"},
-            new Object[]{prosecutor != null ? prosecutor.getUniqueId().toString() : null, reason, STATUS_REPORTED},
-            "uuid = ?", target.getUniqueId().toString());
+            new String[]{"prosecutor_uuid", "reason", "status"},
+            new Object[]{prosecutor_uuid != null ? prosecutor_uuid.getUniqueId().toString() : null, reason, STATUS_REPORTED},
+            "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
-    public CompletableFuture<Void> reportAsync(OfflinePlayer target, OfflinePlayer prosecutor, String reason) {
-        ValidateParameter.validatePlayer(target);
+    public CompletableFuture<Void> reportAsync(OfflinePlayer player, OfflinePlayer prosecutor_uuid, String reason) {
+        ValidateParameter.validatePlayer(player);
         ValidateParameter.validateReason(reason);
         return repo().updateColumnsAsync(TABLE,
-            new String[]{"prosecutor", "reason", "status"},
-            new Object[]{prosecutor != null ? prosecutor.getUniqueId().toString() : null, reason, STATUS_REPORTED},
-            "uuid = ?", target.getUniqueId().toString());
+            new String[]{"prosecutor_uuid", "reason", "status"},
+            new Object[]{prosecutor_uuid != null ? prosecutor_uuid.getUniqueId().toString() : null, reason, STATUS_REPORTED},
+            "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
@@ -149,31 +149,31 @@ public class CourtAPIImpl implements ICourtAPI {
     }
 
     @Override
-    public void setProsecutor(OfflinePlayer player, OfflinePlayer prosecutor) {
+    public void setProsecutor(OfflinePlayer player, OfflinePlayer prosecutor_uuid) {
         ValidateParameter.validatePlayer(player);
-        repo().updateColumn(TABLE, "prosecutor",
-            prosecutor != null ? prosecutor.getUniqueId().toString() : null,
+        repo().updateColumn(TABLE, "prosecutor_uuid",
+            prosecutor_uuid != null ? prosecutor_uuid.getUniqueId().toString() : null,
             "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
-    public CompletableFuture<Void> setProsecutorAsync(OfflinePlayer player, OfflinePlayer prosecutor) {
+    public CompletableFuture<Void> setProsecutorAsync(OfflinePlayer player, OfflinePlayer prosecutor_uuid) {
         ValidateParameter.validatePlayer(player);
-        return repo().updateColumnAsync(TABLE, "prosecutor",
-            prosecutor != null ? prosecutor.getUniqueId().toString() : null,
+        return repo().updateColumnAsync(TABLE, "prosecutor_uuid",
+            prosecutor_uuid != null ? prosecutor_uuid.getUniqueId().toString() : null,
             "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public String getProsecutor(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        return repo().getString(TABLE, "prosecutor", "uuid = ?", player.getUniqueId().toString());
+        return repo().getString(TABLE, "prosecutor_uuid", "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public CompletableFuture<String> getProsecutorAsync(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        return repo().getStringAsync(TABLE, "prosecutor", "uuid = ?", player.getUniqueId().toString());
+        return repo().getStringAsync(TABLE, "prosecutor_uuid", "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
@@ -228,7 +228,7 @@ public class CourtAPIImpl implements ICourtAPI {
     public void resetPlayer(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
         repo().updateColumns(TABLE,
-            new String[]{"status", "reason", "prosecutor", "time", "cell"},
+            new String[]{"status", "reason", "prosecutor_uuid", "time", "cell"},
             new Object[]{0, null, null, 0, 0},
             "uuid = ?", player.getUniqueId().toString());
     }
@@ -237,7 +237,7 @@ public class CourtAPIImpl implements ICourtAPI {
     public CompletableFuture<Void> resetPlayerAsync(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
         return repo().updateColumnsAsync(TABLE,
-            new String[]{"status", "reason", "prosecutor", "time", "cell"},
+            new String[]{"status", "reason", "prosecutor_uuid", "time", "cell"},
             new Object[]{0, null, null, 0, 0},
             "uuid = ?", player.getUniqueId().toString());
     }

@@ -14,9 +14,9 @@ public interface ICourtAPI {
 
     CompletableFuture<Instant> getUpdatedAtAsync(OfflinePlayer player);
 
-    void report(OfflinePlayer target, OfflinePlayer prosecutor, String reason);
+    void report(OfflinePlayer player, OfflinePlayer prosecutor, String reason);
 
-    CompletableFuture<Void> reportAsync(OfflinePlayer target, OfflinePlayer prosecutor, String reason);
+    CompletableFuture<Void> reportAsync(OfflinePlayer player, OfflinePlayer prosecutor, String reason);
 
     void setStatus(OfflinePlayer player, int status);
 
