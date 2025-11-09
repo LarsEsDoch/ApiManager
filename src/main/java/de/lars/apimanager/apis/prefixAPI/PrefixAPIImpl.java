@@ -30,7 +30,7 @@ public class PrefixAPIImpl implements IPrefixAPI {
             CREATE TABLE IF NOT EXISTS player_prefixes (
                 uuid CHAR(36) NOT NULL PRIMARY KEY,
                 color INT DEFAULT 15,
-                decoration INT DEFAULT 0,
+                decorations INT DEFAULT 0,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                 FOREIGN KEY (uuid) REFERENCES players(uuid) ON DELETE CASCADE
@@ -40,7 +40,7 @@ public class PrefixAPIImpl implements IPrefixAPI {
 
     public void initPlayer(OfflinePlayer player) {
         db().update("""
-            INSERT IGNORE INTO player_prefixes (uuid, color, decoration)
+            INSERT IGNORE INTO player_prefixes (uuid, color, decorations)
             VALUES (?, ?, ?)
         """, player.getUniqueId().toString(), 15, 0);
     }
@@ -105,51 +105,51 @@ public class PrefixAPIImpl implements IPrefixAPI {
     public void setDecoration(OfflinePlayer player, TextDecoration decoration) {
         ValidateParameter.validatePlayer(player);
         ValidateParameter.validateTextDecoration(decoration);
-        setDecoration(player, Set.of(decoration));
+        setDecorations(player, Set.of(decoration));
     }
 
     @Override
     public CompletableFuture<Void> setDecorationAsync(OfflinePlayer player, TextDecoration decoration) {
         ValidateParameter.validatePlayer(player);
         ValidateParameter.validateTextDecoration(decoration);
-        return setDecorationAsync(player, Set.of(decoration));
+        return setDecorationsAsync(player, Set.of(decoration));
     }
 
     @Override
-    public void setDecoration(OfflinePlayer player, Set<TextDecoration> decorations) {
+    public void setDecorations(OfflinePlayer player, Set<TextDecoration> decorations) {
         ValidateParameter.validatePlayer(player);
         int bitmask = TextFormation.combineDecorations(decorations);
-        repo().updateColumn(TABLE, "decoration", bitmask, "uuid = ?", player.getUniqueId().toString());
+        repo().updateColumn(TABLE, "decorations", bitmask, "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
-    public CompletableFuture<Void> setDecorationAsync(OfflinePlayer player, Set<TextDecoration> decorations) {
+    public CompletableFuture<Void> setDecorationsAsync(OfflinePlayer player, Set<TextDecoration> decorations) {
         ValidateParameter.validatePlayer(player);
         ValidateParameter.validateTextDecorations(decorations);
         int bitmask = TextFormation.combineDecorations(decorations);
-        return repo().updateColumnAsync(TABLE, "decoration", bitmask, "uuid = ?", player.getUniqueId().toString());
+        return repo().updateColumnAsync(TABLE, "decorations", bitmask, "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public void addDecoration(OfflinePlayer player, TextDecoration decoration) {
         ValidateParameter.validatePlayer(player);
         ValidateParameter.validateTextDecoration(decoration);
-        Set<TextDecoration> current = getDecoration(player);
+        Set<TextDecoration> current = getDecorations(player);
         if (current == null) current = new HashSet<>();
         current.add(decoration);
         int bitmask = TextFormation.combineDecorations(current);
-        repo().updateColumn(TABLE, "decoration", bitmask, "uuid = ?", player.getUniqueId().toString());
+        repo().updateColumn(TABLE, "decorations", bitmask, "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public CompletableFuture<Void> addDecorationAsync(OfflinePlayer player, TextDecoration decoration) {
         ValidateParameter.validatePlayer(player);
         ValidateParameter.validateTextDecoration(decoration);
-        return getDecorationAsync(player).thenCompose(current -> {
+        return getDecorationsAsync(player).thenCompose(current -> {
             if (current == null) current = new HashSet<>();
             current.add(decoration);
             int bitmask = TextFormation.combineDecorations(current);
-            return repo().updateColumnAsync(TABLE, "decoration", bitmask, "uuid = ?", player.getUniqueId().toString());
+            return repo().updateColumnAsync(TABLE, "decorations", bitmask, "uuid = ?", player.getUniqueId().toString());
         });
     }
 
@@ -157,36 +157,36 @@ public class PrefixAPIImpl implements IPrefixAPI {
     public void removeDecoration(OfflinePlayer player, TextDecoration decoration) {
         ValidateParameter.validatePlayer(player);
         ValidateParameter.validateTextDecoration(decoration);
-        Set<TextDecoration> current = getDecoration(player);
+        Set<TextDecoration> current = getDecorations(player);
         if (current == null) current = new HashSet<>();
         current.remove(decoration);
         int bitmask = TextFormation.combineDecorations(current);
-        repo().updateColumn(TABLE, "decoration", bitmask, "uuid = ?", player.getUniqueId().toString());
+        repo().updateColumn(TABLE, "decorations", bitmask, "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public CompletableFuture<Void> removeDecorationAsync(OfflinePlayer player, TextDecoration decoration) {
         ValidateParameter.validatePlayer(player);
         ValidateParameter.validateTextDecoration(decoration);
-        return getDecorationAsync(player).thenCompose(current -> {
+        return getDecorationsAsync(player).thenCompose(current -> {
             if (current == null) current = new HashSet<>();
             current.remove(decoration);
             int bitmask = TextFormation.combineDecorations(current);
-            return repo().updateColumnAsync(TABLE, "decoration", bitmask, "uuid = ?", player.getUniqueId().toString());
+            return repo().updateColumnAsync(TABLE, "decorations", bitmask, "uuid = ?", player.getUniqueId().toString());
         });
     }
 
     @Override
-    public Set<TextDecoration> getDecoration(OfflinePlayer player) {
+    public Set<TextDecoration> getDecorations(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        Integer bitmask = repo().getInteger(TABLE, "decoration", "uuid = ?", player.getUniqueId().toString());
+        Integer bitmask = repo().getInteger(TABLE, "decorations", "uuid = ?", player.getUniqueId().toString());
         return bitmask != null ? TextFormation.getTextDecorations(bitmask) : new HashSet<>();
     }
 
     @Override
-    public CompletableFuture<Set<TextDecoration>> getDecorationAsync(OfflinePlayer player) {
+    public CompletableFuture<Set<TextDecoration>> getDecorationsAsync(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        return repo().getIntegerAsync(TABLE, "decoration", "uuid = ?", player.getUniqueId().toString())
+        return repo().getIntegerAsync(TABLE, "decorations", "uuid = ?", player.getUniqueId().toString())
             .thenApply(bitmask -> bitmask != null ? TextFormation.getTextDecorations(bitmask) : new HashSet<>());
     }
 }

@@ -29,9 +29,9 @@ public interface IPrefixAPI {
 
     CompletableFuture<Void> setDecorationAsync(OfflinePlayer player, TextDecoration decoration);
 
-    void setDecoration(OfflinePlayer player, Set<TextDecoration> decorations);
+    void setDecorations(OfflinePlayer player, Set<TextDecoration> decorations);
 
-    CompletableFuture<Void> setDecorationAsync(OfflinePlayer player, Set<TextDecoration> decorations);
+    CompletableFuture<Void> setDecorationsAsync(OfflinePlayer player, Set<TextDecoration> decorations);
 
     void addDecoration(OfflinePlayer player, TextDecoration decoration);
 
@@ -41,7 +41,7 @@ public interface IPrefixAPI {
 
     CompletableFuture<Void> removeDecorationAsync(OfflinePlayer player, TextDecoration decoration);
 
-    Set<TextDecoration> getDecoration(OfflinePlayer player);
+    Set<TextDecoration> getDecorations(OfflinePlayer player);
 
-    CompletableFuture<Set<TextDecoration>> getDecorationAsync(OfflinePlayer player);
+    CompletableFuture<Set<TextDecoration>> getDecorationsAsync(OfflinePlayer player);
 }
