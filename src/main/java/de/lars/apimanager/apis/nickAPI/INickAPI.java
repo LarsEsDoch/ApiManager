@@ -26,11 +26,11 @@ public interface INickAPI {
 
     CompletableFuture<String> getNicknameAsync(OfflinePlayer player);
 
-    void setFakeRank(OfflinePlayer player, Integer rankID);
+    void setDisguiseRank(OfflinePlayer player, Integer rankID);
 
-    CompletableFuture<Void> setFakeRankAsync(OfflinePlayer player, Integer rankID);
+    CompletableFuture<Void> setDisguiseRankAsync(OfflinePlayer player, Integer rankID);
 
-    Integer getFakeRank(OfflinePlayer player);
+    Integer getDisguiseRank(OfflinePlayer player);
 
-    CompletableFuture<Integer> getFakeRankAsync(OfflinePlayer player);
+    CompletableFuture<Integer> getDisguiseRankAsync(OfflinePlayer player);
 }

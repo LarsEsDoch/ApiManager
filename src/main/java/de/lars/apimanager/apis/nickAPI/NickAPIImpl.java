@@ -25,7 +25,7 @@ public class NickAPIImpl implements INickAPI {
             CREATE TABLE IF NOT EXISTS player_nicknames (
                 uuid CHAR(36) NOT NULL PRIMARY KEY,
                 nickname VARCHAR(32) DEFAULT NULL,
-                fake_rank INT(16) DEFAULT NULL,
+                disguise_rank_id INT(16) DEFAULT NULL,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                 FOREIGN KEY (uuid) REFERENCES players(uuid) ON DELETE CASCADE
@@ -35,7 +35,7 @@ public class NickAPIImpl implements INickAPI {
 
     public void initPlayer(OfflinePlayer player) {
         db().update("""
-            INSERT IGNORE INTO player_nicknames (uuid, nickname, fake_rank)
+            INSERT IGNORE INTO player_nicknames (uuid, nickname, disguise_rank_id)
             VALUES (?, ?, ?)
         """, player.getUniqueId().toString(), null, null);
     }
@@ -86,7 +86,7 @@ public class NickAPIImpl implements INickAPI {
     public void resetNickname(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
         repo().updateColumns(TABLE,
-            new String[]{"nickname", "fake_rank"},
+            new String[]{"nickname", "disguise_rank_id"},
             new Object[]{null, null},
             "uuid = ?", player.getUniqueId().toString());
     }
@@ -95,7 +95,7 @@ public class NickAPIImpl implements INickAPI {
     public CompletableFuture<Void> resetNicknameAsync(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
         return repo().updateColumnsAsync(TABLE,
-            new String[]{"nickname", "fake_rank"},
+            new String[]{"nickname", "disguise_rank_id"},
             new Object[]{null, null},
             "uuid = ?", player.getUniqueId().toString());
     }
@@ -113,24 +113,24 @@ public class NickAPIImpl implements INickAPI {
     }
 
     @Override
-    public void setFakeRank(OfflinePlayer player, Integer rankId) {
-        repo().updateColumn(TABLE, "fake_rank", rankId, "uuid = ?", player.getUniqueId().toString());
+    public void setDisguiseRank(OfflinePlayer player, Integer rankId) {
+        repo().updateColumn(TABLE, "disguise_rank_id", rankId, "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
-    public CompletableFuture<Void> setFakeRankAsync(OfflinePlayer player, Integer rankId) {
-        return repo().updateColumnAsync(TABLE, "fake_rank", rankId, "uuid = ?", player.getUniqueId().toString());
+    public CompletableFuture<Void> setDisguiseRankAsync(OfflinePlayer player, Integer rankId) {
+        return repo().updateColumnAsync(TABLE, "disguise_rank_id", rankId, "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
-    public Integer getFakeRank(OfflinePlayer player) {
+    public Integer getDisguiseRank(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        return repo().getInteger(TABLE, "fake_rank", "uuid = ?", player.getUniqueId().toString());
+        return repo().getInteger(TABLE, "disguise_rank_id", "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
-    public CompletableFuture<Integer> getFakeRankAsync(OfflinePlayer player) {
+    public CompletableFuture<Integer> getDisguiseRankAsync(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        return repo().getIntegerAsync(TABLE, "fake_rank", "uuid = ?", player.getUniqueId().toString());
+        return repo().getIntegerAsync(TABLE, "disguise_rank_id", "uuid = ?", player.getUniqueId().toString());
     }
 }
