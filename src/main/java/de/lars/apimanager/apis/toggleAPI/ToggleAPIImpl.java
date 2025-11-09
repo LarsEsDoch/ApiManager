@@ -1,17 +1,21 @@
 package de.lars.apimanager.apis.toggleAPI;
 
 import de.lars.apimanager.ApiManager;
+import de.lars.apimanager.database.DatabaseRepository;
 import de.lars.apimanager.database.IDatabaseManager;
 import de.lars.apimanager.utils.ValidateParameter;
 import org.bukkit.OfflinePlayer;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.concurrent.CompletableFuture;
 
 public class ToggleAPIImpl implements IToggleAPI {
+    private static final String TABLE = "player_toggles";
+
+    private DatabaseRepository repo() {
+        return new DatabaseRepository();
+    }
+
     private IDatabaseManager db() {
         return ApiManager.getInstance().getDatabaseManager();
     }
@@ -35,177 +39,82 @@ public class ToggleAPIImpl implements IToggleAPI {
     }
 
     public boolean doesUserExist(OfflinePlayer player) {
-        return db().query(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT 1 FROM player_toggles WHERE uuid = ? LIMIT 1")) {
-                ps.setString(1, player.getUniqueId().toString());
-                try (ResultSet rs = ps.executeQuery()) {
-                    return rs.next();
-                }
-            }
-        });
+        return repo().exists(TABLE, "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public Instant getCreatedAt(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        return db().query(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT created_at FROM player_toggles WHERE uuid = ? LIMIT 1")) {
-                ps.setString(1, player.getUniqueId().toString());
-                try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) {
-                        Timestamp ts = rs.getTimestamp("created_at");
-                        if (ts != null) {
-                            return ts.toInstant();
-                        } else {
-                            return null;
-                        }
-                    }
-                    return null;
-                }
-            }
-        });
+        return repo().getInstant(TABLE, "created_at", "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public CompletableFuture<Instant> getCreatedAtAsync(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        return db().queryAsync(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT created_at FROM player_toggles WHERE uuid = ? LIMIT 1")) {
-                ps.setString(1, player.getUniqueId().toString());
-                try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) {
-                        Timestamp ts = rs.getTimestamp("created_at");
-                        if (ts != null) {
-                            return ts.toInstant();
-                        } else {
-                            return null;
-                        }
-                    }
-                    return null;
-                }
-            }
-        });
+        return repo().getInstantAsync(TABLE, "created_at", "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public Instant getUpdatedAt(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        return db().query(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT updated_at FROM player_toggles WHERE uuid = ? LIMIT 1")) {
-                ps.setString(1, player.getUniqueId().toString());
-                try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) {
-                        Timestamp ts = rs.getTimestamp("updated_at");
-                        if (ts != null) {
-                            return ts.toInstant();
-                        } else {
-                            return null;
-                        }
-                    }
-                    return null;
-                }
-            }
-        });
+        return repo().getInstant(TABLE, "updated_at", "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public CompletableFuture<Instant> getUpdatedAtAsync(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        return db().queryAsync(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT updated_at FROM player_toggles WHERE uuid = ? LIMIT 1")) {
-                ps.setString(1, player.getUniqueId().toString());
-                try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) {
-                        Timestamp ts = rs.getTimestamp("updated_at");
-                        if (ts != null) {
-                            return ts.toInstant();
-                        } else {
-                            return null;
-                        }
-                    }
-                    return null;
-                }
-            }
-        });
+        return repo().getInstantAsync(TABLE, "updated_at", "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public void setBedToggle(OfflinePlayer player, boolean toggle) {
         ValidateParameter.validatePlayer(player);
-        db().update("UPDATE player_toggles SET bed_toggle=? WHERE uuid=?", toggle, player.getUniqueId().toString());
+        repo().updateColumn(TABLE, "bed_toggle", toggle, "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public CompletableFuture<Void> setBedToggleAsync(OfflinePlayer player, boolean toggle) {
         ValidateParameter.validatePlayer(player);
-        return db().updateAsync("UPDATE player_toggles SET bed_toggle=? WHERE uuid=?", toggle, player.getUniqueId().toString());
+        return repo().updateColumnAsync(TABLE, "bed_toggle", toggle, "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public boolean getBedToggle(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        return db().query(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT bed_toggle FROM player_toggles WHERE uuid=?")) {
-                ps.setString(1, player.getUniqueId().toString());
-                try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) return rs.getBoolean("bed_toggle");
-                }
-            }
-            return true;
-        });
+        Boolean result = repo().getBoolean(TABLE, "bed_toggle", "uuid = ?", player.getUniqueId().toString());
+        return result == null || result;
     }
 
     @Override
     public CompletableFuture<Boolean> getBedToggleAsync(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        return db().queryAsync(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT bed_toggle FROM player_toggles WHERE uuid=?")) {
-                ps.setString(1, player.getUniqueId().toString());
-                try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) return rs.getBoolean("bed_toggle");
-                }
-            }
-            return true;
-        });
+        return repo().getBooleanAsync(TABLE, "bed_toggle", "uuid = ?", player.getUniqueId().toString())
+            .thenApply(result -> result == null || result);
     }
 
     @Override
     public void setScoreboardToggle(OfflinePlayer player, boolean toggle) {
         ValidateParameter.validatePlayer(player);
-        db().update("UPDATE player_toggles SET scoreboard_toggle=? WHERE uuid=?", toggle, player.getUniqueId().toString());
+        repo().updateColumn(TABLE, "scoreboard_toggle", toggle, "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public CompletableFuture<Void> setScoreboardToggleAsync(OfflinePlayer player, boolean toggle) {
         ValidateParameter.validatePlayer(player);
-        return db().updateAsync("UPDATE player_toggles SET scoreboard_toggle=? WHERE uuid=?", toggle, player.getUniqueId().toString());
+        return repo().updateColumnAsync(TABLE, "scoreboard_toggle", toggle, "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public boolean getScoreboardToggle(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        return db().query(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT scoreboard_toggle FROM player_toggles WHERE uuid=?")) {
-                ps.setString(1, player.getUniqueId().toString());
-                try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) return rs.getBoolean("scoreboard_toggle");
-                }
-            }
-            return true;
-        });
+        Boolean result = repo().getBoolean(TABLE, "scoreboard_toggle", "uuid = ?", player.getUniqueId().toString());
+        return result == null || result;
     }
 
     @Override
     public CompletableFuture<Boolean> getScoreboardToggleAsync(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        return db().queryAsync(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT scoreboard_toggle FROM player_toggles WHERE uuid=?")) {
-                ps.setString(1, player.getUniqueId().toString());
-                try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) return rs.getBoolean("scoreboard_toggle");
-                }
-            }
-            return true;
-        });
+        return repo().getBooleanAsync(TABLE, "scoreboard_toggle", "uuid = ?", player.getUniqueId().toString())
+            .thenApply(result -> result == null || result);
     }
 }
