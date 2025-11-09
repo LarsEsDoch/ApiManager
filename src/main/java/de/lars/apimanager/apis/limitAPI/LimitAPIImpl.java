@@ -24,9 +24,9 @@ public class LimitAPIImpl implements ILimitAPI {
         db().update("""
             CREATE TABLE IF NOT EXISTS player_limits (
                 uuid CHAR(36) NOT NULL PRIMARY KEY,
-                slots INT DEFAULT 9,
-                chunk_limit INT DEFAULT 32,
-                home_limit INT DEFAULT 32,
+                backpack_slots INT DEFAULT 9,
+                max_chunks INT DEFAULT 32,
+                max_homes INT DEFAULT 32,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                 FOREIGN KEY (uuid) REFERENCES players(uuid) ON DELETE CASCADE
@@ -36,7 +36,7 @@ public class LimitAPIImpl implements ILimitAPI {
 
     public void initPlayer(OfflinePlayer player) {
         db().update("""
-            INSERT IGNORE INTO player_limits (uuid, slots, chunk_limit, home_limit)
+            INSERT IGNORE INTO player_limits (uuid, backpack_slots, max_chunks, max_homes)
             VALUES (?, ?, ?, ?)
         """, player.getUniqueId().toString(), 9, 32, 32);
     }
@@ -70,178 +70,178 @@ public class LimitAPIImpl implements ILimitAPI {
     }
 
     @Override
-    public void setSlots(OfflinePlayer player, int slots) {
+    public void setBackpackSlots(OfflinePlayer player, int backpack_slots) {
         ValidateParameter.validatePlayer(player);
-        if (slots < 0) slots = 0;
-        repo().updateColumn(TABLE, "slots", slots, "uuid = ?", player.getUniqueId().toString());
+        if (backpack_slots < 0) backpack_slots = 0;
+        repo().updateColumn(TABLE, "backpack_slots", backpack_slots, "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
-    public CompletableFuture<Void> setSlotsAsync(OfflinePlayer player, int slots) {
+    public CompletableFuture<Void> setBackpackSlotsAsync(OfflinePlayer player, int backpack_slots) {
         ValidateParameter.validatePlayer(player);
-        if (slots < 0) slots = 0;
-        return repo().updateColumnAsync(TABLE, "slots", slots, "uuid = ?", player.getUniqueId().toString());
+        if (backpack_slots < 0) backpack_slots = 0;
+        return repo().updateColumnAsync(TABLE, "backpack_slots", backpack_slots, "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
-    public void increaseSlots(OfflinePlayer player, int amount) {
+    public void increaseBackpackSlots(OfflinePlayer player, int amount) {
         ValidateParameter.validatePlayer(player);
-        Integer current = getSlots(player);
+        Integer current = getBackpackSlots(player);
         if (current == null) current = 0;
-        setSlots(player, current + amount);
+        setBackpackSlots(player, current + amount);
     }
 
     @Override
-    public CompletableFuture<Void> increaseSlotsAsync(OfflinePlayer player, int amount) {
+    public CompletableFuture<Void> increaseBackpackSlotsAsync(OfflinePlayer player, int amount) {
         ValidateParameter.validatePlayer(player);
-        return getSlotsAsync(player).thenCompose(current -> {
+        return getBackpackSlotsAsync(player).thenCompose(current -> {
             if (current == null) current = 0;
-            return setSlotsAsync(player, current + amount);
+            return setBackpackSlotsAsync(player, current + amount);
         });
     }
 
     @Override
-    public void decreaseSlots(OfflinePlayer player, int amount) {
+    public void decreaseBackpackSlots(OfflinePlayer player, int amount) {
         ValidateParameter.validatePlayer(player);
-        Integer current = getSlots(player);
+        Integer current = getBackpackSlots(player);
         if (current == null) current = 0;
-        setSlots(player, Math.max(0, current - amount));
+        setBackpackSlots(player, Math.max(0, current - amount));
     }
 
     @Override
-    public CompletableFuture<Void> decreaseSlotsAsync(OfflinePlayer player, int amount) {
+    public CompletableFuture<Void> decreaseBackpackSlotsAsync(OfflinePlayer player, int amount) {
         ValidateParameter.validatePlayer(player);
-        return getSlotsAsync(player).thenCompose(current -> {
+        return getBackpackSlotsAsync(player).thenCompose(current -> {
             if (current == null) current = 0;
-            return setSlotsAsync(player, Math.max(0, current - amount));
+            return setBackpackSlotsAsync(player, Math.max(0, current - amount));
         });
     }
 
     @Override
-    public Integer getSlots(OfflinePlayer player) {
+    public Integer getBackpackSlots(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        return repo().getInteger(TABLE, "slots", "uuid = ?", player.getUniqueId().toString());
+        return repo().getInteger(TABLE, "backpack_slots", "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
-    public CompletableFuture<Integer> getSlotsAsync(OfflinePlayer player) {
+    public CompletableFuture<Integer> getBackpackSlotsAsync(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        return repo().getIntegerAsync(TABLE, "slots", "uuid = ?", player.getUniqueId().toString());
+        return repo().getIntegerAsync(TABLE, "backpack_slots", "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
-    public void setChunkLimit(OfflinePlayer player, Integer chunk_limit) {
+    public void setMaxChunks(OfflinePlayer player, Integer max_chunks) {
         ValidateParameter.validatePlayer(player);
-        repo().updateColumn(TABLE, "chunk_limit", chunk_limit, "uuid = ?", player.getUniqueId().toString());
+        repo().updateColumn(TABLE, "max_chunks", max_chunks, "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
-    public CompletableFuture<Void> setChunkLimitAsync(OfflinePlayer player, Integer chunk_limit) {
+    public CompletableFuture<Void> setMaxChunksAsync(OfflinePlayer player, Integer max_chunks) {
         ValidateParameter.validatePlayer(player);
-        return repo().updateColumnAsync(TABLE, "chunk_limit", chunk_limit, "uuid = ?", player.getUniqueId().toString());
+        return repo().updateColumnAsync(TABLE, "max_chunks", max_chunks, "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
-    public void increaseChunkLimit(OfflinePlayer player, int amount) {
+    public void increaseMaxChunks(OfflinePlayer player, int amount) {
         ValidateParameter.validatePlayer(player);
-        Integer current = getChunkLimit(player);
+        Integer current = getMaxChunks(player);
         if (current == null) current = 0;
-        setChunkLimit(player, current + amount);
+        setMaxChunks(player, current + amount);
     }
 
     @Override
-    public CompletableFuture<Void> increaseChunkLimitAsync(OfflinePlayer player, int amount) {
+    public CompletableFuture<Void> increaseMaxChunksAsync(OfflinePlayer player, int amount) {
         ValidateParameter.validatePlayer(player);
-        return getChunkLimitAsync(player).thenCompose(current -> {
+        return getMaxChunksAsync(player).thenCompose(current -> {
             if (current == null) current = 0;
-            return setChunkLimitAsync(player, current + amount);
+            return setMaxChunksAsync(player, current + amount);
         });
     }
 
     @Override
-    public void decreaseChunkLimit(OfflinePlayer player, int amount) {
+    public void decreaseMaxChunks(OfflinePlayer player, int amount) {
         ValidateParameter.validatePlayer(player);
-        Integer current = getChunkLimit(player);
+        Integer current = getMaxChunks(player);
         if (current == null) current = 0;
-        setChunkLimit(player, Math.max(0, current - amount));
+        setMaxChunks(player, Math.max(0, current - amount));
     }
 
     @Override
-    public CompletableFuture<Void> decreaseChunkLimitAsync(OfflinePlayer player, int amount) {
+    public CompletableFuture<Void> decreaseMaxChunksAsync(OfflinePlayer player, int amount) {
         ValidateParameter.validatePlayer(player);
-        return getChunkLimitAsync(player).thenCompose(current -> {
+        return getMaxChunksAsync(player).thenCompose(current -> {
             if (current == null) current = 0;
-            return setChunkLimitAsync(player, Math.max(0, current - amount));
+            return setMaxChunksAsync(player, Math.max(0, current - amount));
         });
     }
 
     @Override
-    public Integer getChunkLimit(OfflinePlayer player) {
+    public Integer getMaxChunks(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        return repo().getInteger(TABLE, "chunk_limit", "uuid = ?", player.getUniqueId().toString());
+        return repo().getInteger(TABLE, "max_chunks", "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
-    public CompletableFuture<Integer> getChunkLimitAsync(OfflinePlayer player) {
+    public CompletableFuture<Integer> getMaxChunksAsync(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        return repo().getIntegerAsync(TABLE, "chunk_limit", "uuid = ?", player.getUniqueId().toString());
+        return repo().getIntegerAsync(TABLE, "max_chunks", "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
-    public void setHomeLimit(OfflinePlayer player, Integer home_limit) {
+    public void setMaxHomes(OfflinePlayer player, Integer max_homes) {
         ValidateParameter.validatePlayer(player);
-        repo().updateColumn(TABLE, "home_limit", home_limit, "uuid = ?", player.getUniqueId().toString());
+        repo().updateColumn(TABLE, "max_homes", max_homes, "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
-    public CompletableFuture<Void> setHomeLimitAsync(OfflinePlayer player, Integer home_limit) {
+    public CompletableFuture<Void> setMaxHomesAsync(OfflinePlayer player, Integer max_homes) {
         ValidateParameter.validatePlayer(player);
-        return repo().updateColumnAsync(TABLE, "home_limit", home_limit, "uuid = ?", player.getUniqueId().toString());
+        return repo().updateColumnAsync(TABLE, "max_homes", max_homes, "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
-    public void increaseHomeLimit(OfflinePlayer player, int amount) {
+    public void increaseMaxHomes(OfflinePlayer player, int amount) {
         ValidateParameter.validatePlayer(player);
-        Integer current = getHomeLimit(player);
+        Integer current = getMaxHomes(player);
         if (current == null) return;
-        setHomeLimit(player, current + amount);
+        setMaxHomes(player, current + amount);
     }
 
     @Override
-    public CompletableFuture<Void> increaseHomeLimitAsync(OfflinePlayer player, int amount) {
+    public CompletableFuture<Void> increaseMaxHomesAsync(OfflinePlayer player, int amount) {
         ValidateParameter.validatePlayer(player);
-        return getHomeLimitAsync(player).thenCompose(current -> {
+        return getMaxHomesAsync(player).thenCompose(current -> {
             if (current == null) return CompletableFuture.completedFuture(null);
-            return setHomeLimitAsync(player, current + amount);
+            return setMaxHomesAsync(player, current + amount);
         });
     }
 
     @Override
-    public void decreaseHomeLimit(OfflinePlayer player, int amount) {
+    public void decreaseMaxHomes(OfflinePlayer player, int amount) {
         ValidateParameter.validatePlayer(player);
-        Integer current = getHomeLimit(player);
+        Integer current = getMaxHomes(player);
         if (current == null) return;
-        setHomeLimit(player, Math.max(0, current - amount));
+        setMaxHomes(player, Math.max(0, current - amount));
     }
 
     @Override
-    public CompletableFuture<Void> decreaseHomeLimitAsync(OfflinePlayer player, int amount) {
+    public CompletableFuture<Void> decreaseMaxHomesAsync(OfflinePlayer player, int amount) {
         ValidateParameter.validatePlayer(player);
-        return getHomeLimitAsync(player).thenCompose(current -> {
+        return getMaxHomesAsync(player).thenCompose(current -> {
             if (current == null) return CompletableFuture.completedFuture(null);
-            return setHomeLimitAsync(player, Math.max(0, current - amount));
+            return setMaxHomesAsync(player, Math.max(0, current - amount));
         });
     }
 
     @Override
-    public Integer getHomeLimit(OfflinePlayer player) {
+    public Integer getMaxHomes(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        return repo().getInteger(TABLE, "home_limit", "uuid = ?", player.getUniqueId().toString());
+        return repo().getInteger(TABLE, "max_homes", "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
-    public CompletableFuture<Integer> getHomeLimitAsync(OfflinePlayer player) {
+    public CompletableFuture<Integer> getMaxHomesAsync(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        return repo().getIntegerAsync(TABLE, "home_limit", "uuid = ?", player.getUniqueId().toString());
+        return repo().getIntegerAsync(TABLE, "max_homes", "uuid = ?", player.getUniqueId().toString());
     }
 }

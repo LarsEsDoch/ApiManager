@@ -14,51 +14,51 @@ public interface ILimitAPI {
 
     CompletableFuture<Instant> getUpdatedAtAsync(OfflinePlayer player);
 
-    void setSlots(OfflinePlayer player, int slots);
+    void setBackpackSlots(OfflinePlayer player, int backpackSlots);
 
-    CompletableFuture<Void> setSlotsAsync(OfflinePlayer player, int slots);
+    CompletableFuture<Void> setBackpackSlotsAsync(OfflinePlayer player, int backpackSlots);
 
-    void increaseSlots(OfflinePlayer player, int amount);
+    void increaseBackpackSlots(OfflinePlayer player, int backpackSlots);
 
-    CompletableFuture<Void> increaseSlotsAsync(OfflinePlayer player, int amount);
+    CompletableFuture<Void> increaseBackpackSlotsAsync(OfflinePlayer player, int backpackSlots);
 
-    void decreaseSlots(OfflinePlayer player, int amount);
+    void decreaseBackpackSlots(OfflinePlayer player, int backpackSlots);
 
-    CompletableFuture<Void> decreaseSlotsAsync(OfflinePlayer player, int amount);
+    CompletableFuture<Void> decreaseBackpackSlotsAsync(OfflinePlayer player, int backpackSlots);
 
-    Integer getSlots(OfflinePlayer player);
+    Integer getBackpackSlots(OfflinePlayer player);
 
-    CompletableFuture<Integer> getSlotsAsync(OfflinePlayer player);
+    CompletableFuture<Integer> getBackpackSlotsAsync(OfflinePlayer player);
 
-    void setChunkLimit(OfflinePlayer player, Integer chunk_limit);
+    void setMaxChunks(OfflinePlayer player, Integer max_chunks);
 
-    CompletableFuture<Void> setChunkLimitAsync(OfflinePlayer player, Integer chunk_limit);
+    CompletableFuture<Void> setMaxChunksAsync(OfflinePlayer player, Integer max_chunks);
 
-    void increaseChunkLimit(OfflinePlayer player, int amount);
+    void increaseMaxChunks(OfflinePlayer player, int amount);
 
-    CompletableFuture<Void> increaseChunkLimitAsync(OfflinePlayer player, int amount);
+    CompletableFuture<Void> increaseMaxChunksAsync(OfflinePlayer player, int amount);
 
-    void decreaseChunkLimit(OfflinePlayer player, int amount);
+    void decreaseMaxChunks(OfflinePlayer player, int amount);
 
-    CompletableFuture<Void> decreaseChunkLimitAsync(OfflinePlayer player, int amount);
+    CompletableFuture<Void> decreaseMaxChunksAsync(OfflinePlayer player, int amount);
 
-    Integer getChunkLimit(OfflinePlayer player);
+    Integer getMaxChunks(OfflinePlayer player);
 
-    CompletableFuture<Integer> getChunkLimitAsync(OfflinePlayer player);
+    CompletableFuture<Integer> getMaxChunksAsync(OfflinePlayer player);
 
-    void setHomeLimit(OfflinePlayer player, Integer home_limit);
+    void setMaxHomes(OfflinePlayer player, Integer home_limit);
 
-    CompletableFuture<Void> setHomeLimitAsync(OfflinePlayer player, Integer home_limit);
+    CompletableFuture<Void> setMaxHomesAsync(OfflinePlayer player, Integer home_limit);
 
-    void increaseHomeLimit(OfflinePlayer player, int amount);
+    void increaseMaxHomes(OfflinePlayer player, int amount);
 
-    CompletableFuture<Void> increaseHomeLimitAsync(OfflinePlayer player, int amount);
+    CompletableFuture<Void> increaseMaxHomesAsync(OfflinePlayer player, int amount);
 
-    void decreaseHomeLimit(OfflinePlayer player, int amount);
+    void decreaseMaxHomes(OfflinePlayer player, int amount);
 
-    CompletableFuture<Void> decreaseHomeLimitAsync(OfflinePlayer player, int amount);
+    CompletableFuture<Void> decreaseMaxHomesAsync(OfflinePlayer player, int amount);
 
-    Integer getHomeLimit(OfflinePlayer player);
+    Integer getMaxHomes(OfflinePlayer player);
 
-    CompletableFuture<Integer> getHomeLimitAsync(OfflinePlayer player);
+    CompletableFuture<Integer> getMaxHomesAsync(OfflinePlayer player);
 }
