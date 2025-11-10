@@ -85,7 +85,8 @@ public record ApiManagerCommand(ApiManager plugin, ConnectDatabase connectDataba
             sender.sendMessage(Statements.getPrefix().append(Component.text("Website ", NamedTextColor.GRAY))
                 .append(Component.text(plugin.getWebsite(), NamedTextColor.GOLD)));
             sender.sendMessage(Statements.getPrefix().append(Component.text("Command ", NamedTextColor.GRAY))
-                .append(Component.text("/" + plugin.getName() + "/am", NamedTextColor.GOLD)));
+                .append(Component.text("/" + plugin.getName() + " /am", NamedTextColor.GOLD)));
+            return;
         }
         sender.sendMessage(Statements.getPrefix().append(Component.text("Unknown command!", NamedTextColor.RED)));
         sendUsage(sender);
@@ -114,7 +115,7 @@ public record ApiManagerCommand(ApiManager plugin, ConnectDatabase connectDataba
     }
 
     private void sendUsage(CommandSender sender) {
-        sender.sendMessage(Statements.getPrefix().append(Component.text("=== ApiManager Commands ===", NamedTextColor.AQUA)));
+        sender.sendMessage(Statements.getPrefix().append(Component.text("=== " + plugin.getName() + " Commands ===", NamedTextColor.AQUA)));
         sender.sendMessage(Statements.getPrefix().append(Component.text("/apimanager logging enable", NamedTextColor.GOLD))
             .append(Component.text(" - Enable SQL query logging", NamedTextColor.GRAY)));
         sender.sendMessage(Statements.getPrefix().append(Component.text("/apimanager logging disable", NamedTextColor.GOLD))

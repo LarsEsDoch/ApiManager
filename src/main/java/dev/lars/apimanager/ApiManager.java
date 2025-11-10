@@ -79,7 +79,9 @@ public final class ApiManager extends JavaPlugin {
     @Override
     public void onLoad() {
         instance = this;
+
         saveDefaultConfig();
+
         connectDatabase = new ConnectDatabase(this);
 
         if (!connectDatabase.loadDatabaseConfig()) {
