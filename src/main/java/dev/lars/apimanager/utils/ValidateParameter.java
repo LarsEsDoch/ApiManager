@@ -7,7 +7,6 @@ import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 
 import java.time.Instant;
-import java.util.Set;
 
 public class ValidateParameter {
     public static void validatePlayer(OfflinePlayer player) {
