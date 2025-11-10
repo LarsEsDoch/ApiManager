@@ -10,6 +10,7 @@ import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.OfflinePlayer;
 
 import java.time.Instant;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -30,7 +31,7 @@ public class PrefixAPIImpl implements IPrefixAPI {
             CREATE TABLE IF NOT EXISTS player_prefixes (
                 uuid CHAR(36) NOT NULL PRIMARY KEY,
                 color INT DEFAULT 15,
-                decorations INT DEFAULT 0,
+                decorations INT NOT NULL DEFAULT 0,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                 FOREIGN KEY (uuid) REFERENCES players(uuid) ON DELETE CASCADE
@@ -104,20 +105,21 @@ public class PrefixAPIImpl implements IPrefixAPI {
     @Override
     public void setDecoration(OfflinePlayer player, TextDecoration decoration) {
         ValidateParameter.validatePlayer(player);
-        ValidateParameter.validateTextDecoration(decoration);
         setDecorations(player, Set.of(decoration));
     }
 
     @Override
     public CompletableFuture<Void> setDecorationAsync(OfflinePlayer player, TextDecoration decoration) {
         ValidateParameter.validatePlayer(player);
-        ValidateParameter.validateTextDecoration(decoration);
         return setDecorationsAsync(player, Set.of(decoration));
     }
 
     @Override
     public void setDecorations(OfflinePlayer player, Set<TextDecoration> decorations) {
         ValidateParameter.validatePlayer(player);
+        if (decorations == null) {
+            decorations = Collections.emptySet();
+        }
         int bitmask = TextFormation.combineDecorations(decorations);
         repo().updateColumn(TABLE, "decorations", bitmask, "uuid = ?", player.getUniqueId().toString());
     }
@@ -125,7 +127,9 @@ public class PrefixAPIImpl implements IPrefixAPI {
     @Override
     public CompletableFuture<Void> setDecorationsAsync(OfflinePlayer player, Set<TextDecoration> decorations) {
         ValidateParameter.validatePlayer(player);
-        ValidateParameter.validateTextDecorations(decorations);
+        if (decorations == null) {
+            decorations = Collections.emptySet();
+        }
         int bitmask = TextFormation.combineDecorations(decorations);
         return repo().updateColumnAsync(TABLE, "decorations", bitmask, "uuid = ?", player.getUniqueId().toString());
     }

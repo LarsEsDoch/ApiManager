@@ -40,12 +40,6 @@ public class ValidateParameter {
         }
     }
 
-    public static void validateTextDecorations(Set<TextDecoration> textDecorations) {
-        if (textDecorations == null) {
-            throw new IllegalArgumentException("TextDecorations cannot be null");
-        }
-    }
-
     public static void validateReason(String reason) {
         if (reason == null) {
             throw new IllegalArgumentException("Reason cannot be null");
