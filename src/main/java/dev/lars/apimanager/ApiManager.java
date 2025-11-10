@@ -110,7 +110,10 @@ public final class ApiManager extends JavaPlugin {
             ApiManagerCommand apiManagerCommand = new ApiManagerCommand(this, connectDatabase);
 
             commands.register("apimanager", "ApiManager commands", apiManagerCommand);
+            commands.register("am", "ApiManager commands", apiManagerCommand);
         });
+
+        Statements.logToConsole("UtilsManager enabled!", NamedTextColor.DARK_GREEN);
     }
 
     private void instantiateApis() {
@@ -167,27 +170,18 @@ public final class ApiManager extends JavaPlugin {
     }
 
     private void buildCreateTableList() {
-        createTableRunnables.clear();
-        createTableRunnables.add(() -> serverSettingsAPI.createTables());
-        createTableRunnables.add(() -> chunkAPI.createTables());
-        createTableRunnables.add(() -> homeAPI.createTables());
-        createTableRunnables.add(() -> playerAPI.createTables());
-        createTableRunnables.add(() -> languageAPI.createTables());
-        createTableRunnables.add(() -> backpackAPI.createTables());
-        createTableRunnables.add(() -> limitAPI.createTables());
-        createTableRunnables.add(() -> banAPI.createTables());
-        createTableRunnables.add(() -> courtAPI.createTables());
-        createTableRunnables.add(() -> rankAPI.createTables());
-        createTableRunnables.add(() -> prefixAPI.createTables());
-        createTableRunnables.add(() -> statusAPI.createTables());
-        createTableRunnables.add(() -> nickAPI.createTables());
-        createTableRunnables.add(() -> playerSettingsAPI.createTables());
-        createTableRunnables.add(() -> economyAPI.createTables());
-        createTableRunnables.add(() -> questAPI.createTables());
-        createTableRunnables.add(() -> timerAPI.createTables());
+        createTableRunnable.clear();
+        createTableRunnable.add(() -> serverSettingsAPI.createTables());
+        createTableRunnable.add(() -> chunkAPI.createTables());
+        createTableRunnable.add(() -> homeAPI.createTables());
+        createTableRunnable.add(() -> playerAPI.createTables());
+        createTableRunnable.add(() -> languageAPI.createTables());
+        createTableRunnable.add(() -> backpackAPI.createTables());
         createTableRunnable.add(() -> limitAPI.createTables());
         createTableRunnable.add(() -> banAPI.createTables());
         createTableRunnable.add(() -> courtAPI.createTables());
+        createTableRunnable.add(() -> rankAPI.createTables());
+        createTableRunnable.add(() -> prefixAPI.createTables());
         createTableRunnable.add(() -> statusAPI.createTables());
         createTableRunnable.add(() -> nickAPI.createTables());
         createTableRunnable.add(() -> playerSettingsAPI.createTables());
