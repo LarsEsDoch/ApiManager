@@ -185,10 +185,19 @@ public final class ApiManager extends JavaPlugin {
         createTableRunnables.add(() -> economyAPI.createTables());
         createTableRunnables.add(() -> questAPI.createTables());
         createTableRunnables.add(() -> timerAPI.createTables());
+        createTableRunnable.add(() -> limitAPI.createTables());
+        createTableRunnable.add(() -> banAPI.createTables());
+        createTableRunnable.add(() -> courtAPI.createTables());
+        createTableRunnable.add(() -> statusAPI.createTables());
+        createTableRunnable.add(() -> nickAPI.createTables());
+        createTableRunnable.add(() -> playerSettingsAPI.createTables());
+        createTableRunnable.add(() -> economyAPI.createTables());
+        createTableRunnable.add(() -> questAPI.createTables());
+        createTableRunnable.add(() -> timerAPI.createTables());
     }
 
     private void createAllTables() {
-        for (Runnable r : createTableRunnables) {
+        for (Runnable r : createTableRunnable) {
             try {
                 r.run();
             } catch (Exception e) {
@@ -202,22 +211,6 @@ public final class ApiManager extends JavaPlugin {
         Statements.logToConsole("All APIs are ready!", NamedTextColor.DARK_GREEN);
     }
 
-    public synchronized void reinitializeApisAfterDbReconnect() {
-        if (!(this.getDatabaseManager() instanceof DatabaseManager)) {
-            Statements.logToConsole("Database not a real DatabaseManager after reload. Skipping API reinitialization.", NamedTextColor.GOLD);
-            return;
-        }
-
-        instantiateApis();
-
-        DatabaseManager dbm = (DatabaseManager) getDatabaseManager();
-        dbm.readyFuture().thenRun(() -> Bukkit.getScheduler().runTask(this, () -> {
-            createAllTables();
-            Statements.logToConsole("APIs reinitialized to use the new database connection.", NamedTextColor.GRAY);
-        }));
-    }
-
-
     @Override
     public void onDisable() {
         if (serverSettingsAPI != null) {
@@ -227,13 +220,30 @@ public final class ApiManager extends JavaPlugin {
         }
         if (databaseManager != null) {
             databaseManager.close();
+            Statements.logToConsole("Database successfully disconnected!", NamedTextColor.GREEN);
         }
 
-        Statements.logToConsole("Database successfully disconnected!", NamedTextColor.DARK_GREEN);
+        Statements.logToConsole("UtilsManager successfully disabled!", NamedTextColor.DARK_RED);
     }
 
     public static ApiManager getInstance() {
         return instance;
+    }
+
+    public String getVersion() {
+        return getPluginMeta().getVersion();
+    }
+
+    public String getApiVersion() {
+        return getPluginMeta().getAPIVersion();
+    }
+
+    public List<String> getDevelopers() {
+        return getPluginMeta().getAuthors();
+    }
+
+    public String getWebsite() {
+        return getPluginMeta().getWebsite();
     }
 
     public IDatabaseManager getDatabaseManager() {
