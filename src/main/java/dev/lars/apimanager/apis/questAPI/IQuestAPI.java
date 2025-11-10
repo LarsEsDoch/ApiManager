@@ -1,4 +1,4 @@
-package de.lars.apimanager.apis.questAPI;
+package dev.lars.apimanager.apis.questAPI;
 
 import org.bukkit.OfflinePlayer;
 
@@ -74,9 +74,9 @@ public interface IQuestAPI {
 
     CompletableFuture<Void> setProgressAsync(OfflinePlayer player, int amount);
 
-    Instant getQuestDate(OfflinePlayer player);
+    Instant getLastQuestDate(OfflinePlayer player);
 
-    CompletableFuture<Instant> getQuestDateAsync(OfflinePlayer player);
+    CompletableFuture<Instant> getLastQuestDateAsync(OfflinePlayer player);
 
     void resetQuest(OfflinePlayer player);
 

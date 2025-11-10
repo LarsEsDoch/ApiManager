@@ -1,9 +1,9 @@
-package de.lars.apimanager.apis.questAPI;
+package dev.lars.apimanager.apis.questAPI;
 
-import de.lars.apimanager.ApiManager;
-import de.lars.apimanager.database.DatabaseRepository;
-import de.lars.apimanager.database.IDatabaseManager;
-import de.lars.apimanager.utils.ValidateParameter;
+import dev.lars.apimanager.ApiManager;
+import dev.lars.apimanager.database.DatabaseRepository;
+import dev.lars.apimanager.database.IDatabaseManager;
+import dev.lars.apimanager.utils.ValidateParameter;
 import org.bukkit.OfflinePlayer;
 
 import java.time.Instant;
@@ -40,7 +40,7 @@ public class QuestAPIImpl implements IQuestAPI {
 
     public void initPlayer(OfflinePlayer player) {
         db().update("""
-            INSERT IGNORE INTO player_quests (uuid, streak, quest, quest_name, is_quest_complete, target, progress, last_quest_at)
+            INSERT IGNORE INTO player_quests (uuid, streak, active_quest_id, quest_name, is_quest_complete, target, progress, last_quest_at)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         """, player.getUniqueId().toString(), 0, -1, "", false, null, 0, null);
     }
@@ -132,8 +132,8 @@ public class QuestAPIImpl implements IQuestAPI {
         ValidateParameter.validatePlayer(player);
         ValidateParameter.validateName(name);
         repo().updateColumns(TABLE,
-            new String[]{"quest", "is_quest_complete", "progress", "target", "quest_name"},
-            new Object[]{questId, false, 0, target, name},
+            new String[]{"active_quest_id", "is_quest_complete", "progress", "target", "quest_name", "last_quest_at"},
+            new Object[]{questId, false, 0, target, name, Instant.now()},
             "uuid = ?", player.getUniqueId().toString());
     }
 
@@ -142,8 +142,8 @@ public class QuestAPIImpl implements IQuestAPI {
         ValidateParameter.validatePlayer(player);
         ValidateParameter.validateName(name);
         return repo().updateColumnsAsync(TABLE,
-            new String[]{"quest", "is_quest_complete", "progress", "target", "quest_name"},
-            new Object[]{questId, false, 0, target, name},
+            new String[]{"active_quest_id", "is_quest_complete", "progress", "target", "quest_name", "last_quest_at"},
+            new Object[]{questId, false, 0, target, name, Instant.now()},
             "uuid = ?", player.getUniqueId().toString());
     }
 
@@ -200,14 +200,14 @@ public class QuestAPIImpl implements IQuestAPI {
     @Override
     public Integer getQuest(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        Integer active_quest_id = repo().getInteger(TABLE, "quest", "uuid = ?", player.getUniqueId().toString());
+        Integer active_quest_id = repo().getInteger(TABLE, "active_quest_id", "uuid = ?", player.getUniqueId().toString());
         return active_quest_id != null ? active_quest_id : -1;
     }
 
     @Override
     public CompletableFuture<Integer> getQuestAsync(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
-        return repo().getIntegerAsync(TABLE, "quest", "uuid = ?", player.getUniqueId().toString())
+        return repo().getIntegerAsync(TABLE, "active_quest_id", "uuid = ?", player.getUniqueId().toString())
             .thenApply(active_quest_id -> active_quest_id != null ? active_quest_id : -1);
     }
 
@@ -274,13 +274,13 @@ public class QuestAPIImpl implements IQuestAPI {
     }
 
     @Override
-    public Instant getQuestDate(OfflinePlayer player) {
+    public Instant getLastQuestDate(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
         return repo().getInstant(TABLE, "last_quest_at", "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
-    public CompletableFuture<Instant> getQuestDateAsync(OfflinePlayer player) {
+    public CompletableFuture<Instant> getLastQuestDateAsync(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
         return repo().getInstantAsync(TABLE, "last_quest_at", "uuid = ?", player.getUniqueId().toString());
     }
@@ -289,7 +289,7 @@ public class QuestAPIImpl implements IQuestAPI {
     public void resetQuest(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
         repo().updateColumns(TABLE,
-            new String[]{"quest", "is_quest_complete", "target", "progress", "last_quest_at"},
+            new String[]{"active_quest_id", "is_quest_complete", "target", "progress", "last_quest_at"},
             new Object[]{-1, false, null, 0, null},
             "uuid = ?", player.getUniqueId().toString());
     }
@@ -298,7 +298,7 @@ public class QuestAPIImpl implements IQuestAPI {
     public CompletableFuture<Void> resetQuestAsync(OfflinePlayer player) {
         ValidateParameter.validatePlayer(player);
         return repo().updateColumnsAsync(TABLE,
-            new String[]{"quest", "is_quest_complete", "target", "progress", "last_quest_at"},
+            new String[]{"active_quest_id", "is_quest_complete", "target", "progress", "last_quest_at"},
             new Object[]{-1, false, null, 0, null},
             "uuid = ?", player.getUniqueId().toString());
     }
