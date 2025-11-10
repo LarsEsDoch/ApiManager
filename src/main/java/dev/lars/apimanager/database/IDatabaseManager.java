@@ -1,4 +1,4 @@
-package de.lars.apimanager.database;
+package dev.lars.apimanager.database;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -12,6 +12,12 @@ public interface IDatabaseManager {
     <T> T query(DatabaseManager.SQLFunction<java.sql.Connection, T> function);
 
     <T> CompletableFuture<T> queryAsync(DatabaseManager.SQLFunction<java.sql.Connection, T> function);
+
+    void logSqlQuery(String sql, Object... params);
+
+    void setSqlLogging(boolean enabled);
+
+    boolean isSqlLoggingEnabled();
 
     Connection getConnection() throws SQLException;
 

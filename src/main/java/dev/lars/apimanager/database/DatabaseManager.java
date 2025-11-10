@@ -1,8 +1,8 @@
-package de.lars.apimanager.database;
+package dev.lars.apimanager.database;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import de.lars.apimanager.utils.Statements;
+import dev.lars.apimanager.utils.Statements;
 import net.kyori.adventure.text.format.NamedTextColor;
 
 import java.sql.Connection;
@@ -10,11 +10,13 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public final class DatabaseManager implements IDatabaseManager {
     private volatile HikariDataSource dataSource;
     private final Executor asyncExecutor;
     private final CompletableFuture<Void> ready = new CompletableFuture<>();
+    private final AtomicBoolean sqlLoggingEnabled = new AtomicBoolean(false);
 
     public DatabaseManager(String host, int port, String database, String username, String password) {
         this.asyncExecutor = CompletableFuture.delayedExecutor(0, java.util.concurrent.TimeUnit.MILLISECONDS);
@@ -69,6 +71,75 @@ public final class DatabaseManager implements IDatabaseManager {
         return ready.isDone() && dataSource != null;
     }
 
+    public void setSqlLogging(boolean enabled) {
+        sqlLoggingEnabled.set(enabled);
+        String status = enabled ? "enabled" : "disabled";
+        Statements.logToConsole("SQL query logging " + status,
+            enabled ? NamedTextColor.GREEN : NamedTextColor.GRAY);
+    }
+
+    public boolean isSqlLoggingEnabled() {
+        return sqlLoggingEnabled.get();
+    }
+
+    public void logSqlQuery(String sql, Object... params) {
+        if (sqlLoggingEnabled.get()) {
+            StringBuilder log = new StringBuilder();
+            log.append("[SQL Query] ").append(sql.trim());
+
+            if (params != null && params.length > 0) {
+                log.append(" | Parameters: [");
+                for (int i = 0; i < params.length; i++) {
+                    Object param = params[i];
+                    if (param == null) {
+                        log.append("null");
+                    } else {
+                        String paramStr = param.toString();
+                        if (paramStr.length() > 100) {
+                            paramStr = paramStr.substring(0, 97) + "...";
+                        }
+                        log.append(paramStr);
+                    }
+                    if (i < params.length - 1) {
+                        log.append(", ");
+                    }
+                }
+                log.append("]");
+            }
+
+            Statements.logToConsole(log.toString(), NamedTextColor.AQUA);
+        }
+    }
+
+    private void logSqlUpdate(String sql, Object... params) {
+        if (sqlLoggingEnabled.get()) {
+            StringBuilder log = new StringBuilder();
+            log.append("[SQL Update] ").append(sql.trim());
+
+            if (params != null && params.length > 0) {
+                log.append(" | Parameters: [");
+                for (int i = 0; i < params.length; i++) {
+                    Object param = params[i];
+                    if (param == null) {
+                        log.append("null");
+                    } else {
+                        String paramStr = param.toString();
+                        if (paramStr.length() > 100) {
+                            paramStr = paramStr.substring(0, 97) + "...";
+                        }
+                        log.append(paramStr);
+                    }
+                    if (i < params.length - 1) {
+                        log.append(", ");
+                    }
+                }
+                log.append("]");
+            }
+
+            Statements.logToConsole(log.toString(), NamedTextColor.LIGHT_PURPLE);
+        }
+    }
+
     @Override
     public Connection getConnection() throws SQLException {
         if (dataSource == null) {
@@ -86,6 +157,8 @@ public final class DatabaseManager implements IDatabaseManager {
     }
 
     public void update(String sql, Object... params) {
+        logSqlUpdate(sql, params);
+
         try (Connection conn = getConnection();
             PreparedStatement ps = conn.prepareStatement(sql)) {
             setParams(ps, params);

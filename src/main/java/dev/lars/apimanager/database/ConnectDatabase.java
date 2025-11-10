@@ -1,7 +1,7 @@
-package de.lars.apimanager.database;
+package dev.lars.apimanager.database;
 
-import de.lars.apimanager.ApiManager;
-import de.lars.apimanager.utils.Statements;
+import dev.lars.apimanager.ApiManager;
+import dev.lars.apimanager.utils.Statements;
 import net.kyori.adventure.text.format.NamedTextColor;
 
 import java.net.InetSocketAddress;

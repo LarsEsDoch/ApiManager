@@ -1,6 +1,6 @@
-package de.lars.apimanager.database;
+package dev.lars.apimanager.database;
 
-import de.lars.apimanager.ApiManager;
+import dev.lars.apimanager.ApiManager;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -19,6 +19,7 @@ public class DatabaseRepository {
     public String getString(String table, String column, String whereClause, Object... params) {
         return db().query(conn -> {
             String sql = "SELECT " + column + " FROM " + table + " WHERE " + whereClause + " LIMIT 1";
+            db().logSqlQuery(sql, params);
             try (PreparedStatement ps = conn.prepareStatement(sql)) {
                 setParameters(ps, params);
                 try (ResultSet rs = ps.executeQuery()) {
@@ -32,6 +33,7 @@ public class DatabaseRepository {
     public CompletableFuture<String> getStringAsync(String table, String column, String whereClause, Object... params) {
         return db().queryAsync(conn -> {
             String sql = "SELECT " + column + " FROM " + table + " WHERE " + whereClause + " LIMIT 1";
+            db().logSqlQuery(sql, params);
             try (PreparedStatement ps = conn.prepareStatement(sql)) {
                 setParameters(ps, params);
                 try (ResultSet rs = ps.executeQuery()) {
@@ -45,10 +47,15 @@ public class DatabaseRepository {
     public Integer getInteger(String table, String column, String whereClause, Object... params) {
         return db().query(conn -> {
             String sql = "SELECT " + column + " FROM " + table + " WHERE " + whereClause + " LIMIT 1";
+            db().logSqlQuery(sql, params);
             try (PreparedStatement ps = conn.prepareStatement(sql)) {
                 setParameters(ps, params);
                 try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) return rs.getInt(column);
+                    if (rs.next()) {
+                        int value = rs.getInt(column);
+                        if (rs.wasNull()) return null;
+                        return value;
+                    }
                     return null;
                 }
             }
@@ -58,10 +65,15 @@ public class DatabaseRepository {
     public CompletableFuture<Integer> getIntegerAsync(String table, String column, String whereClause, Object... params) {
         return db().queryAsync(conn -> {
             String sql = "SELECT " + column + " FROM " + table + " WHERE " + whereClause + " LIMIT 1";
+            db().logSqlQuery(sql, params);
             try (PreparedStatement ps = conn.prepareStatement(sql)) {
                 setParameters(ps, params);
                 try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) return rs.getInt(column);
+                    if (rs.next()) {
+                        int value = rs.getInt(column);
+                        if (rs.wasNull()) return null;
+                        return value;
+                    }
                     return null;
                 }
             }
@@ -71,10 +83,14 @@ public class DatabaseRepository {
     public Boolean getBoolean(String table, String column, String whereClause, Object... params) {
         return db().query(conn -> {
             String sql = "SELECT " + column + " FROM " + table + " WHERE " + whereClause + " LIMIT 1";
+            db().logSqlQuery(sql, params);
             try (PreparedStatement ps = conn.prepareStatement(sql)) {
                 setParameters(ps, params);
                 try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) return rs.getBoolean(column);
+                    if (rs.next()) {
+                        boolean value = rs.getBoolean(column);
+                        return rs.wasNull() ? null : value;
+                    }
                     return null;
                 }
             }
@@ -84,10 +100,14 @@ public class DatabaseRepository {
     public CompletableFuture<Boolean> getBooleanAsync(String table, String column, String whereClause, Object... params) {
         return db().queryAsync(conn -> {
             String sql = "SELECT " + column + " FROM " + table + " WHERE " + whereClause + " LIMIT 1";
+            db().logSqlQuery(sql, params);
             try (PreparedStatement ps = conn.prepareStatement(sql)) {
                 setParameters(ps, params);
                 try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) return rs.getBoolean(column);
+                    if (rs.next()) {
+                        boolean value = rs.getBoolean(column);
+                        return rs.wasNull() ? null : value;
+                    }
                     return null;
                 }
             }
@@ -97,6 +117,7 @@ public class DatabaseRepository {
     public Instant getInstant(String table, String column, String whereClause, Object... params) {
         return db().query(conn -> {
             String sql = "SELECT " + column + " FROM " + table + " WHERE " + whereClause + " LIMIT 1";
+            db().logSqlQuery(sql, params);
             try (PreparedStatement ps = conn.prepareStatement(sql)) {
                 setParameters(ps, params);
                 try (ResultSet rs = ps.executeQuery()) {
@@ -113,6 +134,7 @@ public class DatabaseRepository {
     public CompletableFuture<Instant> getInstantAsync(String table, String column, String whereClause, Object... params) {
         return db().queryAsync(conn -> {
             String sql = "SELECT " + column + " FROM " + table + " WHERE " + whereClause + " LIMIT 1";
+            db().logSqlQuery(sql, params);
             try (PreparedStatement ps = conn.prepareStatement(sql)) {
                 setParameters(ps, params);
                 try (ResultSet rs = ps.executeQuery()) {
@@ -132,6 +154,7 @@ public class DatabaseRepository {
             if (whereClause != null && !whereClause.isEmpty()) {
                 sql += " WHERE " + whereClause;
             }
+            db().logSqlQuery(sql, params);
             List<String> results = new ArrayList<>();
             try (PreparedStatement ps = conn.prepareStatement(sql)) {
                 setParameters(ps, params);
@@ -151,6 +174,7 @@ public class DatabaseRepository {
             if (whereClause != null && !whereClause.isEmpty()) {
                 sql += " WHERE " + whereClause;
             }
+            db().logSqlQuery(sql, params);
             List<String> results = new ArrayList<>();
             try (PreparedStatement ps = conn.prepareStatement(sql)) {
                 setParameters(ps, params);
@@ -167,6 +191,7 @@ public class DatabaseRepository {
     public boolean exists(String table, String whereClause, Object... params) {
         return db().query(conn -> {
             String sql = "SELECT 1 FROM " + table + " WHERE " + whereClause + " LIMIT 1";
+            db().logSqlQuery(sql, params);
             try (PreparedStatement ps = conn.prepareStatement(sql)) {
                 setParameters(ps, params);
                 try (ResultSet rs = ps.executeQuery()) {
@@ -179,6 +204,7 @@ public class DatabaseRepository {
     public CompletableFuture<Boolean> existsAsync(String table, String whereClause, Object... params) {
         return db().queryAsync(conn -> {
             String sql = "SELECT 1 FROM " + table + " WHERE " + whereClause + " LIMIT 1";
+            db().logSqlQuery(sql, params);
             try (PreparedStatement ps = conn.prepareStatement(sql)) {
                 setParameters(ps, params);
                 try (ResultSet rs = ps.executeQuery()) {
@@ -264,6 +290,7 @@ public class DatabaseRepository {
             if (whereClause != null && !whereClause.isEmpty()) {
                 sql += " WHERE " + whereClause;
             }
+            db().logSqlQuery(sql, params);
             try (PreparedStatement ps = conn.prepareStatement(sql)) {
                 setParameters(ps, params);
                 try (ResultSet rs = ps.executeQuery()) {
@@ -280,6 +307,7 @@ public class DatabaseRepository {
             if (whereClause != null && !whereClause.isEmpty()) {
                 sql += " WHERE " + whereClause;
             }
+            db().logSqlQuery(sql, params);
             try (PreparedStatement ps = conn.prepareStatement(sql)) {
                 setParameters(ps, params);
                 try (ResultSet rs = ps.executeQuery()) {
@@ -295,11 +323,7 @@ public class DatabaseRepository {
             Object param = params[i];
             if (param instanceof Instant) {
                 ps.setTimestamp(i + 1, Timestamp.from((Instant) param));
-            } else if (param == null) {
-                ps.setObject(i + 1, null);
-            } else {
-                ps.setObject(i + 1, param);
-            }
+            } else ps.setObject(i + 1, param);
         }
     }
 

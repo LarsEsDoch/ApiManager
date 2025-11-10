@@ -1,6 +1,6 @@
-package de.lars.apimanager.database;
+package dev.lars.apimanager.database;
 
-import de.lars.apimanager.utils.Statements;
+import dev.lars.apimanager.utils.Statements;
 import net.kyori.adventure.text.format.NamedTextColor;
 
 import java.sql.Connection;
@@ -25,6 +25,19 @@ public class SafeDatabaseManager implements IDatabaseManager{
     public <T> CompletableFuture<T> queryAsync(DatabaseManager.SQLFunction<java.sql.Connection, T> function) {
         logSkip("queryAsync", "function call");
         return CompletableFuture.completedFuture(null);
+    }
+
+    public void logSqlQuery(String sql, Object... params) {
+        Statements.logToConsole("[SafeDatabaseManager] logSqlQuery(String sql, Object... params) called - no real database connection present.", NamedTextColor.GOLD);
+    }
+
+    public void setSqlLogging(boolean enabled) {
+        Statements.logToConsole("[SafeDatabaseManager] setSqlLogging(boolean enabled) called - no real database connection present.", NamedTextColor.GOLD);
+    }
+
+    public boolean isSqlLoggingEnabled() {
+        Statements.logToConsole("[SafeDatabaseManager] isSqlLoggingEnabled() called - no real database connection present.", NamedTextColor.GOLD);
+        return false;
     }
 
     public Connection getConnection() throws SQLException {
