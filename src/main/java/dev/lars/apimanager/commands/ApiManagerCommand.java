@@ -151,30 +151,39 @@ public record ApiManagerCommand(ApiManager plugin, ConnectDatabase connectDataba
             }
         }
 
-        sender.sendMessage(Component.text("Connection: ", NamedTextColor.GRAY)
-            .append(Component.text(connected ? "Connected ✅" : "Not connected ❌",
+        sender.sendMessage(Statements.getPrefix()
+            .append(Component.text("Connection: ", NamedTextColor.GRAY))
+            .append(Component.text(connected ? "Connected" : "Not connected",
                 connected ? NamedTextColor.GREEN : NamedTextColor.RED)));
 
         if (!connected) {
-            sender.sendMessage(Component.text("No active database connection. Check your credentials or network.",
-                NamedTextColor.GRAY));
+            sender.sendMessage(Statements.getPrefix()
+            .append(Component.text("No active database connection. Check your credentials or network.",
+                NamedTextColor.GRAY)));
             return;
         }
 
-        sender.sendMessage(Component.text("JDBC URL: ", NamedTextColor.GRAY)
+        sender.sendMessage(Statements.getPrefix()
+            .append(Component.text("JDBC URL: ", NamedTextColor.GRAY))
             .append(Component.text(jdbcUrl, NamedTextColor.GOLD)));
-        sender.sendMessage(Component.text("User: ", NamedTextColor.GRAY)
+        sender.sendMessage(Statements.getPrefix()
+            .append(Component.text("User: ", NamedTextColor.GRAY))
             .append(Component.text(username, NamedTextColor.GOLD)));
-        sender.sendMessage(Component.text("Max pool size: ", NamedTextColor.GRAY)
+        sender.sendMessage(Statements.getPrefix()
+            .append(Component.text("Max pool size: ", NamedTextColor.GRAY))
             .append(Component.text(poolSize, NamedTextColor.GOLD)));
-        sender.sendMessage(Component.text("Active connections: ", NamedTextColor.GRAY)
+        sender.sendMessage(Statements.getPrefix()
+            .append(Component.text("Active connections: ", NamedTextColor.GRAY))
             .append(Component.text(active, NamedTextColor.GOLD)));
-        sender.sendMessage(Component.text("Idle connections: ", NamedTextColor.GRAY)
+        sender.sendMessage(Statements.getPrefix()
+            .append(Component.text("Idle connections: ", NamedTextColor.GRAY))
             .append(Component.text(idle, NamedTextColor.GOLD)));
-        sender.sendMessage(Component.text("Threads waiting: ", NamedTextColor.GRAY)
+        sender.sendMessage(Statements.getPrefix()
+            .append(Component.text("Threads waiting: ", NamedTextColor.GRAY))
             .append(Component.text(waiting, NamedTextColor.GOLD)));
 
-        sender.sendMessage(Component.text("SQL Logging: ", NamedTextColor.GRAY)
+        sender.sendMessage(Statements.getPrefix()
+            .append(Component.text("SQL Logging: ", NamedTextColor.GRAY))
             .append(Component.text(sqlLogging ? "Enabled" : "Disabled",
                 sqlLogging ? NamedTextColor.GREEN : NamedTextColor.RED)));
     }
