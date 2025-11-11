@@ -9,17 +9,27 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public final class DatabaseManager implements IDatabaseManager {
     private volatile HikariDataSource dataSource;
-    private final Executor asyncExecutor;
+    private final ExecutorService asyncExecutor;
     private final CompletableFuture<Void> ready = new CompletableFuture<>();
     private final AtomicBoolean sqlLoggingEnabled = new AtomicBoolean(false);
 
     public DatabaseManager(String host, int port, String database, String username, String password) {
-        this.asyncExecutor = CompletableFuture.delayedExecutor(0, java.util.concurrent.TimeUnit.MILLISECONDS);
+        this.asyncExecutor = Executors.newFixedThreadPool(
+            8,
+            r -> {
+                Thread thread = new Thread(r);
+                thread.setName("ApiManager-Async-DB-Thread");
+                thread.setDaemon(true);
+                return thread;
+            }
+        );
 
         CompletableFuture.runAsync(() -> {
             while (true) {
@@ -32,17 +42,24 @@ public final class DatabaseManager implements IDatabaseManager {
                     ));
                     config.setUsername(username);
                     config.setPassword(password);
+
                     config.setMaximumPoolSize(10);
-                    config.setMinimumIdle(2);
-                    config.setConnectionTimeout(30000);
-                    config.setValidationTimeout(10000);
-                    config.setIdleTimeout(600000);
-                    config.setMaxLifetime(1800000);
+                    config.setMinimumIdle(3);
+                    config.setConnectionTimeout(10000);
+                    config.setValidationTimeout(5000);
+                    config.setIdleTimeout(300000);
+                    config.setMaxLifetime(900000);
+                    config.setLeakDetectionThreshold(60000);
+
+                    config.setConnectionTestQuery("SELECT 1");
 
                     config.addDataSourceProperty("autoReconnect", "true");
-                    config.addDataSourceProperty("socketTimeout", "600000");
-                    config.addDataSourceProperty("connectTimeout", "10000");
+                    config.addDataSourceProperty("socketTimeout", "30000");
+                    config.addDataSourceProperty("connectTimeout", "5000");
                     config.addDataSourceProperty("tcpKeepAlive", "true");
+                    config.addDataSourceProperty("cachePrepStmts", "true");
+                    config.addDataSourceProperty("prepStmtCacheSize", "250");
+                    config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
 
                     HikariDataSource ds = new HikariDataSource(config);
 
@@ -140,10 +157,6 @@ public final class DatabaseManager implements IDatabaseManager {
         }
     }
 
-    public HikariDataSource getDataSource() {
-        return dataSource;
-    }
-
     @Override
     public Connection getConnection() throws SQLException {
         if (dataSource == null) {
@@ -152,8 +165,24 @@ public final class DatabaseManager implements IDatabaseManager {
         return dataSource.getConnection();
     }
 
+    public HikariDataSource getDataSource() {
+        return dataSource;
+    }
+
     @Override
     public void close() {
+        if (asyncExecutor != null && !asyncExecutor.isShutdown()) {
+            asyncExecutor.shutdown();
+            try {
+                if (!asyncExecutor.awaitTermination(10, TimeUnit.SECONDS)) {
+                    asyncExecutor.shutdownNow();
+                }
+            } catch (InterruptedException e) {
+                asyncExecutor.shutdownNow();
+                Thread.currentThread().interrupt();
+            }
+        }
+
         if (dataSource != null && !dataSource.isClosed()) {
             dataSource.close();
             Statements.logToConsole("HikariCP pool closed.", NamedTextColor.GRAY);
