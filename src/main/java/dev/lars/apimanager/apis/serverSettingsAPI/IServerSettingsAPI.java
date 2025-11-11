@@ -38,9 +38,9 @@ public interface IServerSettingsAPI {
 
     CompletableFuture<Boolean> isRealWeatherEnabledAsync();
 
-    void enableMaintenance(String reason, Instant start, Instant endTime, Instant maxEndTime);
+    void enableMaintenance(String reason, Instant start, Instant estimatedEnd, Instant deadline);
 
-    CompletableFuture<Void> enableMaintenanceAsync(String reason, Instant start, Instant endTime, Instant maxEndTime);
+    CompletableFuture<Void> enableMaintenanceAsync(String reason, Instant start, Instant estimatedEnd, Instant deadline);
 
     void disableMaintenance();
 
@@ -58,29 +58,29 @@ public interface IServerSettingsAPI {
 
     CompletableFuture<String> getMaintenanceReasonAsync();
 
-    void setMaintenanceStart(Instant startTime);
+    void setMaintenanceStart(Instant start);
 
-    CompletableFuture<Void> setMaintenanceStartAsync(Instant startTime);
+    CompletableFuture<Void> setMaintenanceStartAsync(Instant start);
 
     Instant getMaintenanceStart();
 
     CompletableFuture<Instant> getMaintenanceStartAsync();
 
-    void setMaintenanceEnd(Instant endTime);
+    void setMaintenanceEstimatedEnd(Instant estimatedEnd);
 
-    CompletableFuture<Void> setMaintenanceEndAsync(Instant endTime);
+    CompletableFuture<Void> setMaintenanceEstimatedEndAsync(Instant estimatedEnd);
 
-    Instant getMaintenanceEnd();
+    Instant getMaintenanceEstimatedEnd();
 
-    CompletableFuture<Instant> getMaintenanceEndAsync();
+    CompletableFuture<Instant> getMaintenanceEstimatedEndAsync();
 
-    void setMaintenanceMaxEnd(Instant maxEndTIme);
+    void setMaintenanceDeadline(Instant deadline);
 
-    CompletableFuture<Void> setMaintenanceMaxEndAsync(Instant maxEndTIme);
+    CompletableFuture<Void> setMaintenanceDeadlineAsync(Instant deadline);
 
-    Instant getMaintenanceMaxEnd();
+    Instant getMaintenanceDeadline();
 
-    CompletableFuture<Instant> getMaintenanceMaxEndAsync();
+    CompletableFuture<Instant> getMaintenanceDeadlineAsync();
 
     void setMaxPlayers(int maxPlayers);
 

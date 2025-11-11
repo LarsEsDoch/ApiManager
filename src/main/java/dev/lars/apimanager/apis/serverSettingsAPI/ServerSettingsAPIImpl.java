@@ -32,8 +32,8 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
                 is_maintenance_enabled BOOLEAN DEFAULT FALSE,
                 maintenance_reason VARCHAR(255) DEFAULT NULL,
                 maintenance_start TIMESTAMP DEFAULT NULL,
-                maintenance_end TIMESTAMP DEFAULT NULL,
-                maintenance_max_end TIMESTAMP DEFAULT NULL,
+                maintenance_estimated_end TIMESTAMP DEFAULT NULL,
+                maintenance_deadline TIMESTAMP DEFAULT NULL,
                 max_players INT DEFAULT 10,
                 server_name VARCHAR(255) DEFAULT 'A Minecraft Server',
                 server_version VARCHAR(50) DEFAULT '1.21.10',
@@ -46,7 +46,7 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
         if (repo().count(TABLE, WHERE_ID) < 1) {
             db().update("""
                 INSERT INTO server_settings
-                (id, is_server_online, is_real_time_enabled, is_real_weather_enabled, is_maintenance_enabled, maintenance_reason, maintenance_end, max_players, server_name, server_version, spawn_location)
+                (id, is_server_online, is_real_time_enabled, is_real_weather_enabled, is_maintenance_enabled, maintenance_reason, maintenance_estimated_end, max_players, server_name, server_version, spawn_location)
                 VALUES (1, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """, false, false, false, false, null, null, 10, "A Minecraft Server", "1.21.10", null);
         }
@@ -139,25 +139,25 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
     }
 
     @Override
-    public void enableMaintenance(String reason, Instant start, Instant endTime, Instant maxEndTime) {
+    public void enableMaintenance(String reason, Instant start, Instant estimatedEnd, Instant deadline) {
         repo().updateColumns(TABLE,
-            new String[]{"is_maintenance_enabled", "maintenance_reason", "maintenance_start", "maintenance_end", "maintenance_max_end"},
-            new Object[]{true, reason, start, endTime, maxEndTime},
+            new String[]{"is_maintenance_enabled", "maintenance_reason", "maintenance_start", "maintenance_estimated_end", "maintenance_deadline"},
+            new Object[]{true, reason, start, estimatedEnd, deadline},
             WHERE_ID);
     }
 
     @Override
-    public CompletableFuture<Void> enableMaintenanceAsync(String reason, Instant start, Instant endTime, Instant maxEndTime) {
+    public CompletableFuture<Void> enableMaintenanceAsync(String reason, Instant start, Instant estimatedEnd, Instant deadline) {
         return repo().updateColumnsAsync(TABLE,
-            new String[]{"is_maintenance_enabled", "maintenance_reason", "maintenance_start", "maintenance_end", "maintenance_max_end"},
-            new Object[]{true, reason, start, endTime, maxEndTime},
+            new String[]{"is_maintenance_enabled", "maintenance_reason", "maintenance_start", "maintenance_estimated_end", "maintenance_deadline"},
+            new Object[]{true, reason, start, estimatedEnd, deadline},
             WHERE_ID);
     }
 
     @Override
     public void disableMaintenance() {
         repo().updateColumns(TABLE,
-            new String[]{"is_maintenance_enabled", "maintenance_reason", "maintenance_start", "maintenance_end", "maintenance_max_end"},
+            new String[]{"is_maintenance_enabled", "maintenance_reason", "maintenance_start", "maintenance_estimated_end", "maintenance_deadline"},
             new Object[]{false, "", null, null, null},
             WHERE_ID);
     }
@@ -165,7 +165,7 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
     @Override
     public CompletableFuture<Void> disableMaintenanceAsync() {
         return repo().updateColumnsAsync(TABLE,
-            new String[]{"is_maintenance_enabled", "maintenance_reason", "maintenance_start", "maintenance_end", "maintenance_max_end"},
+            new String[]{"is_maintenance_enabled", "maintenance_reason", "maintenance_start", "maintenance_estimated_end", "maintenance_deadline"},
             new Object[]{false, "", null, null, null},
             WHERE_ID);
     }
@@ -205,15 +205,15 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
     }
 
     @Override
-    public void setMaintenanceStart(Instant startTime) {
-        ValidateParameter.validateInstant(startTime);
-        repo().updateColumn(TABLE, "maintenance_start", startTime, WHERE_ID);
+    public void setMaintenanceStart(Instant start) {
+        ValidateParameter.validateInstant(start);
+        repo().updateColumn(TABLE, "maintenance_start", start, WHERE_ID);
     }
 
     @Override
-    public CompletableFuture<Void> setMaintenanceStartAsync(Instant startTime) {
-        ValidateParameter.validateInstant(startTime);
-        return repo().updateColumnAsync(TABLE, "maintenance_start", startTime, WHERE_ID);
+    public CompletableFuture<Void> setMaintenanceStartAsync(Instant start) {
+        ValidateParameter.validateInstant(start);
+        return repo().updateColumnAsync(TABLE, "maintenance_start", start, WHERE_ID);
     }
 
     @Override
@@ -227,47 +227,47 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
     }
 
     @Override
-    public void setMaintenanceEnd(Instant endTime) {
-        ValidateParameter.validateInstant(endTime);
-        repo().updateColumn(TABLE, "maintenance_end", endTime, WHERE_ID);
+    public void setMaintenanceEstimatedEnd(Instant estimatedEnd) {
+        ValidateParameter.validateInstant(estimatedEnd);
+        repo().updateColumn(TABLE, "maintenance_estimated_end", estimatedEnd, WHERE_ID);
     }
 
     @Override
-    public CompletableFuture<Void> setMaintenanceEndAsync(Instant endTime) {
-        ValidateParameter.validateInstant(endTime);
-        return repo().updateColumnAsync(TABLE, "maintenance_end", endTime, WHERE_ID);
+    public CompletableFuture<Void> setMaintenanceEstimatedEndAsync(Instant estimatedEnd) {
+        ValidateParameter.validateInstant(estimatedEnd);
+        return repo().updateColumnAsync(TABLE, "maintenance_estimated_end", estimatedEnd, WHERE_ID);
     }
 
     @Override
-    public Instant getMaintenanceEnd() {
-        return repo().getInstant(TABLE, "maintenance_end", WHERE_ID);
+    public Instant getMaintenanceEstimatedEnd() {
+        return repo().getInstant(TABLE, "maintenance_estimated_end", WHERE_ID);
     }
 
     @Override
-    public CompletableFuture<Instant> getMaintenanceEndAsync() {
-        return repo().getInstantAsync(TABLE, "maintenance_end", WHERE_ID);
+    public CompletableFuture<Instant> getMaintenanceEstimatedEndAsync() {
+        return repo().getInstantAsync(TABLE, "maintenance_estimated_end", WHERE_ID);
     }
 
     @Override
-    public void setMaintenanceMaxEnd(Instant maxEndTime) {
-        ValidateParameter.validateInstant(maxEndTime);
-        repo().updateColumn(TABLE, "maintenance_max_end", maxEndTime, WHERE_ID);
+    public void setMaintenanceDeadline(Instant deadline) {
+        ValidateParameter.validateInstant(deadline);
+        repo().updateColumn(TABLE, "maintenance_deadline", deadline, WHERE_ID);
     }
 
     @Override
-    public CompletableFuture<Void> setMaintenanceMaxEndAsync(Instant maxEndTime) {
-        ValidateParameter.validateInstant(maxEndTime);
-        return repo().updateColumnAsync(TABLE, "maintenance_max_end", maxEndTime, WHERE_ID);
+    public CompletableFuture<Void> setMaintenanceDeadlineAsync(Instant deadline) {
+        ValidateParameter.validateInstant(deadline);
+        return repo().updateColumnAsync(TABLE, "maintenance_deadline", deadline, WHERE_ID);
     }
 
     @Override
-    public Instant getMaintenanceMaxEnd() {
-        return repo().getInstant(TABLE, "maintenance_max_end", WHERE_ID);
+    public Instant getMaintenanceDeadline() {
+        return repo().getInstant(TABLE, "maintenance_deadline", WHERE_ID);
     }
 
     @Override
-    public CompletableFuture<Instant> getMaintenanceMaxEndAsync() {
-        return repo().getInstantAsync(TABLE, "maintenance_max_end", WHERE_ID);
+    public CompletableFuture<Instant> getMaintenanceDeadlineAsync() {
+        return repo().getInstantAsync(TABLE, "maintenance_deadline", WHERE_ID);
     }
 
     @Override
