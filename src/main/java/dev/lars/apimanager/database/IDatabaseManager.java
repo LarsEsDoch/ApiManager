@@ -1,5 +1,7 @@
 package dev.lars.apimanager.database;
 
+import com.zaxxer.hikari.HikariDataSource;
+
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.concurrent.CompletableFuture;
@@ -18,6 +20,8 @@ public interface IDatabaseManager {
     void setSqlLogging(boolean enabled);
 
     boolean isSqlLoggingEnabled();
+
+    HikariDataSource getDataSource();
 
     Connection getConnection() throws SQLException;
 

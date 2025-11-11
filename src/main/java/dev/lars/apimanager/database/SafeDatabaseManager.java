@@ -1,5 +1,6 @@
 package dev.lars.apimanager.database;
 
+import com.zaxxer.hikari.HikariDataSource;
 import dev.lars.apimanager.utils.Statements;
 import net.kyori.adventure.text.format.NamedTextColor;
 
@@ -43,6 +44,11 @@ public class SafeDatabaseManager implements IDatabaseManager{
     public Connection getConnection() throws SQLException {
         Statements.logToConsole("[SafeDatabaseManager] getConnection() called - no real database connection present.", NamedTextColor.RED);
         throw new SQLException("No database connection available (SafeDatabaseManager).");
+    }
+
+    public HikariDataSource getDataSource() {
+        Statements.logToConsole("[SafeDatabaseManager] getDataSource() called - no real database connection present.", NamedTextColor.RED);
+        return null;
     }
 
     public void close() {

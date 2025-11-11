@@ -140,6 +140,10 @@ public final class DatabaseManager implements IDatabaseManager {
         }
     }
 
+    public HikariDataSource getDataSource() {
+        return dataSource;
+    }
+
     @Override
     public Connection getConnection() throws SQLException {
         if (dataSource == null) {

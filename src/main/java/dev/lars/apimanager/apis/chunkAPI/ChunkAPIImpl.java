@@ -46,7 +46,6 @@ public class ChunkAPIImpl implements IChunkAPI {
         """);
     }
 
-    // Helper method to build WHERE clause for chunk location
     private String chunkWhere() {
         return "world = ? AND x = ? AND z = ?";
     }

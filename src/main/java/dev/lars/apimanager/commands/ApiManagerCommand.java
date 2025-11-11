@@ -66,7 +66,7 @@ public record ApiManagerCommand(ApiManager plugin, ConnectDatabase connectDataba
                 sender.sendMessage(Statements.getPrefix().append(Component.text("No real database connected; running in safe mode.", NamedTextColor.GOLD)));
             }
             return;
-        } else if (sub.equalsIgnoreCase("logging") || sub.equalsIgnoreCase("log")) {
+        } else if (sub.equalsIgnoreCase("logging") || sub.equalsIgnoreCase("l")) {
             if (args.length < 2) {
                 sender.sendMessage(Statements.getPrefix().append(Component.text("Invalid action. Use: enable, disable, or status", NamedTextColor.RED)));
                 return;
@@ -86,6 +86,9 @@ public record ApiManagerCommand(ApiManager plugin, ConnectDatabase connectDataba
                 .append(Component.text(plugin.getWebsite(), NamedTextColor.GOLD)));
             sender.sendMessage(Statements.getPrefix().append(Component.text("Command ", NamedTextColor.GRAY))
                 .append(Component.text("/" + plugin.getName() + " /am", NamedTextColor.GOLD)));
+            return;
+        } else if(sub.equalsIgnoreCase("status") || sub.equalsIgnoreCase("s")) {
+            handleStatus(sender);
             return;
         }
         sender.sendMessage(Statements.getPrefix().append(Component.text("Unknown command!", NamedTextColor.RED)));
@@ -114,22 +117,88 @@ public record ApiManagerCommand(ApiManager plugin, ConnectDatabase connectDataba
         }
     }
 
+    private void handleStatus(CommandSender sender) {
+        IDatabaseManager dbm = ApiManager.getInstance().getDatabaseManager();
+
+        sender.sendMessage(Statements.getPrefix()
+            .append(Component.text("=== " + plugin.getName() + " Database Status ===", NamedTextColor.AQUA)));
+
+        boolean connected = false;
+        boolean sqlLogging = false;
+        String jdbcUrl = "N/A";
+        String username = "N/A";
+        String poolSize = "N/A";
+        String active = "N/A";
+        String idle = "N/A";
+        String waiting = "N/A";
+
+        if (dbm instanceof DatabaseManager real) {
+            connected = real.isReady();
+            sqlLogging = real.isSqlLoggingEnabled();
+
+            if (connected) {
+                var ds = real.getDataSource();
+                jdbcUrl = ds.getJdbcUrl();
+                username = ds.getUsername();
+                poolSize = String.valueOf(ds.getMaximumPoolSize());
+
+                var mx = ds.getHikariPoolMXBean();
+                if (mx != null) {
+                    active = mx.getActiveConnections() + "/" + mx.getTotalConnections();
+                    idle = String.valueOf(mx.getIdleConnections());
+                    waiting = String.valueOf(mx.getThreadsAwaitingConnection());
+                }
+            }
+        }
+
+        sender.sendMessage(Component.text("Connection: ", NamedTextColor.GRAY)
+            .append(Component.text(connected ? "Connected ✅" : "Not connected ❌",
+                connected ? NamedTextColor.GREEN : NamedTextColor.RED)));
+
+        if (!connected) {
+            sender.sendMessage(Component.text("No active database connection. Check your credentials or network.",
+                NamedTextColor.GRAY));
+            return;
+        }
+
+        sender.sendMessage(Component.text("JDBC URL: ", NamedTextColor.GRAY)
+            .append(Component.text(jdbcUrl, NamedTextColor.GOLD)));
+        sender.sendMessage(Component.text("User: ", NamedTextColor.GRAY)
+            .append(Component.text(username, NamedTextColor.GOLD)));
+        sender.sendMessage(Component.text("Max pool size: ", NamedTextColor.GRAY)
+            .append(Component.text(poolSize, NamedTextColor.GOLD)));
+        sender.sendMessage(Component.text("Active connections: ", NamedTextColor.GRAY)
+            .append(Component.text(active, NamedTextColor.GOLD)));
+        sender.sendMessage(Component.text("Idle connections: ", NamedTextColor.GRAY)
+            .append(Component.text(idle, NamedTextColor.GOLD)));
+        sender.sendMessage(Component.text("Threads waiting: ", NamedTextColor.GRAY)
+            .append(Component.text(waiting, NamedTextColor.GOLD)));
+
+        sender.sendMessage(Component.text("SQL Logging: ", NamedTextColor.GRAY)
+            .append(Component.text(sqlLogging ? "Enabled" : "Disabled",
+                sqlLogging ? NamedTextColor.GREEN : NamedTextColor.RED)));
+    }
+
     private void sendUsage(CommandSender sender) {
         sender.sendMessage(Statements.getPrefix().append(Component.text("=== " + plugin.getName() + " Commands ===", NamedTextColor.AQUA)));
+        sender.sendMessage(Statements.getPrefix().append(Component.text("/apimanager reload", NamedTextColor.GOLD))
+            .append(Component.text(" - Reload configuration", NamedTextColor.GRAY)));
+        sender.sendMessage(Statements.getPrefix().append(Component.text("/apimanager status", NamedTextColor.GOLD))
+            .append(Component.text(" - Shows connection status of database", NamedTextColor.GRAY)));
         sender.sendMessage(Statements.getPrefix().append(Component.text("/apimanager logging enable", NamedTextColor.GOLD))
             .append(Component.text(" - Enable SQL query logging", NamedTextColor.GRAY)));
         sender.sendMessage(Statements.getPrefix().append(Component.text("/apimanager logging disable", NamedTextColor.GOLD))
             .append(Component.text(" - Disable SQL query logging", NamedTextColor.GRAY)));
         sender.sendMessage(Statements.getPrefix().append(Component.text("/apimanager logging status", NamedTextColor.GOLD))
             .append(Component.text(" - Check logging status", NamedTextColor.GRAY)));
-        sender.sendMessage(Statements.getPrefix().append(Component.text("/apimanager reload", NamedTextColor.GOLD))
-            .append(Component.text(" - Reload configuration", NamedTextColor.GRAY)));
+        sender.sendMessage(Statements.getPrefix().append(Component.text("/apimanager version", NamedTextColor.GOLD))
+            .append(Component.text(" - Shows plugin version and development info", NamedTextColor.GRAY)));
     }
 
     @Override
     public @NotNull Collection<String> suggest(final @NotNull CommandSourceStack commandSourceStack, final String[] args) {
         if (args.length <= 1) {
-            return List.of("reload", "rl", "logging", "l", "version", "v");
+            return List.of("reload", "rl", "logging", "l", "version", "v", "status", "s");
         }
         if (args.length == 2 && args[0].equalsIgnoreCase("logging") || args.length == 3 && args[0].equalsIgnoreCase("logging")
         || args.length == 2 && args[0].equalsIgnoreCase("l") || args.length == 3 && args[0].equalsIgnoreCase("l")) {
