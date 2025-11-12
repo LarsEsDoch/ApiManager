@@ -115,7 +115,7 @@ public final class ApiManager extends JavaPlugin {
             commands.register("am", "ApiManager commands", apiManagerCommand);
         });
 
-        Statements.logToConsole("UtilsManager enabled!", NamedTextColor.DARK_GREEN);
+        Statements.logToConsole("ApiManager enabled!", NamedTextColor.DARK_GREEN);
     }
 
     private void instantiateApis() {
@@ -219,7 +219,7 @@ public final class ApiManager extends JavaPlugin {
             Statements.logToConsole("Database successfully disconnected!", NamedTextColor.GREEN);
         }
 
-        Statements.logToConsole("UtilsManager successfully disabled!", NamedTextColor.DARK_RED);
+        Statements.logToConsole("ApiManager successfully disabled!", NamedTextColor.DARK_GREEN);
     }
 
     public static ApiManager getInstance() {
