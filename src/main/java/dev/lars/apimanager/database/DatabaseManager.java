@@ -37,15 +37,7 @@ public final class DatabaseManager implements IDatabaseManager {
     }
 
     public DatabaseManager(String host, int port, String database, String username, String password) {
-        this.asyncExecutor = Executors.newFixedThreadPool(
-            8,
-            r -> {
-                Thread thread = new Thread(r);
-                thread.setName("ApiManager-Async-DB-Thread");
-                thread.setDaemon(true);
-                return thread;
-            }
-        );
+        this.asyncExecutor = Executors.newFixedThreadPool(32);
 
         CompletableFuture.runAsync(() -> {
             while (true) {
@@ -59,8 +51,8 @@ public final class DatabaseManager implements IDatabaseManager {
                     config.setUsername(username);
                     config.setPassword(password);
 
-                    config.setMaximumPoolSize(10);
-                    config.setMinimumIdle(3);
+                    config.setMaximumPoolSize(30);
+                    config.setMinimumIdle(5);
                     config.setConnectionTimeout(10000);
                     config.setValidationTimeout(5000);
                     config.setIdleTimeout(300000);

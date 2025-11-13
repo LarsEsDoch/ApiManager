@@ -105,13 +105,21 @@ public class PrefixAPIImpl implements IPrefixAPI {
     @Override
     public void setDecoration(OfflinePlayer player, TextDecoration decoration) {
         ApiManagerValidateParameter.validatePlayer(player);
-        setDecorations(player, Set.of(decoration));
+        if (decoration == null) {
+            setDecorations(player, null);
+        } else {
+            setDecorations(player, Set.of(decoration));
+        }
     }
 
     @Override
     public CompletableFuture<Void> setDecorationAsync(OfflinePlayer player, TextDecoration decoration) {
         ApiManagerValidateParameter.validatePlayer(player);
-        return setDecorationsAsync(player, Set.of(decoration));
+        if (decoration == null) {
+            return setDecorationsAsync(player, null);
+        } else {
+            return setDecorationsAsync(player, Set.of(decoration));
+        }
     }
 
     @Override
