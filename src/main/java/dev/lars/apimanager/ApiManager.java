@@ -16,8 +16,8 @@ import dev.lars.apimanager.apis.languageAPI.LanguageAPI;
 import dev.lars.apimanager.apis.languageAPI.LanguageAPIImpl;
 import dev.lars.apimanager.apis.limitAPI.LimitAPI;
 import dev.lars.apimanager.apis.limitAPI.LimitAPIImpl;
-import dev.lars.apimanager.apis.nickAPI.NickAPI;
-import dev.lars.apimanager.apis.nickAPI.NickAPIImpl;
+import dev.lars.apimanager.apis.playerIdentityAPI.PlayerIdentityAPI;
+import dev.lars.apimanager.apis.playerIdentityAPI.PlayerIdentityAPIImpl;
 import dev.lars.apimanager.apis.playerAPI.PlayerAPI;
 import dev.lars.apimanager.apis.playerAPI.PlayerAPIImpl;
 import dev.lars.apimanager.apis.playerSettingsAPI.PlayerSettingsAPI;
@@ -68,7 +68,7 @@ public final class ApiManager extends JavaPlugin {
     private RankAPIImpl rankAPI;
     private PrefixAPIImpl prefixAPI;
     private StatusAPIImpl statusAPI;
-    private NickAPIImpl nickAPI;
+    private PlayerIdentityAPIImpl playerIdentityAPI;
     private PlayerSettingsAPIImpl playerSettingsAPI;
     private EconomyAPIImpl economyAPI;
     private QuestAPIImpl questAPI;
@@ -155,8 +155,8 @@ public final class ApiManager extends JavaPlugin {
         statusAPI = new StatusAPIImpl();
         StatusAPI.setApi(statusAPI);
 
-        nickAPI = new NickAPIImpl();
-        NickAPI.setApi(nickAPI);
+        playerIdentityAPI = new PlayerIdentityAPIImpl();
+        PlayerIdentityAPI.setApi(playerIdentityAPI);
 
         playerSettingsAPI = new PlayerSettingsAPIImpl();
         PlayerSettingsAPI.setApi(playerSettingsAPI);
@@ -185,7 +185,7 @@ public final class ApiManager extends JavaPlugin {
         createTableRunnable.add(() -> rankAPI.createTables());
         createTableRunnable.add(() -> prefixAPI.createTables());
         createTableRunnable.add(() -> statusAPI.createTables());
-        createTableRunnable.add(() -> nickAPI.createTables());
+        createTableRunnable.add(() -> playerIdentityAPI.createTables());
         createTableRunnable.add(() -> playerSettingsAPI.createTables());
         createTableRunnable.add(() -> economyAPI.createTables());
         createTableRunnable.add(() -> questAPI.createTables());
@@ -294,8 +294,8 @@ public final class ApiManager extends JavaPlugin {
         return statusAPI;
     }
 
-    public NickAPIImpl getNickAPI() {
-        return nickAPI;
+    public PlayerIdentityAPIImpl getPlayerIdentityAPI() {
+        return playerIdentityAPI;
     }
 
     public PlayerSettingsAPIImpl getPlayerSettingsAPI() {
