@@ -131,6 +131,7 @@ public record ApiManagerCommand(ApiManager plugin, ConnectDatabase connectDataba
         String active = "N/A";
         String idle = "N/A";
         String waiting = "N/A";
+        double[] qps = new double[] {0, 0};
 
         if (dbm instanceof DatabaseManager real) {
             connected = real.isReady();
@@ -148,6 +149,7 @@ public record ApiManagerCommand(ApiManager plugin, ConnectDatabase connectDataba
                     idle = String.valueOf(mx.getIdleConnections());
                     waiting = String.valueOf(mx.getThreadsAwaitingConnection());
                 }
+                qps = real.getSmoothedQps();
             }
         }
 
@@ -181,6 +183,11 @@ public record ApiManagerCommand(ApiManager plugin, ConnectDatabase connectDataba
         sender.sendMessage(ApiManagerStatements.getPrefix()
             .append(Component.text("Threads waiting: ", NamedTextColor.GRAY))
             .append(Component.text(waiting, NamedTextColor.GOLD)));
+        sender.sendMessage(ApiManagerStatements.getPrefix()
+            .append(Component.text("Queries/sec: ", NamedTextColor.GRAY))
+            .append(Component.text(String.format("%.2f", qps[0]), NamedTextColor.GOLD))
+            .append(Component.text(" | Updates/sec: ", NamedTextColor.GRAY))
+            .append(Component.text(String.format("%.2f", qps[1]), NamedTextColor.GOLD)));
 
         sender.sendMessage(ApiManagerStatements.getPrefix()
             .append(Component.text("SQL Logging: ", NamedTextColor.GRAY))

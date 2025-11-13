@@ -13,12 +13,28 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 
 public final class DatabaseManager implements IDatabaseManager {
     private volatile HikariDataSource dataSource;
     private final ExecutorService asyncExecutor;
     private final CompletableFuture<Void> ready = new CompletableFuture<>();
     private final AtomicBoolean sqlLoggingEnabled = new AtomicBoolean(false);
+    private final AtomicLong queryCount = new AtomicLong(0);
+    private final AtomicLong updateCount = new AtomicLong(0);
+    private double smoothedQpsQueries = 0.0;
+    private double smoothedQpsUpdates = 0.0;
+    private final AtomicLong lastQueryTotal = new AtomicLong(0);
+    private final AtomicLong lastUpdateTotal = new AtomicLong(0);
+    private final AtomicLong lastCheckTime = new AtomicLong(System.currentTimeMillis());
+
+    public void incrementQueryCount() {
+        queryCount.incrementAndGet();
+    }
+
+    public void incrementUpdateCount() {
+        updateCount.incrementAndGet();
+    }
 
     public DatabaseManager(String host, int port, String database, String username, String password) {
         this.asyncExecutor = Executors.newFixedThreadPool(
@@ -63,7 +79,7 @@ public final class DatabaseManager implements IDatabaseManager {
 
                     HikariDataSource ds = new HikariDataSource(config);
 
-                    try (Connection conn = ds.getConnection()) {
+                    try (Connection ignored = ds.getConnection()) {
                         ApiManagerStatements.logToConsole("Connected to MariaDB via HikariCP", NamedTextColor.GREEN);
                     }
 
@@ -169,6 +185,26 @@ public final class DatabaseManager implements IDatabaseManager {
         return dataSource;
     }
 
+    public double[] getSmoothedQps() {
+        long now = System.currentTimeMillis();
+        long elapsed = now - lastCheckTime.getAndSet(now);
+        if (elapsed <= 0) return new double[] { smoothedQpsQueries, smoothedQpsUpdates };
+
+        long currentQ = queryCount.get();
+        long lastQ = lastQueryTotal.getAndSet(currentQ);
+        long deltaQ = currentQ - lastQ;
+        double instantQpsQ = (deltaQ * 1000.0) / elapsed;
+        smoothedQpsQueries = smoothedQpsQueries * 0.8 + instantQpsQ * 0.2;
+
+        long currentU = updateCount.get();
+        long lastU = lastUpdateTotal.getAndSet(currentU);
+        long deltaU = currentU - lastU;
+        double instantQpsU = (deltaU * 1000.0) / elapsed;
+        smoothedQpsUpdates = smoothedQpsUpdates * 0.8 + instantQpsU * 0.2;
+
+        return new double[] { smoothedQpsQueries, smoothedQpsUpdates };
+    }
+
     @Override
     public void close() {
         if (asyncExecutor != null && !asyncExecutor.isShutdown()) {
@@ -190,6 +226,7 @@ public final class DatabaseManager implements IDatabaseManager {
     }
 
     public void update(String sql, Object... params) {
+        incrementUpdateCount();
         logSqlUpdate(sql, params);
 
         try (Connection conn = getConnection();
@@ -206,6 +243,7 @@ public final class DatabaseManager implements IDatabaseManager {
     }
 
     public <T> T query(SQLFunction<Connection, T> function) {
+        incrementQueryCount();
         try (Connection conn = getConnection()) {
             return function.apply(conn);
         } catch (SQLException e) {

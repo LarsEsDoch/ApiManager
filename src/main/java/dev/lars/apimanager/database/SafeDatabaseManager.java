@@ -51,6 +51,11 @@ public class SafeDatabaseManager implements IDatabaseManager{
         return null;
     }
 
+    public double[] getSmoothedQps() {
+        ApiManagerStatements.logToConsole("[SafeDatabaseManager] getSmoothedQps() called - no real database connection present.", NamedTextColor.RED);
+        return new double[] {0, 0};
+    }
+
     public void close() {
         ApiManagerStatements.logToConsole("[SafeDatabaseManager] close() called - no real database connection present.", NamedTextColor.GOLD);
     }

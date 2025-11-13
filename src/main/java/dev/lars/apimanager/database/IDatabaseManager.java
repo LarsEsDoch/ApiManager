@@ -25,5 +25,7 @@ public interface IDatabaseManager {
 
     Connection getConnection() throws SQLException;
 
+    double[] getSmoothedQps();
+
     void close();
 }
