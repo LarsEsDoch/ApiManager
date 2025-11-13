@@ -8,7 +8,7 @@ import java.util.Set;
 
 import static net.kyori.adventure.text.format.NamedTextColor.*;
 
-public class TextFormation {
+public class ApiManagerTextFormation {
     public static NamedTextColor getNamedTextColor(Integer color) {
         return switch (color) {
             case 0 -> BLACK;

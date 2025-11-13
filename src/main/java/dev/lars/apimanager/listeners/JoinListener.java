@@ -7,7 +7,7 @@ import dev.lars.apimanager.apis.courtAPI.CourtAPIImpl;
 import dev.lars.apimanager.apis.economyAPI.EconomyAPIImpl;
 import dev.lars.apimanager.apis.languageAPI.LanguageAPIImpl;
 import dev.lars.apimanager.apis.limitAPI.LimitAPIImpl;
-import dev.lars.apimanager.apis.nickAPI.NickAPIImpl;
+import dev.lars.apimanager.apis.playerIdentityAPI.PlayerIdentityAPIImpl;
 import dev.lars.apimanager.apis.playerAPI.PlayerAPIImpl;
 import dev.lars.apimanager.apis.playerSettingsAPI.PlayerSettingsAPIImpl;
 import dev.lars.apimanager.apis.prefixAPI.PrefixAPIImpl;
@@ -35,7 +35,7 @@ public class JoinListener implements Listener {
         RankAPIImpl rankAPI = ApiManager.getInstance().getRankAPI();
         PrefixAPIImpl prefixAPI = ApiManager.getInstance().getPrefixAPI();
         StatusAPIImpl statusAPI = ApiManager.getInstance().getStatusAPI();
-        NickAPIImpl nickAPI = ApiManager.getInstance().getNickAPI();
+        PlayerIdentityAPIImpl playerIdentityAPI = ApiManager.getInstance().getPlayerIdentityAPI();
         PlayerSettingsAPIImpl playerSettingsAPI = ApiManager.getInstance().getPlayerSettingsAPI();
         EconomyAPIImpl economyAPI = ApiManager.getInstance().getEconomyAPI();
         QuestAPIImpl questAPI = ApiManager.getInstance().getQuestAPI();
@@ -77,8 +77,8 @@ public class JoinListener implements Listener {
             statusAPI.initPlayer(player);
         }
 
-        if (!nickAPI.doesUserExist(player)) {
-            nickAPI.initPlayer(player);
+        if (!playerIdentityAPI.doesUserExist(player)) {
+            playerIdentityAPI.initPlayer(player);
         }
 
         if (!playerSettingsAPI.doesUserExist(player)) {

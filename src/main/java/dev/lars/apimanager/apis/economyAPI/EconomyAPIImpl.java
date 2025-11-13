@@ -3,7 +3,7 @@ package dev.lars.apimanager.apis.economyAPI;
 import dev.lars.apimanager.ApiManager;
 import dev.lars.apimanager.database.DatabaseRepository;
 import dev.lars.apimanager.database.IDatabaseManager;
-import dev.lars.apimanager.utils.ValidateParameter;
+import dev.lars.apimanager.utils.ApiManagerValidateParameter;
 import org.bukkit.OfflinePlayer;
 
 import java.sql.PreparedStatement;
@@ -52,81 +52,81 @@ public class EconomyAPIImpl implements IEconomyAPI {
 
     @Override
     public Instant getCreatedAt(OfflinePlayer player) {
-        ValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validatePlayer(player);
         return repo().getInstant(TABLE, "created_at", "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public CompletableFuture<Instant> getCreatedAtAsync(OfflinePlayer player) {
-        ValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validatePlayer(player);
         return repo().getInstantAsync(TABLE, "created_at", "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public Instant getUpdatedAt(OfflinePlayer player) {
-        ValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validatePlayer(player);
         return repo().getInstant(TABLE, "updated_at", "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public CompletableFuture<Instant> getUpdatedAtAsync(OfflinePlayer player) {
-        ValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validatePlayer(player);
         return repo().getInstantAsync(TABLE, "updated_at", "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public void setBalance(OfflinePlayer player, int amount) {
-        ValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validatePlayer(player);
         repo().updateColumn(TABLE, "balance", amount, "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public CompletableFuture<Void> setBalanceAsync(OfflinePlayer player, int amount) {
-        ValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validatePlayer(player);
         return repo().updateColumnAsync(TABLE, "balance", amount, "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public void increaseBalance(OfflinePlayer player, int amount) {
-        ValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validatePlayer(player);
         repo().increaseColumn(TABLE, "balance", amount, "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public CompletableFuture<Void> increaseBalanceAsync(OfflinePlayer player, int amount) {
-        ValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validatePlayer(player);
         return repo().increaseColumnAsync(TABLE, "balance", amount, "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public void decreaseBalance(OfflinePlayer player, int amount) {
-        ValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validatePlayer(player);
         repo().decreaseColumn(TABLE, "balance", amount, "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public CompletableFuture<Void> decreaseBalanceAsync(OfflinePlayer player, int amount) {
-        ValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validatePlayer(player);
         return repo().decreaseColumnAsync(TABLE, "balance", amount, "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public Integer getBalance(OfflinePlayer player) {
-        ValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validatePlayer(player);
         Integer balance = repo().getInteger(TABLE, "balance", "uuid = ?", player.getUniqueId().toString());
         return balance != null ? balance : 0;
     }
 
     @Override
     public CompletableFuture<Integer> getBalanceAsync(OfflinePlayer player) {
-        ValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validatePlayer(player);
         return repo().getIntegerAsync(TABLE, "balance", "uuid = ?", player.getUniqueId().toString())
             .thenApply(balance -> balance != null ? balance : 0);
     }
 
     @Override
     public void addGift(OfflinePlayer player, int gift) {
-        ValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validatePlayer(player);
         List<Integer> gifts = new ArrayList<>(getGifts(player));
         gifts.add(gift);
         String giftString = gifts.stream().map(String::valueOf).collect(Collectors.joining(","));
@@ -135,7 +135,7 @@ public class EconomyAPIImpl implements IEconomyAPI {
 
     @Override
     public CompletableFuture<Void> addGiftAsync(OfflinePlayer player, int gift) {
-        ValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validatePlayer(player);
         return getGiftsAsync(player).thenCompose(gifts -> {
             gifts.add(gift);
             String giftString = gifts.stream().map(String::valueOf).collect(Collectors.joining(","));
@@ -145,7 +145,7 @@ public class EconomyAPIImpl implements IEconomyAPI {
 
     @Override
     public void removeGift(OfflinePlayer player, int gift) {
-        ValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validatePlayer(player);
         List<Integer> gifts = new ArrayList<>(getGifts(player));
         gifts.remove(Integer.valueOf(gift));
         String giftString = gifts.stream().map(String::valueOf).collect(Collectors.joining(","));
@@ -154,7 +154,7 @@ public class EconomyAPIImpl implements IEconomyAPI {
 
     @Override
     public CompletableFuture<Void> removeGiftAsync(OfflinePlayer player, int gift) {
-        ValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validatePlayer(player);
         return getGiftsAsync(player).thenCompose(gifts -> {
             gifts.remove(Integer.valueOf(gift));
             String giftString = gifts.stream().map(String::valueOf).collect(Collectors.joining(","));
@@ -164,7 +164,7 @@ public class EconomyAPIImpl implements IEconomyAPI {
 
     @Override
     public List<Integer> getGifts(OfflinePlayer player) {
-        ValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validatePlayer(player);
         return db().query(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT gifts FROM player_economy WHERE uuid=?")) {
                 ps.setString(1, player.getUniqueId().toString());
@@ -187,7 +187,7 @@ public class EconomyAPIImpl implements IEconomyAPI {
 
     @Override
     public CompletableFuture<List<Integer>> getGiftsAsync(OfflinePlayer player) {
-        ValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validatePlayer(player);
         return db().queryAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement("SELECT gifts FROM player_economy WHERE uuid=?")) {
                 ps.setString(1, player.getUniqueId().toString());

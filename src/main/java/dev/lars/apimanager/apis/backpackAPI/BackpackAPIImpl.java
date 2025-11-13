@@ -3,8 +3,8 @@ package dev.lars.apimanager.apis.backpackAPI;
 import dev.lars.apimanager.ApiManager;
 import dev.lars.apimanager.database.DatabaseRepository;
 import dev.lars.apimanager.database.IDatabaseManager;
-import dev.lars.apimanager.utils.Statements;
-import dev.lars.apimanager.utils.ValidateParameter;
+import dev.lars.apimanager.utils.ApiManagerStatements;
+import dev.lars.apimanager.utils.ApiManagerValidateParameter;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.OfflinePlayer;
 
@@ -54,52 +54,52 @@ public class BackpackAPIImpl implements IBackpackAPI {
 
     @Override
     public Instant getCreatedAt(OfflinePlayer player) {
-        ValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validatePlayer(player);
         return repo().getInstant(TABLE, "created_at", "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public CompletableFuture<Instant> getCreatedAtAsync(OfflinePlayer player) {
-        ValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validatePlayer(player);
         return repo().getInstantAsync(TABLE, "created_at", "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public Instant getUpdatedAt(OfflinePlayer player) {
-        ValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validatePlayer(player);
         return repo().getInstant(TABLE, "updated_at", "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public CompletableFuture<Instant> getUpdatedAtAsync(OfflinePlayer player) {
-        ValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validatePlayer(player);
         return repo().getInstantAsync(TABLE, "updated_at", "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public void setBackpack(OfflinePlayer player, String data) {
-        ValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validatePlayer(player);
         String compressed = compressToBase64(data);
         repo().updateColumn(TABLE, "data", compressed, "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public CompletableFuture<Void> setBackpackAsync(OfflinePlayer player, String data) {
-        ValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validatePlayer(player);
         String compressed = compressToBase64(data);
         return repo().updateColumnAsync(TABLE, "data", compressed, "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public String getBackpack(OfflinePlayer player) {
-        ValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validatePlayer(player);
         String base64 = repo().getString(TABLE, "data", "uuid = ?", player.getUniqueId().toString());
         return base64 == null || base64.isEmpty() ? "" : decompressFromBase64(base64);
     }
 
     @Override
     public CompletableFuture<String> getBackpackAsync(OfflinePlayer player) {
-        ValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validatePlayer(player);
         return repo().getStringAsync(TABLE, "data", "uuid = ?", player.getUniqueId().toString())
             .thenApply(base64 -> base64 == null || base64.isEmpty() ? "" : decompressFromBase64(base64));
     }
@@ -112,7 +112,7 @@ public class BackpackAPIImpl implements IBackpackAPI {
             dos.finish();
             return Base64.getEncoder().encodeToString(bos.toByteArray());
         } catch (IOException e) {
-            Statements.logToConsole("Failed to compress backpack data! " + e.getMessage(), NamedTextColor.GOLD);
+            ApiManagerStatements.logToConsole("Failed to compress backpack data! " + e.getMessage(), NamedTextColor.GOLD);
             return "";
         }
     }
@@ -130,7 +130,7 @@ public class BackpackAPIImpl implements IBackpackAPI {
             }
             return bos.toString(StandardCharsets.UTF_8);
         } catch (IOException e) {
-            Statements.logToConsole("Failed to decompress backpack data! " + e.getMessage(), NamedTextColor.GOLD);
+            ApiManagerStatements.logToConsole("Failed to decompress backpack data! " + e.getMessage(), NamedTextColor.GOLD);
             return "";
         }
     }

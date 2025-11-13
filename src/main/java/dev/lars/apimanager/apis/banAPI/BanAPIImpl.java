@@ -3,7 +3,7 @@ package dev.lars.apimanager.apis.banAPI;
 import dev.lars.apimanager.ApiManager;
 import dev.lars.apimanager.database.DatabaseRepository;
 import dev.lars.apimanager.database.IDatabaseManager;
-import dev.lars.apimanager.utils.ValidateParameter;
+import dev.lars.apimanager.utils.ApiManagerValidateParameter;
 import org.bukkit.OfflinePlayer;
 
 import java.time.Instant;
@@ -50,32 +50,32 @@ public class BanAPIImpl implements IBanAPI {
 
     @Override
     public Instant getCreatedAt(OfflinePlayer player) {
-        ValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validatePlayer(player);
         return repo().getInstant(TABLE, "created_at", "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public CompletableFuture<Instant> getCreatedAtAsync(OfflinePlayer player) {
-        ValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validatePlayer(player);
         return repo().getInstantAsync(TABLE, "created_at", "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public Instant getUpdatedAt(OfflinePlayer player) {
-        ValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validatePlayer(player);
         return repo().getInstant(TABLE, "updated_at", "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public CompletableFuture<Instant> getUpdatedAtAsync(OfflinePlayer player) {
-        ValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validatePlayer(player);
         return repo().getInstantAsync(TABLE, "updated_at", "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public void setBanned(OfflinePlayer player, String reason, Integer days) {
-        ValidateParameter.validatePlayer(player);
-        ValidateParameter.validateReason(reason);
+        ApiManagerValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validateReason(reason);
         Instant expiresAt = (days != null && days > 0)
                 ? Instant.now().plus(days, ChronoUnit.DAYS)
                 : null;
@@ -89,8 +89,8 @@ public class BanAPIImpl implements IBanAPI {
 
     @Override
     public CompletableFuture<Void> setBannedAsync(OfflinePlayer player, String reason, Integer days) {
-        ValidateParameter.validatePlayer(player);
-        ValidateParameter.validateReason(reason);
+        ApiManagerValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validateReason(reason);
         Instant expiresAt = (days != null && days > 0)
                 ? Instant.now().plus(days, ChronoUnit.DAYS)
                 : null;
@@ -104,7 +104,7 @@ public class BanAPIImpl implements IBanAPI {
 
     @Override
     public void setUnBanned(OfflinePlayer player) {
-        ValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validatePlayer(player);
         repo().updateColumns(TABLE,
             new String[]{"is_banned", "banned_at", "expires_at", "reason"},
             new Object[]{false, null, null, null},
@@ -113,7 +113,7 @@ public class BanAPIImpl implements IBanAPI {
 
     @Override
     public CompletableFuture<Void> setUnBannedAsync(OfflinePlayer player) {
-        ValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validatePlayer(player);
         return repo().updateColumnsAsync(TABLE,
             new String[]{"is_banned", "banned_at", "expires_at", "reason"},
             new Object[]{false, null, null, null},
@@ -122,33 +122,33 @@ public class BanAPIImpl implements IBanAPI {
 
     @Override
     public void setReason(OfflinePlayer player, String reason) {
-        ValidateParameter.validatePlayer(player);
-        ValidateParameter.validateReason(reason);
+        ApiManagerValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validateReason(reason);
         repo().updateColumn(TABLE, "reason", reason, "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public CompletableFuture<Void> setReasonAsync(OfflinePlayer player, String reason) {
-        ValidateParameter.validatePlayer(player);
-        ValidateParameter.validateReason(reason);
+        ApiManagerValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validateReason(reason);
         return repo().updateColumnAsync(TABLE, "reason", reason, "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public String getReason(OfflinePlayer player) {
-        ValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validatePlayer(player);
         return repo().getString(TABLE, "reason", "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public CompletableFuture<String> getReasonAsync(OfflinePlayer player) {
-        ValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validatePlayer(player);
         return repo().getStringAsync(TABLE, "reason", "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public void setDays(OfflinePlayer player, Integer days) {
-        ValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validatePlayer(player);
         Instant expiresAt = (days != null && days > 0)
                 ? Instant.now().plus(days, ChronoUnit.DAYS)
                 : null;
@@ -157,7 +157,7 @@ public class BanAPIImpl implements IBanAPI {
 
     @Override
     public CompletableFuture<Void> setDaysAsync(OfflinePlayer player, Integer days) {
-        ValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validatePlayer(player);
         Instant expiresAt = (days != null && days > 0)
                 ? Instant.now().plus(days, ChronoUnit.DAYS)
                 : null;
@@ -166,26 +166,26 @@ public class BanAPIImpl implements IBanAPI {
 
     @Override
     public Instant getEnd(OfflinePlayer player) {
-        ValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validatePlayer(player);
         return repo().getInstant(TABLE, "expires_at", "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public CompletableFuture<Instant> getEndAsync(OfflinePlayer player) {
-        ValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validatePlayer(player);
         return repo().getInstantAsync(TABLE, "expires_at", "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public boolean isBanned(OfflinePlayer player) {
-        ValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validatePlayer(player);
         Boolean result = repo().getBoolean(TABLE, "is_banned", "uuid = ?", player.getUniqueId().toString());
         return result != null && result;
     }
 
     @Override
     public CompletableFuture<Boolean> isBannedAsync(OfflinePlayer player) {
-        ValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validatePlayer(player);
         return repo().getBooleanAsync(TABLE, "is_banned", "uuid = ?", player.getUniqueId().toString())
             .thenApply(result -> result != null && result);
     }

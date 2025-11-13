@@ -2,7 +2,7 @@ package dev.lars.apimanager.database;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import dev.lars.apimanager.utils.Statements;
+import dev.lars.apimanager.utils.ApiManagerStatements;
 import net.kyori.adventure.text.format.NamedTextColor;
 
 import java.sql.Connection;
@@ -64,14 +64,14 @@ public final class DatabaseManager implements IDatabaseManager {
                     HikariDataSource ds = new HikariDataSource(config);
 
                     try (Connection conn = ds.getConnection()) {
-                        Statements.logToConsole("Connected to MariaDB via HikariCP", NamedTextColor.GREEN);
+                        ApiManagerStatements.logToConsole("Connected to MariaDB via HikariCP", NamedTextColor.GREEN);
                     }
 
                     this.dataSource = ds;
                     ready.complete(null);
                     break;
                 } catch (Exception e) {
-                    Statements.logToConsole("Database connection failed, retrying in 5s... " + e.getMessage(), NamedTextColor.GOLD);
+                    ApiManagerStatements.logToConsole("Database connection failed, retrying in 5s... " + e.getMessage(), NamedTextColor.GOLD);
                     try {
                         Thread.sleep(5000);
                     } catch (InterruptedException ignored) {}
@@ -91,7 +91,7 @@ public final class DatabaseManager implements IDatabaseManager {
     public void setSqlLogging(boolean enabled) {
         sqlLoggingEnabled.set(enabled);
         String status = enabled ? "enabled" : "disabled";
-        Statements.logToConsole("SQL query logging " + status,
+        ApiManagerStatements.logToConsole("SQL query logging " + status,
             enabled ? NamedTextColor.GREEN : NamedTextColor.GRAY);
     }
 
@@ -124,7 +124,7 @@ public final class DatabaseManager implements IDatabaseManager {
                 log.append("]");
             }
 
-            Statements.logToConsole(log.toString(), NamedTextColor.AQUA);
+            ApiManagerStatements.logToConsole(log.toString(), NamedTextColor.AQUA);
         }
     }
 
@@ -153,7 +153,7 @@ public final class DatabaseManager implements IDatabaseManager {
                 log.append("]");
             }
 
-            Statements.logToConsole(log.toString(), NamedTextColor.LIGHT_PURPLE);
+            ApiManagerStatements.logToConsole(log.toString(), NamedTextColor.LIGHT_PURPLE);
         }
     }
 
@@ -185,7 +185,7 @@ public final class DatabaseManager implements IDatabaseManager {
 
         if (dataSource != null && !dataSource.isClosed()) {
             dataSource.close();
-            Statements.logToConsole("HikariCP pool closed.", NamedTextColor.GRAY);
+            ApiManagerStatements.logToConsole("HikariCP pool closed.", NamedTextColor.GRAY);
         }
     }
 
@@ -197,7 +197,7 @@ public final class DatabaseManager implements IDatabaseManager {
             setParams(ps, params);
             ps.executeUpdate();
         } catch (SQLException e) {
-            Statements.logToConsole("SQL update failed: " + sql + " " + e.getMessage(), NamedTextColor.RED);
+            ApiManagerStatements.logToConsole("SQL update failed: " + sql + " " + e.getMessage(), NamedTextColor.RED);
         }
     }
 
@@ -209,7 +209,7 @@ public final class DatabaseManager implements IDatabaseManager {
         try (Connection conn = getConnection()) {
             return function.apply(conn);
         } catch (SQLException e) {
-            Statements.logToConsole("SQL query failed: " + e.getMessage(), NamedTextColor.RED);
+            ApiManagerStatements.logToConsole("SQL query failed: " + e.getMessage(), NamedTextColor.RED);
             return null;
         }
     }

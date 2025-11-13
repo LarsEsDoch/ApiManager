@@ -3,8 +3,8 @@ package dev.lars.apimanager.apis.serverSettingsAPI;
 import dev.lars.apimanager.ApiManager;
 import dev.lars.apimanager.database.DatabaseRepository;
 import dev.lars.apimanager.database.IDatabaseManager;
-import dev.lars.apimanager.utils.FormatLocation;
-import dev.lars.apimanager.utils.ValidateParameter;
+import dev.lars.apimanager.utils.ApiManagerFormatLocation;
+import dev.lars.apimanager.utils.ApiManagerValidateParameter;
 import org.bukkit.Location;
 
 import java.time.Instant;
@@ -184,13 +184,13 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
 
     @Override
     public void setMaintenanceReason(String reason) {
-        ValidateParameter.validateReason(reason);
+        ApiManagerValidateParameter.validateReason(reason);
         repo().updateColumn(TABLE, "maintenance_reason", reason, WHERE_ID);
     }
 
     @Override
     public CompletableFuture<Void> setMaintenanceReasonAsync(String reason) {
-        ValidateParameter.validateReason(reason);
+        ApiManagerValidateParameter.validateReason(reason);
         return repo().updateColumnAsync(TABLE, "maintenance_reason", reason, WHERE_ID);
     }
 
@@ -206,13 +206,13 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
 
     @Override
     public void setMaintenanceStart(Instant start) {
-        ValidateParameter.validateInstant(start);
+        ApiManagerValidateParameter.validateInstant(start);
         repo().updateColumn(TABLE, "maintenance_start", start, WHERE_ID);
     }
 
     @Override
     public CompletableFuture<Void> setMaintenanceStartAsync(Instant start) {
-        ValidateParameter.validateInstant(start);
+        ApiManagerValidateParameter.validateInstant(start);
         return repo().updateColumnAsync(TABLE, "maintenance_start", start, WHERE_ID);
     }
 
@@ -228,13 +228,13 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
 
     @Override
     public void setMaintenanceEstimatedEnd(Instant estimatedEnd) {
-        ValidateParameter.validateInstant(estimatedEnd);
+        ApiManagerValidateParameter.validateInstant(estimatedEnd);
         repo().updateColumn(TABLE, "maintenance_estimated_end", estimatedEnd, WHERE_ID);
     }
 
     @Override
     public CompletableFuture<Void> setMaintenanceEstimatedEndAsync(Instant estimatedEnd) {
-        ValidateParameter.validateInstant(estimatedEnd);
+        ApiManagerValidateParameter.validateInstant(estimatedEnd);
         return repo().updateColumnAsync(TABLE, "maintenance_estimated_end", estimatedEnd, WHERE_ID);
     }
 
@@ -250,13 +250,13 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
 
     @Override
     public void setMaintenanceDeadline(Instant deadline) {
-        ValidateParameter.validateInstant(deadline);
+        ApiManagerValidateParameter.validateInstant(deadline);
         repo().updateColumn(TABLE, "maintenance_deadline", deadline, WHERE_ID);
     }
 
     @Override
     public CompletableFuture<Void> setMaintenanceDeadlineAsync(Instant deadline) {
-        ValidateParameter.validateInstant(deadline);
+        ApiManagerValidateParameter.validateInstant(deadline);
         return repo().updateColumnAsync(TABLE, "maintenance_deadline", deadline, WHERE_ID);
     }
 
@@ -292,13 +292,13 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
 
     @Override
     public void setServerName(String serverName) {
-        ValidateParameter.validateServerName(serverName);
+        ApiManagerValidateParameter.validateServerName(serverName);
         repo().updateColumn(TABLE, "server_name", serverName, WHERE_ID);
     }
 
     @Override
     public CompletableFuture<Void> setServerNameAsync(String serverName) {
-        ValidateParameter.validateServerName(serverName);
+        ApiManagerValidateParameter.validateServerName(serverName);
         return repo().updateColumnAsync(TABLE, "server_name", serverName, WHERE_ID);
     }
 
@@ -314,13 +314,13 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
 
     @Override
     public void setServerVersion(String serverVersion) {
-        ValidateParameter.validateServerVersion(serverVersion);
+        ApiManagerValidateParameter.validateServerVersion(serverVersion);
         repo().updateColumn(TABLE, "server_version", serverVersion, WHERE_ID);
     }
 
     @Override
     public CompletableFuture<Void> setServerVersionAsync(String serverVersion) {
-        ValidateParameter.validateServerVersion(serverVersion);
+        ApiManagerValidateParameter.validateServerVersion(serverVersion);
         return repo().updateColumnAsync(TABLE, "server_version", serverVersion, WHERE_ID);
     }
 
@@ -336,25 +336,25 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
 
     @Override
     public void setSpawnLocation(Location location) {
-        ValidateParameter.validateLocation(location);
-        repo().updateColumn(TABLE, "spawn_location", FormatLocation.serializeLocation(location), WHERE_ID);
+        ApiManagerValidateParameter.validateLocation(location);
+        repo().updateColumn(TABLE, "spawn_location", ApiManagerFormatLocation.serializeLocation(location), WHERE_ID);
     }
 
     @Override
     public CompletableFuture<Void> setSpawnLocationAsync(Location location) {
-        ValidateParameter.validateLocation(location);
-        return repo().updateColumnAsync(TABLE, "spawn_location", FormatLocation.serializeLocation(location), WHERE_ID);
+        ApiManagerValidateParameter.validateLocation(location);
+        return repo().updateColumnAsync(TABLE, "spawn_location", ApiManagerFormatLocation.serializeLocation(location), WHERE_ID);
     }
 
     @Override
     public Location getSpawnLocation() {
         String locData = repo().getString(TABLE, "spawn_location", WHERE_ID);
-        return FormatLocation.deserializeLocation(locData);
+        return ApiManagerFormatLocation.deserializeLocation(locData);
     }
 
     @Override
     public CompletableFuture<Location> getSpawnLocationAsync() {
         return repo().getStringAsync(TABLE, "spawn_location", WHERE_ID)
-            .thenApply(FormatLocation::deserializeLocation);
+            .thenApply(ApiManagerFormatLocation::deserializeLocation);
     }
 }

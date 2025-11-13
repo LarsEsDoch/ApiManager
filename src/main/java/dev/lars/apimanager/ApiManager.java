@@ -40,7 +40,7 @@ import dev.lars.apimanager.database.DatabaseManager;
 import dev.lars.apimanager.database.IDatabaseManager;
 import dev.lars.apimanager.listeners.JoinListener;
 import dev.lars.apimanager.listeners.QuitListener;
-import dev.lars.apimanager.utils.Statements;
+import dev.lars.apimanager.utils.ApiManagerStatements;
 import io.papermc.paper.command.brigadier.Commands;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -85,7 +85,7 @@ public final class ApiManager extends JavaPlugin {
         connectDatabase = new ConnectDatabase(this);
 
         if (!connectDatabase.loadDatabaseConfig()) {
-            Statements.logToConsole("Invalid database configuration. Please adjust config.yml!", NamedTextColor.RED);
+            ApiManagerStatements.logToConsole("Invalid database configuration. Please adjust config.yml!", NamedTextColor.RED);
         }
     }
 
@@ -101,7 +101,7 @@ public final class ApiManager extends JavaPlugin {
                 onApisReady();
             }));
         } else {
-             Statements.logToConsole("Database not connected. Skipping table creation. APIs will run in safe mode (no DB).", NamedTextColor.GOLD);
+             ApiManagerStatements.logToConsole("Database not connected. Skipping table creation. APIs will run in safe mode (no DB).", NamedTextColor.GOLD);
         }
 
         Bukkit.getPluginManager().registerEvents(new JoinListener(), this);
@@ -115,7 +115,7 @@ public final class ApiManager extends JavaPlugin {
             commands.register("am", "ApiManager commands", apiManagerCommand);
         });
 
-        Statements.logToConsole("ApiManager enabled!", NamedTextColor.DARK_GREEN);
+        ApiManagerStatements.logToConsole("ApiManager enabled!", NamedTextColor.DARK_GREEN);
     }
 
     private void instantiateApis() {
@@ -197,14 +197,14 @@ public final class ApiManager extends JavaPlugin {
             try {
                 r.run();
             } catch (Exception e) {
-                Statements.logToConsole("createTables() failed for one API: " + e.getMessage(), NamedTextColor.GOLD);
+                ApiManagerStatements.logToConsole("createTables() failed for one API: " + e.getMessage(), NamedTextColor.GOLD);
             }
         }
     }
 
     private void onApisReady() {
         serverSettingsAPI.setServerOnline(true);
-        Statements.logToConsole("All APIs are ready!", NamedTextColor.DARK_GREEN);
+        ApiManagerStatements.logToConsole("All APIs are ready!", NamedTextColor.DARK_GREEN);
     }
 
     @Override
@@ -216,10 +216,10 @@ public final class ApiManager extends JavaPlugin {
         }
         if (databaseManager != null) {
             databaseManager.close();
-            Statements.logToConsole("Database successfully disconnected!", NamedTextColor.GREEN);
+            ApiManagerStatements.logToConsole("Database successfully disconnected!", NamedTextColor.GREEN);
         }
 
-        Statements.logToConsole("ApiManager successfully disabled!", NamedTextColor.DARK_GREEN);
+        ApiManagerStatements.logToConsole("ApiManager successfully disabled!", NamedTextColor.DARK_GREEN);
     }
 
     public static ApiManager getInstance() {

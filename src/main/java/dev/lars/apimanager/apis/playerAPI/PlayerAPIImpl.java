@@ -3,7 +3,7 @@ package dev.lars.apimanager.apis.playerAPI;
 import dev.lars.apimanager.ApiManager;
 import dev.lars.apimanager.database.DatabaseRepository;
 import dev.lars.apimanager.database.IDatabaseManager;
-import dev.lars.apimanager.utils.ValidateParameter;
+import dev.lars.apimanager.utils.ApiManagerValidateParameter;
 import org.bukkit.OfflinePlayer;
 
 import java.time.Instant;
@@ -48,67 +48,67 @@ public class PlayerAPIImpl implements IPlayerAPI {
 
     @Override
     public Instant getCreatedAt(OfflinePlayer player) {
-        ValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validatePlayer(player);
         return repo().getInstant(TABLE, "created_at", "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public CompletableFuture<Instant> getCreatedAtAsync(OfflinePlayer player) {
-        ValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validatePlayer(player);
         return repo().getInstantAsync(TABLE, "created_at", "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public Instant getUpdatedAt(OfflinePlayer player) {
-        ValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validatePlayer(player);
         return repo().getInstant(TABLE, "updated_at", "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public CompletableFuture<Instant> getUpdatedAtAsync(OfflinePlayer player) {
-        ValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validatePlayer(player);
         return repo().getInstantAsync(TABLE, "updated_at", "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public String getName(OfflinePlayer player) {
-        ValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validatePlayer(player);
         return repo().getString(TABLE, "name", "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public CompletableFuture<String> getNameAsync(OfflinePlayer player) {
-        ValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validatePlayer(player);
         return repo().getStringAsync(TABLE, "name", "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public void setPlaytime(OfflinePlayer player, int playtime) {
-        ValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validatePlayer(player);
         repo().updateColumn(TABLE, "playtime", playtime, "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public CompletableFuture<Void> setPlaytimeAsync(OfflinePlayer player, int playtime) {
-        ValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validatePlayer(player);
         return repo().updateColumnAsync(TABLE, "playtime", playtime, "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public Integer getPlaytime(OfflinePlayer player) {
-        ValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validatePlayer(player);
         return repo().getInteger(TABLE, "playtime", "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public CompletableFuture<Integer> getPlaytimeAsync(OfflinePlayer player) {
-        ValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validatePlayer(player);
         return repo().getIntegerAsync(TABLE, "playtime", "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public void setOnline(OfflinePlayer player, boolean online) {
-        ValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validatePlayer(player);
         repo().updateColumns(TABLE,
             new String[]{"is_online", "name"},
             new Object[]{online, player.getName()},
@@ -117,7 +117,7 @@ public class PlayerAPIImpl implements IPlayerAPI {
 
     @Override
     public CompletableFuture<Void> setOnlineAsync(OfflinePlayer player, boolean online) {
-        ValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validatePlayer(player);
         return repo().updateColumnsAsync(TABLE,
             new String[]{"is_online", "name"},
             new Object[]{online, player.getName()},
@@ -126,27 +126,27 @@ public class PlayerAPIImpl implements IPlayerAPI {
 
     @Override
     public boolean isOnline(OfflinePlayer player) {
-        ValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validatePlayer(player);
         Boolean result = repo().getBoolean(TABLE, "is_online", "uuid = ?", player.getUniqueId().toString());
         return result != null && result;
     }
 
     @Override
     public CompletableFuture<Boolean> isOnlineAsync(OfflinePlayer player) {
-        ValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validatePlayer(player);
         return repo().getBooleanAsync(TABLE, "is_online", "uuid = ?", player.getUniqueId().toString())
             .thenApply(result -> result != null && result);
     }
 
     @Override
     public Instant getLastSeen(OfflinePlayer player) {
-        ValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validatePlayer(player);
         return repo().getInstant(TABLE, "last_seen", "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public CompletableFuture<Instant> getLastSeenAsync(OfflinePlayer player) {
-        ValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validatePlayer(player);
         return repo().getInstantAsync(TABLE, "last_seen", "uuid = ?", player.getUniqueId().toString());
     }
 }

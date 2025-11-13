@@ -3,8 +3,8 @@ package dev.lars.apimanager.apis.prefixAPI;
 import dev.lars.apimanager.ApiManager;
 import dev.lars.apimanager.database.DatabaseRepository;
 import dev.lars.apimanager.database.IDatabaseManager;
-import dev.lars.apimanager.utils.TextFormation;
-import dev.lars.apimanager.utils.ValidateParameter;
+import dev.lars.apimanager.utils.ApiManagerTextFormation;
+import dev.lars.apimanager.utils.ApiManagerValidateParameter;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.OfflinePlayer;
@@ -52,145 +52,145 @@ public class PrefixAPIImpl implements IPrefixAPI {
 
     @Override
     public Instant getCreatedAt(OfflinePlayer player) {
-        ValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validatePlayer(player);
         return repo().getInstant(TABLE, "created_at", "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public CompletableFuture<Instant> getCreatedAtAsync(OfflinePlayer player) {
-        ValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validatePlayer(player);
         return repo().getInstantAsync(TABLE, "created_at", "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public Instant getUpdatedAt(OfflinePlayer player) {
-        ValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validatePlayer(player);
         return repo().getInstant(TABLE, "updated_at", "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public CompletableFuture<Instant> getUpdatedAtAsync(OfflinePlayer player) {
-        ValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validatePlayer(player);
         return repo().getInstantAsync(TABLE, "updated_at", "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public void setColor(OfflinePlayer player, NamedTextColor color) {
-        ValidateParameter.validatePlayer(player);
-        ValidateParameter.validateNamedTextColor(color);
-        repo().updateColumn(TABLE, "color", TextFormation.getColorId(color), "uuid = ?", player.getUniqueId().toString());
+        ApiManagerValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validateNamedTextColor(color);
+        repo().updateColumn(TABLE, "color", ApiManagerTextFormation.getColorId(color), "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public CompletableFuture<Void> setColorAsync(OfflinePlayer player, NamedTextColor color) {
-        ValidateParameter.validatePlayer(player);
-        ValidateParameter.validateNamedTextColor(color);
-        return repo().updateColumnAsync(TABLE, "color", TextFormation.getColorId(color), "uuid = ?", player.getUniqueId().toString());
+        ApiManagerValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validateNamedTextColor(color);
+        return repo().updateColumnAsync(TABLE, "color", ApiManagerTextFormation.getColorId(color), "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public NamedTextColor getColor(OfflinePlayer player) {
-        ValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validatePlayer(player);
         Integer colorId = repo().getInteger(TABLE, "color", "uuid = ?", player.getUniqueId().toString());
-        return colorId != null ? TextFormation.getNamedTextColor(colorId) : null;
+        return colorId != null ? ApiManagerTextFormation.getNamedTextColor(colorId) : null;
     }
 
     @Override
     public CompletableFuture<NamedTextColor> getColorAsync(OfflinePlayer player) {
-        ValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validatePlayer(player);
         return repo().getIntegerAsync(TABLE, "color", "uuid = ?", player.getUniqueId().toString())
-            .thenApply(colorId -> colorId != null ? TextFormation.getNamedTextColor(colorId) : null);
+            .thenApply(colorId -> colorId != null ? ApiManagerTextFormation.getNamedTextColor(colorId) : null);
     }
 
     @Override
     public void setDecoration(OfflinePlayer player, TextDecoration decoration) {
-        ValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validatePlayer(player);
         setDecorations(player, Set.of(decoration));
     }
 
     @Override
     public CompletableFuture<Void> setDecorationAsync(OfflinePlayer player, TextDecoration decoration) {
-        ValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validatePlayer(player);
         return setDecorationsAsync(player, Set.of(decoration));
     }
 
     @Override
     public void setDecorations(OfflinePlayer player, Set<TextDecoration> decorations) {
-        ValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validatePlayer(player);
         if (decorations == null) {
             decorations = Collections.emptySet();
         }
-        int bitmask = TextFormation.combineDecorations(decorations);
+        int bitmask = ApiManagerTextFormation.combineDecorations(decorations);
         repo().updateColumn(TABLE, "decorations", bitmask, "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public CompletableFuture<Void> setDecorationsAsync(OfflinePlayer player, Set<TextDecoration> decorations) {
-        ValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validatePlayer(player);
         if (decorations == null) {
             decorations = Collections.emptySet();
         }
-        int bitmask = TextFormation.combineDecorations(decorations);
+        int bitmask = ApiManagerTextFormation.combineDecorations(decorations);
         return repo().updateColumnAsync(TABLE, "decorations", bitmask, "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public void addDecoration(OfflinePlayer player, TextDecoration decoration) {
-        ValidateParameter.validatePlayer(player);
-        ValidateParameter.validateTextDecoration(decoration);
+        ApiManagerValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validateTextDecoration(decoration);
         Set<TextDecoration> current = getDecorations(player);
         if (current == null) current = new HashSet<>();
         current.add(decoration);
-        int bitmask = TextFormation.combineDecorations(current);
+        int bitmask = ApiManagerTextFormation.combineDecorations(current);
         repo().updateColumn(TABLE, "decorations", bitmask, "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public CompletableFuture<Void> addDecorationAsync(OfflinePlayer player, TextDecoration decoration) {
-        ValidateParameter.validatePlayer(player);
-        ValidateParameter.validateTextDecoration(decoration);
+        ApiManagerValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validateTextDecoration(decoration);
         return getDecorationsAsync(player).thenCompose(current -> {
             if (current == null) current = new HashSet<>();
             current.add(decoration);
-            int bitmask = TextFormation.combineDecorations(current);
+            int bitmask = ApiManagerTextFormation.combineDecorations(current);
             return repo().updateColumnAsync(TABLE, "decorations", bitmask, "uuid = ?", player.getUniqueId().toString());
         });
     }
 
     @Override
     public void removeDecoration(OfflinePlayer player, TextDecoration decoration) {
-        ValidateParameter.validatePlayer(player);
-        ValidateParameter.validateTextDecoration(decoration);
+        ApiManagerValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validateTextDecoration(decoration);
         Set<TextDecoration> current = getDecorations(player);
         if (current == null) current = new HashSet<>();
         current.remove(decoration);
-        int bitmask = TextFormation.combineDecorations(current);
+        int bitmask = ApiManagerTextFormation.combineDecorations(current);
         repo().updateColumn(TABLE, "decorations", bitmask, "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public CompletableFuture<Void> removeDecorationAsync(OfflinePlayer player, TextDecoration decoration) {
-        ValidateParameter.validatePlayer(player);
-        ValidateParameter.validateTextDecoration(decoration);
+        ApiManagerValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validateTextDecoration(decoration);
         return getDecorationsAsync(player).thenCompose(current -> {
             if (current == null) current = new HashSet<>();
             current.remove(decoration);
-            int bitmask = TextFormation.combineDecorations(current);
+            int bitmask = ApiManagerTextFormation.combineDecorations(current);
             return repo().updateColumnAsync(TABLE, "decorations", bitmask, "uuid = ?", player.getUniqueId().toString());
         });
     }
 
     @Override
     public Set<TextDecoration> getDecorations(OfflinePlayer player) {
-        ValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validatePlayer(player);
         Integer bitmask = repo().getInteger(TABLE, "decorations", "uuid = ?", player.getUniqueId().toString());
-        return bitmask != null ? TextFormation.getTextDecorations(bitmask) : new HashSet<>();
+        return bitmask != null ? ApiManagerTextFormation.getTextDecorations(bitmask) : new HashSet<>();
     }
 
     @Override
     public CompletableFuture<Set<TextDecoration>> getDecorationsAsync(OfflinePlayer player) {
-        ValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validatePlayer(player);
         return repo().getIntegerAsync(TABLE, "decorations", "uuid = ?", player.getUniqueId().toString())
-            .thenApply(bitmask -> bitmask != null ? TextFormation.getTextDecorations(bitmask) : new HashSet<>());
+            .thenApply(bitmask -> bitmask != null ? ApiManagerTextFormation.getTextDecorations(bitmask) : new HashSet<>());
     }
 }

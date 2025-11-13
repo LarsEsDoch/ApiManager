@@ -5,7 +5,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 
-public class Statements {
+public class ApiManagerStatements {
 
     public static Component getPrefix() {
         return Component.text("[", NamedTextColor.DARK_GRAY)
@@ -16,7 +16,7 @@ public class Statements {
 
     public static void logToConsole(String message, NamedTextColor color) {
         Bukkit.getConsoleSender().sendMessage(
-            Statements.getPrefix().append(Component.text(message, color))
+            ApiManagerStatements.getPrefix().append(Component.text(message, color))
         );
     }
 }

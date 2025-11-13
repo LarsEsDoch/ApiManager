@@ -6,7 +6,7 @@ import org.bukkit.Location;
 import java.util.Locale;
 import java.util.Objects;
 
-public class FormatLocation {
+public class ApiManagerFormatLocation {
     public static String serializeLocation(Location loc) {
         return String.format(Locale.ENGLISH, "%s,%.3f,%.3f,%.3f,%.3f,%.3f",
                 Objects.requireNonNull(loc.getWorld()).getName(),

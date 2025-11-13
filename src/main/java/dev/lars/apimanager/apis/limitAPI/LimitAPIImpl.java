@@ -3,7 +3,7 @@ package dev.lars.apimanager.apis.limitAPI;
 import dev.lars.apimanager.ApiManager;
 import dev.lars.apimanager.database.DatabaseRepository;
 import dev.lars.apimanager.database.IDatabaseManager;
-import dev.lars.apimanager.utils.ValidateParameter;
+import dev.lars.apimanager.utils.ApiManagerValidateParameter;
 import org.bukkit.OfflinePlayer;
 
 import java.time.Instant;
@@ -47,45 +47,45 @@ public class LimitAPIImpl implements ILimitAPI {
 
     @Override
     public Instant getCreatedAt(OfflinePlayer player) {
-        ValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validatePlayer(player);
         return repo().getInstant(TABLE, "created_at", "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public CompletableFuture<Instant> getCreatedAtAsync(OfflinePlayer player) {
-        ValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validatePlayer(player);
         return repo().getInstantAsync(TABLE, "created_at", "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public Instant getUpdatedAt(OfflinePlayer player) {
-        ValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validatePlayer(player);
         return repo().getInstant(TABLE, "updated_at", "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public CompletableFuture<Instant> getUpdatedAtAsync(OfflinePlayer player) {
-        ValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validatePlayer(player);
         return repo().getInstantAsync(TABLE, "updated_at", "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public void setBackpackSlots(OfflinePlayer player, int backpack_slots) {
-        ValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validatePlayer(player);
         if (backpack_slots < 0) backpack_slots = 0;
         repo().updateColumn(TABLE, "backpack_slots", backpack_slots, "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public CompletableFuture<Void> setBackpackSlotsAsync(OfflinePlayer player, int backpack_slots) {
-        ValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validatePlayer(player);
         if (backpack_slots < 0) backpack_slots = 0;
         return repo().updateColumnAsync(TABLE, "backpack_slots", backpack_slots, "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public void increaseBackpackSlots(OfflinePlayer player, int amount) {
-        ValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validatePlayer(player);
         Integer current = getBackpackSlots(player);
         if (current == null) current = 0;
         setBackpackSlots(player, current + amount);
@@ -93,7 +93,7 @@ public class LimitAPIImpl implements ILimitAPI {
 
     @Override
     public CompletableFuture<Void> increaseBackpackSlotsAsync(OfflinePlayer player, int amount) {
-        ValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validatePlayer(player);
         return getBackpackSlotsAsync(player).thenCompose(current -> {
             if (current == null) current = 0;
             return setBackpackSlotsAsync(player, current + amount);
@@ -102,7 +102,7 @@ public class LimitAPIImpl implements ILimitAPI {
 
     @Override
     public void decreaseBackpackSlots(OfflinePlayer player, int amount) {
-        ValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validatePlayer(player);
         Integer current = getBackpackSlots(player);
         if (current == null) current = 0;
         setBackpackSlots(player, Math.max(0, current - amount));
@@ -110,7 +110,7 @@ public class LimitAPIImpl implements ILimitAPI {
 
     @Override
     public CompletableFuture<Void> decreaseBackpackSlotsAsync(OfflinePlayer player, int amount) {
-        ValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validatePlayer(player);
         return getBackpackSlotsAsync(player).thenCompose(current -> {
             if (current == null) current = 0;
             return setBackpackSlotsAsync(player, Math.max(0, current - amount));
@@ -119,31 +119,31 @@ public class LimitAPIImpl implements ILimitAPI {
 
     @Override
     public Integer getBackpackSlots(OfflinePlayer player) {
-        ValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validatePlayer(player);
         return repo().getInteger(TABLE, "backpack_slots", "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public CompletableFuture<Integer> getBackpackSlotsAsync(OfflinePlayer player) {
-        ValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validatePlayer(player);
         return repo().getIntegerAsync(TABLE, "backpack_slots", "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public void setMaxChunks(OfflinePlayer player, Integer max_chunks) {
-        ValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validatePlayer(player);
         repo().updateColumn(TABLE, "max_chunks", max_chunks, "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public CompletableFuture<Void> setMaxChunksAsync(OfflinePlayer player, Integer max_chunks) {
-        ValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validatePlayer(player);
         return repo().updateColumnAsync(TABLE, "max_chunks", max_chunks, "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public void increaseMaxChunks(OfflinePlayer player, int amount) {
-        ValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validatePlayer(player);
         Integer current = getMaxChunks(player);
         if (current == null) current = 0;
         setMaxChunks(player, current + amount);
@@ -151,7 +151,7 @@ public class LimitAPIImpl implements ILimitAPI {
 
     @Override
     public CompletableFuture<Void> increaseMaxChunksAsync(OfflinePlayer player, int amount) {
-        ValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validatePlayer(player);
         return getMaxChunksAsync(player).thenCompose(current -> {
             if (current == null) current = 0;
             return setMaxChunksAsync(player, current + amount);
@@ -160,7 +160,7 @@ public class LimitAPIImpl implements ILimitAPI {
 
     @Override
     public void decreaseMaxChunks(OfflinePlayer player, int amount) {
-        ValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validatePlayer(player);
         Integer current = getMaxChunks(player);
         if (current == null) current = 0;
         setMaxChunks(player, Math.max(0, current - amount));
@@ -168,7 +168,7 @@ public class LimitAPIImpl implements ILimitAPI {
 
     @Override
     public CompletableFuture<Void> decreaseMaxChunksAsync(OfflinePlayer player, int amount) {
-        ValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validatePlayer(player);
         return getMaxChunksAsync(player).thenCompose(current -> {
             if (current == null) current = 0;
             return setMaxChunksAsync(player, Math.max(0, current - amount));
@@ -177,31 +177,31 @@ public class LimitAPIImpl implements ILimitAPI {
 
     @Override
     public Integer getMaxChunks(OfflinePlayer player) {
-        ValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validatePlayer(player);
         return repo().getInteger(TABLE, "max_chunks", "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public CompletableFuture<Integer> getMaxChunksAsync(OfflinePlayer player) {
-        ValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validatePlayer(player);
         return repo().getIntegerAsync(TABLE, "max_chunks", "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public void setMaxHomes(OfflinePlayer player, Integer max_homes) {
-        ValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validatePlayer(player);
         repo().updateColumn(TABLE, "max_homes", max_homes, "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public CompletableFuture<Void> setMaxHomesAsync(OfflinePlayer player, Integer max_homes) {
-        ValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validatePlayer(player);
         return repo().updateColumnAsync(TABLE, "max_homes", max_homes, "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public void increaseMaxHomes(OfflinePlayer player, int amount) {
-        ValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validatePlayer(player);
         Integer current = getMaxHomes(player);
         if (current == null) return;
         setMaxHomes(player, current + amount);
@@ -209,7 +209,7 @@ public class LimitAPIImpl implements ILimitAPI {
 
     @Override
     public CompletableFuture<Void> increaseMaxHomesAsync(OfflinePlayer player, int amount) {
-        ValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validatePlayer(player);
         return getMaxHomesAsync(player).thenCompose(current -> {
             if (current == null) return CompletableFuture.completedFuture(null);
             return setMaxHomesAsync(player, current + amount);
@@ -218,7 +218,7 @@ public class LimitAPIImpl implements ILimitAPI {
 
     @Override
     public void decreaseMaxHomes(OfflinePlayer player, int amount) {
-        ValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validatePlayer(player);
         Integer current = getMaxHomes(player);
         if (current == null) return;
         setMaxHomes(player, Math.max(0, current - amount));
@@ -226,7 +226,7 @@ public class LimitAPIImpl implements ILimitAPI {
 
     @Override
     public CompletableFuture<Void> decreaseMaxHomesAsync(OfflinePlayer player, int amount) {
-        ValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validatePlayer(player);
         return getMaxHomesAsync(player).thenCompose(current -> {
             if (current == null) return CompletableFuture.completedFuture(null);
             return setMaxHomesAsync(player, Math.max(0, current - amount));
@@ -235,13 +235,13 @@ public class LimitAPIImpl implements ILimitAPI {
 
     @Override
     public Integer getMaxHomes(OfflinePlayer player) {
-        ValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validatePlayer(player);
         return repo().getInteger(TABLE, "max_homes", "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public CompletableFuture<Integer> getMaxHomesAsync(OfflinePlayer player) {
-        ValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validatePlayer(player);
         return repo().getIntegerAsync(TABLE, "max_homes", "uuid = ?", player.getUniqueId().toString());
     }
 }

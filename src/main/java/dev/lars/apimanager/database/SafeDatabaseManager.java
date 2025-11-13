@@ -1,7 +1,7 @@
 package dev.lars.apimanager.database;
 
 import com.zaxxer.hikari.HikariDataSource;
-import dev.lars.apimanager.utils.Statements;
+import dev.lars.apimanager.utils.ApiManagerStatements;
 import net.kyori.adventure.text.format.NamedTextColor;
 
 import java.sql.Connection;
@@ -29,33 +29,33 @@ public class SafeDatabaseManager implements IDatabaseManager{
     }
 
     public void logSqlQuery(String sql, Object... params) {
-        Statements.logToConsole("[SafeDatabaseManager] logSqlQuery(String sql, Object... params) called - no real database connection present.", NamedTextColor.GOLD);
+        ApiManagerStatements.logToConsole("[SafeDatabaseManager] logSqlQuery(String sql, Object... params) called - no real database connection present.", NamedTextColor.GOLD);
     }
 
     public void setSqlLogging(boolean enabled) {
-        Statements.logToConsole("[SafeDatabaseManager] setSqlLogging(boolean enabled) called - no real database connection present.", NamedTextColor.GOLD);
+        ApiManagerStatements.logToConsole("[SafeDatabaseManager] setSqlLogging(boolean enabled) called - no real database connection present.", NamedTextColor.GOLD);
     }
 
     public boolean isSqlLoggingEnabled() {
-        Statements.logToConsole("[SafeDatabaseManager] isSqlLoggingEnabled() called - no real database connection present.", NamedTextColor.GOLD);
+        ApiManagerStatements.logToConsole("[SafeDatabaseManager] isSqlLoggingEnabled() called - no real database connection present.", NamedTextColor.GOLD);
         return false;
     }
 
     public Connection getConnection() throws SQLException {
-        Statements.logToConsole("[SafeDatabaseManager] getConnection() called - no real database connection present.", NamedTextColor.RED);
+        ApiManagerStatements.logToConsole("[SafeDatabaseManager] getConnection() called - no real database connection present.", NamedTextColor.RED);
         throw new SQLException("No database connection available (SafeDatabaseManager).");
     }
 
     public HikariDataSource getDataSource() {
-        Statements.logToConsole("[SafeDatabaseManager] getDataSource() called - no real database connection present.", NamedTextColor.RED);
+        ApiManagerStatements.logToConsole("[SafeDatabaseManager] getDataSource() called - no real database connection present.", NamedTextColor.RED);
         return null;
     }
 
     public void close() {
-        Statements.logToConsole("[SafeDatabaseManager] close() called - no real database connection present.", NamedTextColor.GOLD);
+        ApiManagerStatements.logToConsole("[SafeDatabaseManager] close() called - no real database connection present.", NamedTextColor.GOLD);
     }
 
     private void logSkip(String action, String detail) {
-        Statements.logToConsole("[SafeDatabaseManager] Action [" + action + "] cannot be executed because the database isn't connected.", NamedTextColor.GOLD);
+        ApiManagerStatements.logToConsole("[SafeDatabaseManager] Action [" + action + "] cannot be executed because the database isn't connected.", NamedTextColor.GOLD);
     }
 }

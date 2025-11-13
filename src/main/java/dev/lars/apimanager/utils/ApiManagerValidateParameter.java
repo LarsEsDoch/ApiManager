@@ -8,7 +8,7 @@ import org.bukkit.OfflinePlayer;
 
 import java.time.Instant;
 
-public class ValidateParameter {
+public class ApiManagerValidateParameter {
     public static void validatePlayer(OfflinePlayer player) {
         if (player == null) {
             throw new IllegalArgumentException("Player cannot be null");

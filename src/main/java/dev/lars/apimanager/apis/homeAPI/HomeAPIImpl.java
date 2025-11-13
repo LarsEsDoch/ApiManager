@@ -3,8 +3,8 @@ package dev.lars.apimanager.apis.homeAPI;
 import dev.lars.apimanager.ApiManager;
 import dev.lars.apimanager.database.DatabaseRepository;
 import dev.lars.apimanager.database.IDatabaseManager;
-import dev.lars.apimanager.utils.FormatLocation;
-import dev.lars.apimanager.utils.ValidateParameter;
+import dev.lars.apimanager.utils.ApiManagerFormatLocation;
+import dev.lars.apimanager.utils.ApiManagerValidateParameter;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 
@@ -61,24 +61,24 @@ public class HomeAPIImpl implements IHomeAPI {
 
     @Override
     public void createHome(OfflinePlayer player, String name, Location location, boolean isPublic) {
-        ValidateParameter.validatePlayer(player);
-        ValidateParameter.validateName(name);
-        ValidateParameter.validateLocation(location);
+        ApiManagerValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validateName(name);
+        ApiManagerValidateParameter.validateLocation(location);
         db().update("""
             INSERT INTO player_homes (uuid, name, location, is_public)
             VALUES (?, ?, ?, ?)
-        """, player.getUniqueId().toString(), name, FormatLocation.serializeLocation(location), isPublic);
+        """, player.getUniqueId().toString(), name, ApiManagerFormatLocation.serializeLocation(location), isPublic);
     }
 
     @Override
     public CompletableFuture<Void> createHomeAsync(OfflinePlayer player, String name, Location location, boolean isPublic) {
-        ValidateParameter.validatePlayer(player);
-        ValidateParameter.validateName(name);
-        ValidateParameter.validateLocation(location);
+        ApiManagerValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validateName(name);
+        ApiManagerValidateParameter.validateLocation(location);
         return db().updateAsync("""
             INSERT INTO player_homes (uuid, name, location, is_public)
             VALUES (?, ?, ?, ?)
-        """, player.getUniqueId().toString(), name, FormatLocation.serializeLocation(location), isPublic);
+        """, player.getUniqueId().toString(), name, ApiManagerFormatLocation.serializeLocation(location), isPublic);
     }
 
     @Override
@@ -93,13 +93,13 @@ public class HomeAPIImpl implements IHomeAPI {
 
     @Override
     public void renameHome(int homeId, String newName) {
-        ValidateParameter.validateName(newName);
+        ApiManagerValidateParameter.validateName(newName);
         repo().updateColumn(TABLE, "name", newName, "id = ?", homeId);
     }
 
     @Override
     public CompletableFuture<Void> renameHomeAsync(int homeId, String newName) {
-        ValidateParameter.validateName(newName);
+        ApiManagerValidateParameter.validateName(newName);
         return repo().updateColumnAsync(TABLE, "name", newName, "id = ?", homeId);
     }
 
@@ -115,37 +115,37 @@ public class HomeAPIImpl implements IHomeAPI {
 
     @Override
     public void updateHomeLocation(int homeId, Location location) {
-        ValidateParameter.validateLocation(location);
-        repo().updateColumn(TABLE, "location", FormatLocation.serializeLocation(location), "id = ?", homeId);
+        ApiManagerValidateParameter.validateLocation(location);
+        repo().updateColumn(TABLE, "location", ApiManagerFormatLocation.serializeLocation(location), "id = ?", homeId);
     }
 
     @Override
     public CompletableFuture<Void> updateHomeLocationAsync(int homeId, Location location) {
-        ValidateParameter.validateLocation(location);
-        return repo().updateColumnAsync(TABLE, "location", FormatLocation.serializeLocation(location), "id = ?", homeId);
+        ApiManagerValidateParameter.validateLocation(location);
+        return repo().updateColumnAsync(TABLE, "location", ApiManagerFormatLocation.serializeLocation(location), "id = ?", homeId);
     }
 
     @Override
     public List<String> getHomes(OfflinePlayer player) {
-        ValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validatePlayer(player);
         return repo().getStringList(TABLE, "name", "uuid = ? OR is_public = TRUE", player.getUniqueId().toString());
     }
 
     @Override
     public CompletableFuture<List<String>> getHomesAsync(OfflinePlayer player) {
-        ValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validatePlayer(player);
         return repo().getStringListAsync(TABLE, "name", "uuid = ? OR is_public = TRUE", player.getUniqueId().toString());
     }
 
     @Override
     public List<String> getOwnHomes(OfflinePlayer player) {
-        ValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validatePlayer(player);
         return repo().getStringList(TABLE, "name", "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public CompletableFuture<List<String>> getOwnHomesAsync(OfflinePlayer player) {
-        ValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validatePlayer(player);
         return repo().getStringListAsync(TABLE, "name", "uuid = ?", player.getUniqueId().toString());
     }
 
@@ -162,45 +162,45 @@ public class HomeAPIImpl implements IHomeAPI {
     @Override
     public Location getHomeLocation(int homeId) {
         String locData = repo().getString(TABLE, "location", "id = ?", homeId);
-        return FormatLocation.deserializeLocation(locData);
+        return ApiManagerFormatLocation.deserializeLocation(locData);
     }
 
     @Override
     public CompletableFuture<Location> getHomeLocationAsync(int homeId) {
         return repo().getStringAsync(TABLE, "location", "id = ?", homeId)
-            .thenApply(FormatLocation::deserializeLocation);
+            .thenApply(ApiManagerFormatLocation::deserializeLocation);
     }
 
     @Override
     public boolean doesHomeExist(String name) {
-        ValidateParameter.validateName(name);
+        ApiManagerValidateParameter.validateName(name);
         return repo().exists(TABLE, "name = ?", name);
     }
 
     @Override
     public CompletableFuture<Boolean> doesHomeExistAsync(String name) {
-        ValidateParameter.validateName(name);
+        ApiManagerValidateParameter.validateName(name);
         return repo().existsAsync(TABLE, "name = ?", name);
     }
 
     @Override
     public boolean doesOwnHomeExist(OfflinePlayer player, String name) {
-        ValidateParameter.validatePlayer(player);
-        ValidateParameter.validateName(name);
+        ApiManagerValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validateName(name);
         return repo().exists(TABLE, "uuid = ? AND name = ?", player.getUniqueId().toString(), name);
     }
 
     @Override
     public CompletableFuture<Boolean> doesOwnHomeExistAsync(OfflinePlayer player, String name) {
-        ValidateParameter.validatePlayer(player);
-        ValidateParameter.validateName(name);
+        ApiManagerValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validateName(name);
         return repo().existsAsync(TABLE, "uuid = ? AND name = ?", player.getUniqueId().toString(), name);
     }
 
     @Override
     public int getHomeId(OfflinePlayer player, String name) {
-        ValidateParameter.validatePlayer(player);
-        ValidateParameter.validateName(name);
+        ApiManagerValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validateName(name);
         Integer id = repo().getInteger(TABLE, "id", "(uuid = ? OR is_public = TRUE) AND name = ?",
             player.getUniqueId().toString(), name);
         return id != null ? id : -1;
@@ -208,8 +208,8 @@ public class HomeAPIImpl implements IHomeAPI {
 
     @Override
     public CompletableFuture<Integer> getHomeIdAsync(OfflinePlayer player, String name) {
-        ValidateParameter.validatePlayer(player);
-        ValidateParameter.validateName(name);
+        ApiManagerValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validateName(name);
         return repo().getIntegerAsync(TABLE, "id", "(uuid = ? OR is_public = TRUE) AND name = ?",
             player.getUniqueId().toString(), name)
             .thenApply(id -> id != null ? id : -1);
