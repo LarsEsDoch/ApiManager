@@ -1,5 +1,5 @@
 name: ApiManager
-version: '4.3.5'
+version: '4.3.6'
 main: dev.lars.apimanager.ApiManager
 api-version: '1.21.10'
 author: LarsEsDoch

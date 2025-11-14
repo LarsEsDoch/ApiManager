@@ -2,8 +2,11 @@ package dev.lars.apimanager.database;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import dev.lars.apimanager.ApiManager;
 import dev.lars.apimanager.utils.ApiManagerStatements;
 import net.kyori.adventure.text.format.NamedTextColor;
+import org.bukkit.Bukkit;
+import org.bukkit.scheduler.BukkitTask;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -23,11 +26,13 @@ public final class DatabaseManager implements IDatabaseManager {
     private volatile long sqlLoggingEnabledUntil = 0;
     private final AtomicLong queryCount = new AtomicLong(0);
     private final AtomicLong updateCount = new AtomicLong(0);
-    private double smoothedQpsQueries = 0.0;
-    private double smoothedQpsUpdates = 0.0;
+    private volatile double smoothedQpsQueries = 0.0;
+    private volatile double smoothedQpsUpdates = 0.0;
     private final AtomicLong lastQueryTotal = new AtomicLong(0);
     private final AtomicLong lastUpdateTotal = new AtomicLong(0);
     private final AtomicLong lastCheckTime = new AtomicLong(System.currentTimeMillis());
+    private BukkitTask qpsUpdateTask;
+    private BukkitTask loggingCheckTask;
 
     public void incrementQueryCount() {
         queryCount.incrementAndGet();
@@ -78,6 +83,8 @@ public final class DatabaseManager implements IDatabaseManager {
 
                     this.dataSource = ds;
                     ready.complete(null);
+
+                    startQpsUpdateTask();
                     break;
                 } catch (Exception e) {
                     ApiManagerStatements.logToConsole("Database connection failed, retrying in 5s... " + e.getMessage(), NamedTextColor.GOLD);
@@ -87,6 +94,58 @@ public final class DatabaseManager implements IDatabaseManager {
                 }
             }
         });
+    }
+
+    private void startQpsUpdateTask() {
+        qpsUpdateTask = Bukkit.getScheduler().runTaskTimer(ApiManager.getInstance(),
+            this::updateQpsMetrics, 20L, 20L);
+
+        loggingCheckTask = Bukkit.getScheduler().runTaskTimer(ApiManager.getInstance(),
+            this::checkLoggingTimeout, 1L, 1L);
+    }
+
+    private void updateQpsMetrics() {
+        long now = System.currentTimeMillis();
+        long lastCheck = lastCheckTime.get();
+        long elapsed = now - lastCheck;
+
+        if (elapsed < 100) {
+            return;
+        }
+
+        lastCheckTime.set(now);
+
+        long currentQ = queryCount.get();
+        long lastQ = lastQueryTotal.get();
+        long deltaQ = currentQ - lastQ;
+        lastQueryTotal.set(currentQ);
+
+        long currentU = updateCount.get();
+        long lastU = lastUpdateTotal.get();
+        long deltaU = currentU - lastU;
+        lastUpdateTotal.set(currentU);
+
+        double instantQpsQ = (deltaQ * 1000.0) / elapsed;
+        double instantQpsU = (deltaU * 1000.0) / elapsed;
+
+        if (smoothedQpsQueries == 0.0 && smoothedQpsUpdates == 0.0) {
+            smoothedQpsQueries = instantQpsQ;
+            smoothedQpsUpdates = instantQpsU;
+        } else {
+            smoothedQpsQueries = smoothedQpsQueries * 0.7 + instantQpsQ * 0.3;
+            smoothedQpsUpdates = smoothedQpsUpdates * 0.7 + instantQpsU * 0.3;
+        }
+    }
+
+    private void checkLoggingTimeout() {
+        if (sqlLoggingEnabled.get() && sqlLoggingEnabledUntil > 0) {
+            if (System.currentTimeMillis() >= sqlLoggingEnabledUntil) {
+                sqlLoggingEnabled.set(false);
+                sqlLoggingEnabledUntil = 0;
+                ApiManagerStatements.logToConsole("SQL query logging automatically disabled (timeout reached)",
+                    NamedTextColor.GRAY);
+            }
+        }
     }
 
     public CompletableFuture<Void> readyFuture() {
@@ -124,15 +183,6 @@ public final class DatabaseManager implements IDatabaseManager {
     }
 
     public boolean isSqlLoggingEnabled() {
-        if (sqlLoggingEnabled.get() && sqlLoggingEnabledUntil > 0) {
-            if (System.currentTimeMillis() >= sqlLoggingEnabledUntil) {
-                sqlLoggingEnabled.set(false);
-                sqlLoggingEnabledUntil = 0;
-                ApiManagerStatements.logToConsole("SQL query logging automatically disabled (timeout reached)",
-                    NamedTextColor.GRAY);
-                return false;
-            }
-        }
         return sqlLoggingEnabled.get();
     }
 
@@ -215,42 +265,21 @@ public final class DatabaseManager implements IDatabaseManager {
     }
 
     public double[] getSmoothedQps() {
-        long now = System.currentTimeMillis();
-        long lastCheck = lastCheckTime.get();
-        long elapsed = now - lastCheck;
-
-        if (elapsed < 100) {
-            return new double[] { smoothedQpsQueries, smoothedQpsUpdates };
-        }
-
-        lastCheckTime.set(now);
-
-        long currentQ = queryCount.get();
-        long lastQ = lastQueryTotal.get();
-        long deltaQ = currentQ - lastQ;
-        lastQueryTotal.set(currentQ);
-
-        long currentU = updateCount.get();
-        long lastU = lastUpdateTotal.get();
-        long deltaU = currentU - lastU;
-        lastUpdateTotal.set(currentU);
-
-        double instantQpsQ = (deltaQ * 1000.0) / elapsed;
-        double instantQpsU = (deltaU * 1000.0) / elapsed;
-
-        if (smoothedQpsQueries == 0.0 && smoothedQpsUpdates == 0.0) {
-            smoothedQpsQueries = instantQpsQ;
-            smoothedQpsUpdates = instantQpsU;
-        } else {
-            smoothedQpsQueries = smoothedQpsQueries * 0.7 + instantQpsQ * 0.3;
-            smoothedQpsUpdates = smoothedQpsUpdates * 0.7 + instantQpsU * 0.3;
-        }
-
         return new double[] { smoothedQpsQueries, smoothedQpsUpdates };
     }
 
     @Override
     public void close() {
+        if (qpsUpdateTask != null && !qpsUpdateTask.isCancelled()) {
+            qpsUpdateTask.cancel();
+            ApiManagerStatements.logToConsole("QPS update task cancelled.", NamedTextColor.GRAY);
+        }
+
+        if (loggingCheckTask != null && !loggingCheckTask.isCancelled()) {
+            loggingCheckTask.cancel();
+            ApiManagerStatements.logToConsole("Logging check task cancelled.", NamedTextColor.GRAY);
+        }
+
         if (asyncExecutor != null && !asyncExecutor.isShutdown()) {
             asyncExecutor.shutdown();
             try {
