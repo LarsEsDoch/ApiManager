@@ -179,20 +179,35 @@ public final class DatabaseManager implements IDatabaseManager {
 
     public double[] getSmoothedQps() {
         long now = System.currentTimeMillis();
-        long elapsed = now - lastCheckTime.getAndSet(now);
-        if (elapsed <= 0) return new double[] { smoothedQpsQueries, smoothedQpsUpdates };
+        long lastCheck = lastCheckTime.get();
+        long elapsed = now - lastCheck;
+
+        if (elapsed < 100) {
+            return new double[] { smoothedQpsQueries, smoothedQpsUpdates };
+        }
+
+        lastCheckTime.set(now);
 
         long currentQ = queryCount.get();
-        long lastQ = lastQueryTotal.getAndSet(currentQ);
+        long lastQ = lastQueryTotal.get();
         long deltaQ = currentQ - lastQ;
-        double instantQpsQ = (deltaQ * 1000.0) / elapsed;
-        smoothedQpsQueries = smoothedQpsQueries * 0.8 + instantQpsQ * 0.2;
+        lastQueryTotal.set(currentQ);
 
         long currentU = updateCount.get();
-        long lastU = lastUpdateTotal.getAndSet(currentU);
+        long lastU = lastUpdateTotal.get();
         long deltaU = currentU - lastU;
+        lastUpdateTotal.set(currentU);
+
+        double instantQpsQ = (deltaQ * 1000.0) / elapsed;
         double instantQpsU = (deltaU * 1000.0) / elapsed;
-        smoothedQpsUpdates = smoothedQpsUpdates * 0.8 + instantQpsU * 0.2;
+
+        if (smoothedQpsQueries == 0.0 && smoothedQpsUpdates == 0.0) {
+            smoothedQpsQueries = instantQpsQ;
+            smoothedQpsUpdates = instantQpsU;
+        } else {
+            smoothedQpsQueries = smoothedQpsQueries * 0.7 + instantQpsQ * 0.3;
+            smoothedQpsUpdates = smoothedQpsUpdates * 0.7 + instantQpsU * 0.3;
+        }
 
         return new double[] { smoothedQpsQueries, smoothedQpsUpdates };
     }
