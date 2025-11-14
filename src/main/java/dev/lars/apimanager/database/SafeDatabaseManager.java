@@ -41,6 +41,14 @@ public class SafeDatabaseManager implements IDatabaseManager{
         return false;
     }
 
+    public void setSqlLogging(boolean enabled, long durationMs) {
+        ApiManagerStatements.logToConsole("[SafeDatabaseManager] setSqlLogging(boolean enabled, long durationMs) called - no real database connection present.", NamedTextColor.GOLD);
+    }
+    public long getSqlLoggingTimeRemaining() {
+        ApiManagerStatements.logToConsole("[SafeDatabaseManager] getSqlLoggingTimeRemaining() called - no real database connection present.", NamedTextColor.GOLD);
+        return 0;
+    }
+
     public Connection getConnection() throws SQLException {
         ApiManagerStatements.logToConsole("[SafeDatabaseManager] getConnection() called - no real database connection present.", NamedTextColor.RED);
         throw new SQLException("No database connection available (SafeDatabaseManager).");

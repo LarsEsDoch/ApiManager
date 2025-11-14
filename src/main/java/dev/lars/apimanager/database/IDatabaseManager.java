@@ -21,6 +21,10 @@ public interface IDatabaseManager {
 
     boolean isSqlLoggingEnabled();
 
+    void setSqlLogging(boolean enabled, long durationMs);
+
+    long getSqlLoggingTimeRemaining();
+
     HikariDataSource getDataSource();
 
     Connection getConnection() throws SQLException;

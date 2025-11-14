@@ -20,6 +20,7 @@ public final class DatabaseManager implements IDatabaseManager {
     private final ExecutorService asyncExecutor;
     private final CompletableFuture<Void> ready = new CompletableFuture<>();
     private final AtomicBoolean sqlLoggingEnabled = new AtomicBoolean(false);
+    private volatile long sqlLoggingEnabledUntil = 0;
     private final AtomicLong queryCount = new AtomicLong(0);
     private final AtomicLong updateCount = new AtomicLong(0);
     private double smoothedQpsQueries = 0.0;
@@ -97,14 +98,50 @@ public final class DatabaseManager implements IDatabaseManager {
     }
 
     public void setSqlLogging(boolean enabled) {
-        sqlLoggingEnabled.set(enabled);
-        String status = enabled ? "enabled" : "disabled";
-        ApiManagerStatements.logToConsole("SQL query logging " + status,
-            enabled ? NamedTextColor.GREEN : NamedTextColor.GRAY);
+        setSqlLogging(enabled, 0);
+    }
+
+    public void setSqlLogging(boolean enabled, long durationMs) {
+        if (enabled) {
+            if (durationMs > 0) {
+                sqlLoggingEnabledUntil = System.currentTimeMillis() + durationMs;
+                sqlLoggingEnabled.set(true);
+                long seconds = durationMs / 1000;
+                ApiManagerStatements.logToConsole("SQL query logging enabled for " + seconds + " seconds",
+                    NamedTextColor.GREEN);
+            } else {
+                sqlLoggingEnabledUntil = 0;
+                sqlLoggingEnabled.set(true);
+                ApiManagerStatements.logToConsole("SQL query logging enabled indefinitely",
+                    NamedTextColor.GREEN);
+            }
+        } else {
+            sqlLoggingEnabledUntil = 0;
+            sqlLoggingEnabled.set(false);
+            ApiManagerStatements.logToConsole("SQL query logging disabled",
+                NamedTextColor.GRAY);
+        }
     }
 
     public boolean isSqlLoggingEnabled() {
+        if (sqlLoggingEnabled.get() && sqlLoggingEnabledUntil > 0) {
+            if (System.currentTimeMillis() >= sqlLoggingEnabledUntil) {
+                sqlLoggingEnabled.set(false);
+                sqlLoggingEnabledUntil = 0;
+                ApiManagerStatements.logToConsole("SQL query logging automatically disabled (timeout reached)",
+                    NamedTextColor.GRAY);
+                return false;
+            }
+        }
         return sqlLoggingEnabled.get();
+    }
+
+    public long getSqlLoggingTimeRemaining() {
+        if (sqlLoggingEnabledUntil > 0) {
+            long remaining = sqlLoggingEnabledUntil - System.currentTimeMillis();
+            return Math.max(0, remaining);
+        }
+        return 0;
     }
 
     public void logSqlQuery(String sql, Object... params) {
