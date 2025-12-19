@@ -4,7 +4,7 @@ plugins {
 }
 
 group = 'de.lars'
-version = '4.3.6'
+version = '4.3.7'
 
 repositories {
     mavenCentral()
@@ -17,7 +17,7 @@ repositories {
 dependencies {
     implementation 'com.zaxxer:HikariCP:5.1.0'
     implementation 'org.mariadb.jdbc:mariadb-java-client:3.4.0'
-    compileOnly("io.papermc.paper:paper-api:1.21.10-R0.1-SNAPSHOT")
+    compileOnly("io.papermc.paper:paper-api:1.21.11-R0.1-SNAPSHOT")
 }
 
 tasks {

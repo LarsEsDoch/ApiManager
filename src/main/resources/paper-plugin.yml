@@ -1,7 +1,7 @@
 name: ApiManager
-version: '4.3.6'
+version: '4.3.7'
 main: dev.lars.apimanager.ApiManager
-api-version: '1.21.10'
+api-version: '1.21.11'
 author: LarsEsDoch
 description: Connects to maria databases via HikariCP to be usable as API
 website: "https://github.com/LarsEsDoch/ApiManager"
