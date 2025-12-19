@@ -13,6 +13,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 
+import java.time.Instant;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -35,7 +36,10 @@ public record ApiManagerCommand(ApiManager plugin, ConnectDatabase connectDataba
         }
 
         String sub = args[0];
-        if (sub.equalsIgnoreCase("reload") || sub.equalsIgnoreCase("rl")) {
+        if (sub.equalsIgnoreCase("test") || sub.equalsIgnoreCase("t")) {
+            handleTest(sender);
+            return;
+        } else if (sub.equalsIgnoreCase("reload") || sub.equalsIgnoreCase("rl")) {
             plugin.reloadConfig();
 
             boolean success;
@@ -68,10 +72,11 @@ public record ApiManagerCommand(ApiManager plugin, ConnectDatabase connectDataba
             return;
         } else if (sub.equalsIgnoreCase("logging") || sub.equalsIgnoreCase("l")) {
             if (args.length < 2) {
-                sender.sendMessage(ApiManagerStatements.getPrefix().append(Component.text("Invalid action. Usage: /am logging enable (<duration in ms>), disable, status", NamedTextColor.RED)));
+                sender.sendMessage(ApiManagerStatements.getPrefix().append(Component.text("Invalid action. Use: enable, disable, or status", NamedTextColor.RED)));
                 return;
             }
-            handleLogging(sender, args);
+            String action = args[1].toLowerCase();
+            handleLogging(sender, action);
             return;
         } else if (sub.equalsIgnoreCase("version") || sub.equalsIgnoreCase("v")) {
             sender.sendMessage(ApiManagerStatements.getPrefix().append(Component.text("=== " + plugin.getName() + " Version ===", NamedTextColor.AQUA)));
@@ -92,6 +97,103 @@ public record ApiManagerCommand(ApiManager plugin, ConnectDatabase connectDataba
         }
         sender.sendMessage(ApiManagerStatements.getPrefix().append(Component.text("Unknown command!", NamedTextColor.RED)));
         sendUsage(sender);
+    }
+
+    private void handleTest(CommandSender sender) {
+        IDatabaseManager dbm = ApiManager.getInstance().getDatabaseManager();
+
+        if (!(dbm instanceof DatabaseManager)) {
+            sender.sendMessage(ApiManagerStatements.getPrefix()
+                .append(Component.text("Database is not connected. Cannot perform test.", NamedTextColor.RED)));
+            return;
+        }
+
+        sender.sendMessage(ApiManagerStatements.getPrefix()
+            .append(Component.text("Running database test...", NamedTextColor.GRAY)));
+
+        long startTime = System.currentTimeMillis();
+
+        try {
+            dbm.update("""
+                CREATE TABLE IF NOT EXISTS apimanager_test (
+                    id INT PRIMARY KEY,
+                    test_value VARCHAR(255),
+                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+            """);
+
+            long updateStart = System.currentTimeMillis();
+            dbm.update("""
+                INSERT INTO apimanager_test (id, test_value) VALUES (1, ?)
+                ON DUPLICATE KEY UPDATE test_value = VALUES(test_value)
+            """, "Test successful at " + Instant.now());
+            long updateTime = System.currentTimeMillis() - updateStart;
+
+            long queryStart = System.currentTimeMillis();
+            String result = dbm.query(conn -> {
+                try (var ps = conn.prepareStatement("SELECT test_value FROM apimanager_test WHERE id = 1")) {
+                    try (var rs = ps.executeQuery()) {
+                        if (rs.next()) {
+                            return rs.getString("test_value");
+                        }
+                        return null;
+                    }
+                }
+            });
+            long queryTime = System.currentTimeMillis() - queryStart;
+
+            long totalTime = System.currentTimeMillis() - startTime;
+
+            sender.sendMessage(ApiManagerStatements.getPrefix()
+                .append(Component.text("=== Database Test Results ===", NamedTextColor.AQUA)));
+            sender.sendMessage(ApiManagerStatements.getPrefix()
+                .append(Component.text("Status: ", NamedTextColor.GRAY))
+                .append(Component.text("PASSED", NamedTextColor.GREEN)));
+            sender.sendMessage(ApiManagerStatements.getPrefix()
+                .append(Component.text("Update time: ", NamedTextColor.GRAY))
+                .append(Component.text(updateTime + "ms", NamedTextColor.GOLD)));
+            sender.sendMessage(ApiManagerStatements.getPrefix()
+                .append(Component.text("Query time: ", NamedTextColor.GRAY))
+                .append(Component.text(queryTime + "ms", NamedTextColor.GOLD)));
+            sender.sendMessage(ApiManagerStatements.getPrefix()
+                .append(Component.text("Total time: ", NamedTextColor.GRAY))
+                .append(Component.text(totalTime + "ms", NamedTextColor.GOLD)));
+
+            if (result != null) {
+                sender.sendMessage(ApiManagerStatements.getPrefix()
+                    .append(Component.text("Retrieved value: ", NamedTextColor.GRAY))
+                    .append(Component.text(result, NamedTextColor.YELLOW)));
+            }
+
+        } catch (Exception e) {
+            sender.sendMessage(ApiManagerStatements.getPrefix()
+                .append(Component.text("Database test FAILED!", NamedTextColor.RED)));
+            sender.sendMessage(ApiManagerStatements.getPrefix()
+                .append(Component.text("Error: " + e.getMessage(), NamedTextColor.RED)));
+            ApiManagerStatements.logToConsole("Database test failed: " + e.getMessage(), NamedTextColor.RED);
+        }
+    }
+
+    private void handleLogging(CommandSender sender, String action) {
+        switch (action) {
+            case "enable" -> {
+                ApiManager.getInstance().getDatabaseManager().setSqlLogging(true);
+                sender.sendMessage(ApiManagerStatements.getPrefix().append(Component.text("SQL query logging enabled", NamedTextColor.GREEN)));
+            }
+            case "disable" -> {
+                ApiManager.getInstance().getDatabaseManager().setSqlLogging(false);
+                sender.sendMessage(ApiManagerStatements.getPrefix().append(Component.text("SQL query logging disabled", NamedTextColor.GRAY)));
+            }
+            case "status" -> {
+                boolean enabled = ApiManager.getInstance().getDatabaseManager().isSqlLoggingEnabled();
+                String status = enabled ? "enabled" : "disabled";
+                NamedTextColor color = enabled ? NamedTextColor.GREEN : NamedTextColor.RED;
+                sender.sendMessage(ApiManagerStatements.getPrefix().append(Component.text("SQL query logging is currently " + status, color)));
+            }
+            default -> {
+                sender.sendMessage(ApiManagerStatements.getPrefix().append(Component.text("Invalid action. Use: enable, disable, or status", NamedTextColor.RED)));
+            }
+        }
     }
 
     private void handleStatus(CommandSender sender) {
@@ -172,67 +274,18 @@ public record ApiManagerCommand(ApiManager plugin, ConnectDatabase connectDataba
                 sqlLogging ? NamedTextColor.GREEN : NamedTextColor.RED)));
     }
 
-    private void handleLogging(CommandSender sender, String[] args) {
-        String action = args[1].toLowerCase();
-
-        switch (action) {
-            case "enable" -> {
-                long durationMs = 0;
-                if (args.length >= 3) {
-                    try {
-                        durationMs = Long.parseLong(args[2]);
-                        if (durationMs < 0) {
-                            sender.sendMessage(ApiManagerStatements.getPrefix().append(Component.text("Duration must be positive!", NamedTextColor.RED)));
-                            return;
-                        }
-                    } catch (NumberFormatException e) {
-                        sender.sendMessage(ApiManagerStatements.getPrefix().append(Component.text("Invalid duration: " + args[2], NamedTextColor.RED)));
-                        return;
-                    }
-                }
-                ApiManager.getInstance().getDatabaseManager().setSqlLogging(true, durationMs);
-                if (durationMs > 0) {
-                    sender.sendMessage(ApiManagerStatements.getPrefix().append(Component.text("SQL logging enabled for " + durationMs + " ms!", NamedTextColor.GREEN)));
-                } else {
-                    sender.sendMessage(ApiManagerStatements.getPrefix().append(Component.text("SQL query logging enabled", NamedTextColor.GREEN)));
-                }
-            }
-            case "disable" -> {
-                ApiManager.getInstance().getDatabaseManager().setSqlLogging(false);
-                sender.sendMessage(ApiManagerStatements.getPrefix().append(Component.text("SQL query logging disabled", NamedTextColor.GRAY)));
-            }
-            case "status" -> {
-                boolean enabled = ApiManager.getInstance().getDatabaseManager().isSqlLoggingEnabled();
-                long remaining = ApiManager.getInstance().getDatabaseManager().getSqlLoggingTimeRemaining();
-
-                String status = enabled ? "enabled" : "disabled";
-                NamedTextColor color = enabled ? NamedTextColor.GREEN : NamedTextColor.RED;
-
-                sender.sendMessage(ApiManagerStatements.getPrefix()
-                    .append(Component.text("SQL query logging is currently " + status, color)));
-
-                if (enabled && remaining > 0) {
-                    long seconds = remaining / 1000;
-                    sender.sendMessage(ApiManagerStatements.getPrefix()
-                        .append(Component.text("Time remaining: " + seconds + " seconds", NamedTextColor.GRAY)));
-                }
-            }
-            default -> {
-                sender.sendMessage(ApiManagerStatements.getPrefix().append(Component.text("Invalid action. Use: enable, disable, or status", NamedTextColor.RED)));
-            }
-        }
-    }
-
     private void sendUsage(CommandSender sender) {
         sender.sendMessage(ApiManagerStatements.getPrefix().append(Component.text("=== " + plugin.getName() + " Commands ===", NamedTextColor.AQUA)));
+        sender.sendMessage(ApiManagerStatements.getPrefix().append(Component.text("/apimanager test", NamedTextColor.GOLD))
+            .append(Component.text(" - Test database connection with query and update", NamedTextColor.GRAY)));
         sender.sendMessage(ApiManagerStatements.getPrefix().append(Component.text("/apimanager reload", NamedTextColor.GOLD))
             .append(Component.text(" - Reload configuration", NamedTextColor.GRAY)));
         sender.sendMessage(ApiManagerStatements.getPrefix().append(Component.text("/apimanager status", NamedTextColor.GOLD))
             .append(Component.text(" - Shows connection status of database", NamedTextColor.GRAY)));
-        sender.sendMessage(ApiManagerStatements.getPrefix().append(Component.text("/apimanager logging enable (<duration in ms>)", NamedTextColor.GOLD))
-            .append(Component.text(" - Enable SQL query and update logging", NamedTextColor.GRAY)));
+        sender.sendMessage(ApiManagerStatements.getPrefix().append(Component.text("/apimanager logging enable", NamedTextColor.GOLD))
+            .append(Component.text(" - Enable SQL query logging", NamedTextColor.GRAY)));
         sender.sendMessage(ApiManagerStatements.getPrefix().append(Component.text("/apimanager logging disable", NamedTextColor.GOLD))
-            .append(Component.text(" - Disable SQL query and update logging", NamedTextColor.GRAY)));
+            .append(Component.text(" - Disable SQL query logging", NamedTextColor.GRAY)));
         sender.sendMessage(ApiManagerStatements.getPrefix().append(Component.text("/apimanager logging status", NamedTextColor.GOLD))
             .append(Component.text(" - Check logging status", NamedTextColor.GRAY)));
         sender.sendMessage(ApiManagerStatements.getPrefix().append(Component.text("/apimanager version", NamedTextColor.GOLD))
@@ -242,7 +295,7 @@ public record ApiManagerCommand(ApiManager plugin, ConnectDatabase connectDataba
     @Override
     public @NotNull Collection<String> suggest(final @NotNull CommandSourceStack commandSourceStack, final String[] args) {
         if (args.length <= 1) {
-            return List.of("reload", "rl", "logging", "l", "version", "v", "status", "s");
+            return List.of("test", "t", "reload", "rl", "logging", "l", "version", "v", "status", "s");
         }
         if (args.length == 2 && args[0].equalsIgnoreCase("logging") || args.length == 3 && args[0].equalsIgnoreCase("logging")
         || args.length == 2 && args[0].equalsIgnoreCase("l") || args.length == 3 && args[0].equalsIgnoreCase("l")) {
