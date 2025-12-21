@@ -24,11 +24,11 @@ public class PlayerAPIImpl implements IPlayerAPI {
         db().update("""
             CREATE TABLE IF NOT EXISTS players (
                 uuid CHAR(36) NOT NULL PRIMARY KEY,
-                name VARCHAR(16) NOT NULL,
-                playtime BIGINT DEFAULT 0,
-                is_online BOOLEAN DEFAULT FALSE,
+                name VARCHAR(16) NOT NULL DEFAULT '',
+                playtime BIGINT NOT NULL DEFAULT 0,
+                is_online BOOLEAN NOT NULL DEFAULT FALSE,
                 first_join TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                last_seen TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                last_seen TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -109,19 +109,33 @@ public class PlayerAPIImpl implements IPlayerAPI {
     @Override
     public void setOnline(OfflinePlayer player, boolean online) {
         ApiManagerValidateParameter.validatePlayer(player);
-        repo().updateColumns(TABLE,
-            new String[]{"is_online", "name"},
-            new Object[]{online, player.getName()},
-            "uuid = ?", player.getUniqueId().toString());
+        if (!online) {
+            repo().updateColumns(TABLE,
+                new String[]{"is_online", "name", "last_seen"},
+                new Object[]{false, player.getName(), Instant.now()},
+                "uuid = ?", player.getUniqueId().toString());
+        } else {
+            repo().updateColumns(TABLE,
+                new String[]{"is_online", "name"},
+                new Object[]{true, player.getName()},
+                "uuid = ?", player.getUniqueId().toString());
+        }
     }
 
     @Override
     public CompletableFuture<Void> setOnlineAsync(OfflinePlayer player, boolean online) {
         ApiManagerValidateParameter.validatePlayer(player);
-        return repo().updateColumnsAsync(TABLE,
-            new String[]{"is_online", "name"},
-            new Object[]{online, player.getName()},
-            "uuid = ?", player.getUniqueId().toString());
+        if (!online) {
+            return repo().updateColumnsAsync(TABLE,
+                new String[]{"is_online", "name", "last_seen"},
+                new Object[]{false, player.getName(), Instant.now()},
+                "uuid = ?", player.getUniqueId().toString());
+        } else {
+            return repo().updateColumnsAsync(TABLE,
+                new String[]{"is_online", "name"},
+                new Object[]{true, player.getName()},
+                "uuid = ?", player.getUniqueId().toString());
+        }
     }
 
     @Override
