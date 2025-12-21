@@ -325,8 +325,8 @@ public record ApiManagerCommand(ApiManager plugin, ConnectDatabase connectDataba
         if (args.length <= 1) {
             return List.of("test", "t", "reload", "rl", "logging", "l", "version", "v", "status", "s");
         }
-        if (args.length == 2 && args[0].equalsIgnoreCase("logging") || args.length == 3 && args[0].equalsIgnoreCase("logging")
-        || args.length == 2 && args[0].equalsIgnoreCase("l") || args.length == 3 && args[0].equalsIgnoreCase("l")) {
+        if (args.length == 2 && args[0].equalsIgnoreCase("logging")
+        || args.length == 2 && args[0].equalsIgnoreCase("l")) {
             return List.of("enable", "disable", "status");
         }
         return Collections.emptyList();
