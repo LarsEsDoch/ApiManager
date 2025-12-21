@@ -297,34 +297,98 @@ public final class DatabaseManager implements IDatabaseManager {
             ApiManagerStatements.logToConsole("HikariCP pool closed.", NamedTextColor.GRAY);
         }
     }
-
+    
+    @Override
     public void update(String sql, Object... params) {
         incrementUpdateCount();
         logSqlUpdate(sql, params);
 
-        try (Connection conn = getConnection();
-            PreparedStatement ps = conn.prepareStatement(sql)) {
+        Connection conn = null;
+        PreparedStatement ps = null;
+        boolean originalAutoCommit = true;
+
+        try {
+            conn = getConnection();
+            originalAutoCommit = conn.getAutoCommit();
+
+            conn.setAutoCommit(false);
+
+            ps = conn.prepareStatement(sql);
             setParams(ps, params);
             ps.executeUpdate();
+
+            conn.commit();
+
         } catch (SQLException e) {
-            ApiManagerStatements.logToConsole("SQL update failed: " + sql + " " + e.getMessage(), NamedTextColor.RED);
+            if (conn != null) {
+                try {
+                    conn.rollback();
+                } catch (SQLException rollbackEx) {
+                    ApiManagerStatements.logToConsole(
+                        "Rollback failed: " + rollbackEx.getMessage(),
+                        NamedTextColor.RED
+                    );
+                }
+            }
+            ApiManagerStatements.logToConsole(
+                "SQL update failed: " + sql + " | Error: " + e.getMessage(),
+                NamedTextColor.RED
+            );
+        } finally {
+            if (ps != null) {
+                try {
+                    ps.close();
+                } catch (SQLException e) {
+                    ApiManagerStatements.logToConsole(
+                        "Failed to close PreparedStatement: " + e.getMessage(),
+                        NamedTextColor.GOLD
+                    );
+                }
+            }
+
+            if (conn != null) {
+                try {
+                    conn.setAutoCommit(originalAutoCommit);
+                } catch (SQLException e) {
+                    ApiManagerStatements.logToConsole(
+                        "Failed to restore autoCommit state: " + e.getMessage(),
+                        NamedTextColor.GOLD
+                    );
+                }
+
+                try {
+                    conn.close();
+                } catch (SQLException e) {
+                    ApiManagerStatements.logToConsole(
+                        "Failed to close connection: " + e.getMessage(),
+                        NamedTextColor.GOLD
+                    );
+                }
+            }
         }
     }
 
+    @Override
     public CompletableFuture<Void> updateAsync(String sql, Object... params) {
         return CompletableFuture.runAsync(() -> update(sql, params), asyncExecutor);
     }
 
+    @Override
     public <T> T query(SQLFunction<Connection, T> function) {
         incrementQueryCount();
+
         try (Connection conn = getConnection()) {
             return function.apply(conn);
         } catch (SQLException e) {
-            ApiManagerStatements.logToConsole("SQL query failed: " + e.getMessage(), NamedTextColor.RED);
+            ApiManagerStatements.logToConsole(
+                "SQL query failed: " + e.getMessage(),
+                NamedTextColor.RED
+            );
             return null;
         }
     }
 
+    @Override
     public <T> CompletableFuture<T> queryAsync(SQLFunction<Connection, T> function) {
         return CompletableFuture.supplyAsync(() -> query(function), asyncExecutor);
     }
