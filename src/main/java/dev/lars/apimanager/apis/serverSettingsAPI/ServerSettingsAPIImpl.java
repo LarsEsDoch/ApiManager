@@ -26,17 +26,17 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
         db().update("""
             CREATE TABLE IF NOT EXISTS server_settings (
                 id INT PRIMARY KEY CHECK (id = 1),
-                is_server_online BOOLEAN DEFAULT FALSE,
-                is_real_time_enabled BOOLEAN DEFAULT FALSE,
-                is_real_weather_enabled BOOLEAN DEFAULT FALSE,
-                is_maintenance_enabled BOOLEAN DEFAULT FALSE,
-                maintenance_reason VARCHAR(255) DEFAULT NULL,
+                is_server_online BOOLEAN NOT NULL DEFAULT FALSE,
+                is_real_time_enabled BOOLEAN NOT NULL DEFAULT FALSE,
+                is_real_weather_enabled BOOLEAN NOT NULL DEFAULT FALSE,
+                is_maintenance_enabled BOOLEAN NOT NULL DEFAULT FALSE,
+                maintenance_reason VARCHAR(255) NOT NULL DEFAULT '',
                 maintenance_start TIMESTAMP DEFAULT NULL,
                 maintenance_estimated_end TIMESTAMP DEFAULT NULL,
                 maintenance_deadline TIMESTAMP DEFAULT NULL,
-                max_players INT DEFAULT 10,
-                server_name VARCHAR(255) DEFAULT 'A Minecraft Server',
-                server_version VARCHAR(50) DEFAULT '1.21.10',
+                max_players INT NOT NULL DEFAULT 20,
+                server_name VARCHAR(255) NOT NULL DEFAULT 'A Minecraft Server',
+                server_version VARCHAR(50) NOT NULL DEFAULT '1.21.10',
                 spawn_location VARCHAR(255) DEFAULT NULL,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
@@ -46,9 +46,11 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
         if (repo().count(TABLE, WHERE_ID) < 1) {
             db().update("""
                 INSERT INTO server_settings
-                (id, is_server_online, is_real_time_enabled, is_real_weather_enabled, is_maintenance_enabled, maintenance_reason, maintenance_estimated_end, max_players, server_name, server_version, spawn_location)
-                VALUES (1, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """, false, false, false, false, null, null, 10, "A Minecraft Server", "1.21.10", null);
+                (id, is_server_online, is_real_time_enabled, is_real_weather_enabled,
+                 is_maintenance_enabled, maintenance_reason, maintenance_start, maintenance_estimated_end, maintenance_deadline,
+                  max_players, server_name, server_version, spawn_location)
+                VALUES (1, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, false, false, false, false, "", null, null, null, 20, "A Minecraft Server", "1.21.11", null);
         }
     }
 
