@@ -28,7 +28,7 @@ public class PlayerAPIImpl implements IPlayerAPI {
                 playtime BIGINT NOT NULL DEFAULT 0,
                 is_online BOOLEAN NOT NULL DEFAULT FALSE,
                 first_join TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                last_seen TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                last_seen TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
