@@ -24,7 +24,7 @@ public class LimitAPIImpl implements ILimitAPI {
         db().update("""
             CREATE TABLE IF NOT EXISTS player_limits (
                 uuid CHAR(36) NOT NULL PRIMARY KEY,
-                backpack_slots INT DEFAULT 9,
+                backpack_slots INT NOT NULL DEFAULT 9,
                 max_chunks INT DEFAULT 32,
                 max_homes INT DEFAULT 32,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

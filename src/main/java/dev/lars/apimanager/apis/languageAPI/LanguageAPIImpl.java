@@ -24,7 +24,7 @@ public class LanguageAPIImpl implements ILanguageAPI {
         db().update("""
             CREATE TABLE IF NOT EXISTS player_languages (
                 uuid CHAR(36) NOT NULL PRIMARY KEY,
-                language_id INT DEFAULT 1,
+                language_id INT NOT NULL DEFAULT 1,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                 FOREIGN KEY (uuid) REFERENCES players(uuid) ON DELETE CASCADE

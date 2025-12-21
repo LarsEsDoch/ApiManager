@@ -30,8 +30,8 @@ public class EconomyAPIImpl implements IEconomyAPI {
         db().update("""
             CREATE TABLE IF NOT EXISTS player_economy (
                 uuid CHAR(36) NOT NULL PRIMARY KEY,
-                balance INT DEFAULT 0,
-                gifts VARCHAR(255) DEFAULT '',
+                balance INT NOT NULL DEFAULT 0,
+                gifts VARCHAR(255) NOT NULL DEFAULT '',
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                 FOREIGN KEY (uuid) REFERENCES players(uuid) ON DELETE CASCADE
