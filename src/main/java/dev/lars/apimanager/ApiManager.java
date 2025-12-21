@@ -57,9 +57,9 @@ public final class ApiManager extends JavaPlugin {
     private ConnectDatabase connectDatabase;
 
     private ServerSettingsAPIImpl serverSettingsAPI;
+    private PlayerAPIImpl playerAPI;
     private ChunkAPIImpl chunkAPI;
     private HomeAPIImpl homeAPI;
-    private PlayerAPIImpl playerAPI;
     private LanguageAPIImpl languageAPI;
     private BackpackAPIImpl backpackAPI;
     private LimitAPIImpl limitAPI;
@@ -122,14 +122,14 @@ public final class ApiManager extends JavaPlugin {
         serverSettingsAPI = new ServerSettingsAPIImpl();
         ServerSettingsAPI.setApi(serverSettingsAPI);
 
+        playerAPI = new PlayerAPIImpl();
+        PlayerAPI.setApi(playerAPI);
+
         chunkAPI = new ChunkAPIImpl();
         ChunkAPI.setApi(chunkAPI);
 
         homeAPI = new HomeAPIImpl();
         HomeAPI.setApi(homeAPI);
-
-        playerAPI = new PlayerAPIImpl();
-        PlayerAPI.setApi(playerAPI);
 
         languageAPI = new LanguageAPIImpl();
         LanguageAPI.setApi(languageAPI);
@@ -174,9 +174,9 @@ public final class ApiManager extends JavaPlugin {
     private void buildCreateTableList() {
         createTableRunnable.clear();
         createTableRunnable.add(() -> serverSettingsAPI.createTables());
+        createTableRunnable.add(() -> playerAPI.createTables());
         createTableRunnable.add(() -> chunkAPI.createTables());
         createTableRunnable.add(() -> homeAPI.createTables());
-        createTableRunnable.add(() -> playerAPI.createTables());
         createTableRunnable.add(() -> languageAPI.createTables());
         createTableRunnable.add(() -> backpackAPI.createTables());
         createTableRunnable.add(() -> limitAPI.createTables());
@@ -250,16 +250,16 @@ public final class ApiManager extends JavaPlugin {
         return serverSettingsAPI;
     }
 
+    public PlayerAPIImpl getPlayerAPI() {
+        return playerAPI;
+    }
+
     public ChunkAPIImpl getChunkAPI() {
         return chunkAPI;
     }
 
     public HomeAPIImpl getHomeAPI() {
         return homeAPI;
-    }
-
-    public PlayerAPIImpl getPlayerAPI() {
-        return playerAPI;
     }
 
     public LanguageAPIImpl getLanguageAPI() {
