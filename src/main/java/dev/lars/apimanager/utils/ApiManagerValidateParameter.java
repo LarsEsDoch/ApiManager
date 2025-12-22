@@ -7,6 +7,7 @@ import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 
 import java.time.Instant;
+import java.util.List;
 
 public class ApiManagerValidateParameter {
     public static void validatePlayer(OfflinePlayer player) {
@@ -29,13 +30,13 @@ public class ApiManagerValidateParameter {
 
     public static void validateNamedTextColor(NamedTextColor namedTextColor) {
         if (namedTextColor == null) {
-            throw new IllegalArgumentException("NamedTextColor cannot be null");
+            throw new IllegalArgumentException("Named text color cannot be null");
         }
     }
 
     public static void validateTextDecoration(TextDecoration textDecoration) {
         if (textDecoration == null) {
-            throw new IllegalArgumentException("TextDecoration cannot be null");
+            throw new IllegalArgumentException("Text decoration cannot be null");
         }
     }
 
@@ -65,19 +66,25 @@ public class ApiManagerValidateParameter {
 
     public static void validateServerName(String serverName) {
         if (serverName == null) {
-            throw new IllegalArgumentException("Servername cannot be null");
+            throw new IllegalArgumentException("Server name cannot be null");
         }
     }
 
     public static void validateServerVersion(String serverVersion) {
         if (serverVersion == null) {
-            throw new IllegalArgumentException("Serverversion cannot be null");
+            throw new IllegalArgumentException("Server version cannot be null");
         }
     }
 
     public static void validateInstant(Instant instant) {
         if (instant == null) {
             throw new IllegalArgumentException("Instant cannot be null");
+        }
+    }
+
+    public static void validateServerNameColors(List<String> serverNameColors) {
+        if (serverNameColors == null || serverNameColors.getFirst() == null || serverNameColors.getLast() == null) {
+            throw new IllegalArgumentException("Server name colors cannot be null");
         }
     }
 }
