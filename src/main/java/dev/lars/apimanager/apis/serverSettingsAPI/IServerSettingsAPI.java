@@ -99,6 +99,10 @@ public interface IServerSettingsAPI {
 
     CompletableFuture<String> getServerNameAsync();
 
+    void setServerGradient(List<String> serverNameColors);
+
+    CompletableFuture<Void> setServerGradientAsync(List<String> serverNameColors);
+
     List<String> getServerNameGradient();
 
     CompletableFuture<List<String>> getServerNameGradientAsync();

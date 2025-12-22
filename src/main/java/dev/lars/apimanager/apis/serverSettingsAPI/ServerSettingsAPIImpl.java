@@ -318,6 +318,24 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
     }
 
     @Override
+    public void setServerGradient(List<String> serverNameColors) {
+        ApiManagerValidateParameter.validateServerNameColors(serverNameColors);
+        repo().updateColumns(TABLE,
+            new String[]{"server_name_startcolor", "server_name_endcolor"},
+            new Object[]{serverNameColors.getFirst(), serverNameColors.getLast()},
+            WHERE_ID);
+    }
+
+    @Override
+    public CompletableFuture<Void> setServerGradientAsync(List<String> serverNameColors) {
+        ApiManagerValidateParameter.validateServerNameColors(serverNameColors);
+        return repo().updateColumnsAsync(TABLE,
+            new String[]{"server_name_startcolor", "server_name_endcolor"},
+            new Object[]{serverNameColors.getFirst(), serverNameColors.getLast()},
+            WHERE_ID);
+    }
+
+    @Override
     public List<String> getServerNameGradient() {
         return List.of(repo().getString(TABLE, "server_name_startcolor", WHERE_ID), repo().getString(TABLE, "server_name_endcolor", WHERE_ID));
     }
