@@ -3,6 +3,7 @@ package dev.lars.apimanager.apis.serverSettingsAPI;
 import org.bukkit.Location;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public interface IServerSettingsAPI {
@@ -97,6 +98,10 @@ public interface IServerSettingsAPI {
     String getServerName();
 
     CompletableFuture<String> getServerNameAsync();
+
+    List<String> getServerNameGradient();
+
+    CompletableFuture<List<String>> getServerNameGradientAsync();
 
     void setServerVersion(String serverVersion);
 

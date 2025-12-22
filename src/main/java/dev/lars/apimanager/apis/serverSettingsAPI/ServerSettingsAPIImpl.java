@@ -8,6 +8,7 @@ import dev.lars.apimanager.utils.ApiManagerValidateParameter;
 import org.bukkit.Location;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public class ServerSettingsAPIImpl implements IServerSettingsAPI {
@@ -36,6 +37,8 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
                 maintenance_deadline TIMESTAMP DEFAULT NULL,
                 max_players INT NOT NULL DEFAULT 20,
                 server_name VARCHAR(255) NOT NULL DEFAULT 'A Minecraft Server',
+                server_name_startcolor CHAR(7) NOT NULL DEFAULT '#ffffff',
+                server_name_endcolor CHAR(7) NOT NULL DEFAULT '#ffffff',
                 server_version VARCHAR(50) NOT NULL DEFAULT '1.21.10',
                 spawn_location VARCHAR(255) DEFAULT NULL,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -48,9 +51,9 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
                 INSERT INTO server_settings
                 (id, is_server_online, is_real_time_enabled, is_real_weather_enabled,
                  is_maintenance_enabled, maintenance_reason, maintenance_start, maintenance_estimated_end, maintenance_deadline,
-                  max_players, server_name, server_version, spawn_location)
-                VALUES (1, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """, false, false, false, false, "", null, null, null, 20, "A Minecraft Server", "1.21.11", null);
+                  max_players, server_name, server_name_startcolor, server_name_endcolor, server_version, spawn_location)
+                VALUES (1, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, false, false, false, false, "", null, null, null, 20, "A Minecraft Server", "#ffffff", "#ffffff", "1.21.11", null);
         }
     }
 
@@ -312,6 +315,23 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
     @Override
     public CompletableFuture<String> getServerNameAsync() {
         return repo().getStringAsync(TABLE, "server_name", WHERE_ID);
+    }
+
+    @Override
+    public List<String> getServerNameGradient() {
+        return List.of(repo().getString(TABLE, "server_name_startcolor", WHERE_ID), repo().getString(TABLE, "server_name_endcolor", WHERE_ID));
+    }
+
+    @Override
+    public CompletableFuture<List<String>> getServerNameGradientAsync() {
+        CompletableFuture<String> startColor =
+                repo().getStringAsync(TABLE, "server_name_startcolor", WHERE_ID);
+
+        CompletableFuture<String> endColor =
+                repo().getStringAsync(TABLE, "server_name_endcolor", WHERE_ID);
+
+        return startColor.thenCombine(endColor, List::of
+        );
     }
 
     @Override

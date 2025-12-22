@@ -297,7 +297,7 @@ public final class DatabaseManager implements IDatabaseManager {
             ApiManagerStatements.logToConsole("HikariCP pool closed.", NamedTextColor.GRAY);
         }
     }
-    
+
     @Override
     public void update(String sql, Object... params) {
         incrementUpdateCount();
