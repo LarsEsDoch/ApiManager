@@ -33,7 +33,7 @@ public class BackpackAPIImpl implements IBackpackAPI {
         db().update("""
             CREATE TABLE IF NOT EXISTS player_backpacks (
                 uuid CHAR(36) NOT NULL PRIMARY KEY,
-                data LONGBLOB,
+                data LONGBLOB DEFAULT NULL,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                 FOREIGN KEY (uuid) REFERENCES players(uuid) ON DELETE CASCADE

@@ -32,10 +32,10 @@ public class CourtAPIImpl implements ICourtAPI {
             CREATE TABLE IF NOT EXISTS player_court (
                 uuid CHAR(36) NOT NULL PRIMARY KEY,
                 prosecutor_uuid CHAR(36) DEFAULT NULL,
-                status INT DEFAULT 0,
-                reason VARCHAR(255) DEFAULT NULL,
-                time INT DEFAULT 0,
-                cell INT DEFAULT 0,
+                status INT NOT NULL DEFAULT 0,
+                reason VARCHAR(255) NOT NULL DEFAULT "",
+                time INT NOT NULL DEFAULT 0,
+                cell INT NOT NULL DEFAULT 0,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                 FOREIGN KEY (uuid) REFERENCES players(uuid) ON DELETE CASCADE
@@ -46,8 +46,8 @@ public class CourtAPIImpl implements ICourtAPI {
     public void initPlayer(OfflinePlayer player) {
         db().update("""
             INSERT IGNORE INTO player_court (uuid, prosecutor_uuid, status, reason, time, cell)
-            VALUES (?, NULL, ?, NULL, ?, ?)
-        """, player.getUniqueId().toString(), STATUS_FREE, 0, 0);
+            VALUES (?, ?, ?, ?, ?, ?)
+        """, player.getUniqueId().toString(), null, STATUS_FREE, "", 0, 0);
     }
 
     public boolean doesUserExist(OfflinePlayer player) {
@@ -79,22 +79,22 @@ public class CourtAPIImpl implements ICourtAPI {
     }
 
     @Override
-    public void report(OfflinePlayer player, OfflinePlayer prosecutor_uuid, String reason) {
+    public void report(OfflinePlayer player, OfflinePlayer prosecutor, String reason) {
         ApiManagerValidateParameter.validatePlayer(player);
         ApiManagerValidateParameter.validateReason(reason);
         repo().updateColumns(TABLE,
             new String[]{"prosecutor_uuid", "reason", "status"},
-            new Object[]{prosecutor_uuid != null ? prosecutor_uuid.getUniqueId().toString() : null, reason, STATUS_REPORTED},
+            new Object[]{prosecutor != null ? prosecutor.getUniqueId().toString() : null, reason, STATUS_REPORTED},
             "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
-    public CompletableFuture<Void> reportAsync(OfflinePlayer player, OfflinePlayer prosecutor_uuid, String reason) {
+    public CompletableFuture<Void> reportAsync(OfflinePlayer player, OfflinePlayer prosecutor, String reason) {
         ApiManagerValidateParameter.validatePlayer(player);
         ApiManagerValidateParameter.validateReason(reason);
         return repo().updateColumnsAsync(TABLE,
             new String[]{"prosecutor_uuid", "reason", "status"},
-            new Object[]{prosecutor_uuid != null ? prosecutor_uuid.getUniqueId().toString() : null, reason, STATUS_REPORTED},
+            new Object[]{prosecutor != null ? prosecutor.getUniqueId().toString() : null, reason, STATUS_REPORTED},
             "uuid = ?", player.getUniqueId().toString());
     }
 
@@ -149,18 +149,18 @@ public class CourtAPIImpl implements ICourtAPI {
     }
 
     @Override
-    public void setProsecutor(OfflinePlayer player, OfflinePlayer prosecutor_uuid) {
+    public void setProsecutor(OfflinePlayer player, OfflinePlayer prosecutor) {
         ApiManagerValidateParameter.validatePlayer(player);
         repo().updateColumn(TABLE, "prosecutor_uuid",
-            prosecutor_uuid != null ? prosecutor_uuid.getUniqueId().toString() : null,
+            prosecutor != null ? prosecutor.getUniqueId().toString() : null,
             "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
-    public CompletableFuture<Void> setProsecutorAsync(OfflinePlayer player, OfflinePlayer prosecutor_uuid) {
+    public CompletableFuture<Void> setProsecutorAsync(OfflinePlayer player, OfflinePlayer prosecutor) {
         ApiManagerValidateParameter.validatePlayer(player);
         return repo().updateColumnAsync(TABLE, "prosecutor_uuid",
-            prosecutor_uuid != null ? prosecutor_uuid.getUniqueId().toString() : null,
+            prosecutor != null ? prosecutor.getUniqueId().toString() : null,
             "uuid = ?", player.getUniqueId().toString());
     }
 
@@ -229,7 +229,7 @@ public class CourtAPIImpl implements ICourtAPI {
         ApiManagerValidateParameter.validatePlayer(player);
         repo().updateColumns(TABLE,
             new String[]{"status", "reason", "prosecutor_uuid", "time", "cell"},
-            new Object[]{0, null, null, 0, 0},
+            new Object[]{0, "", null, 0, 0},
             "uuid = ?", player.getUniqueId().toString());
     }
 
@@ -238,7 +238,7 @@ public class CourtAPIImpl implements ICourtAPI {
         ApiManagerValidateParameter.validatePlayer(player);
         return repo().updateColumnsAsync(TABLE,
             new String[]{"status", "reason", "prosecutor_uuid", "time", "cell"},
-            new Object[]{0, null, null, 0, 0},
+            new Object[]{0, "", null, 0, 0},
             "uuid = ?", player.getUniqueId().toString());
     }
 }

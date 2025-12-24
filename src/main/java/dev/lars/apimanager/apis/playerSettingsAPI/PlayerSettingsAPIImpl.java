@@ -24,8 +24,8 @@ public class PlayerSettingsAPIImpl implements IPlayerSettingsAPI {
         db().update("""
             CREATE TABLE IF NOT EXISTS player_settings (
                 uuid CHAR(36) NOT NULL PRIMARY KEY,
-                bed_toggle BOOLEAN DEFAULT TRUE,
-                scoreboard_toggle BOOLEAN DEFAULT TRUE,
+                bed_toggle BOOLEAN NOT NULL DEFAULT TRUE,
+                scoreboard_toggle BOOLEAN NOT NULL DEFAULT TRUE,
                 FOREIGN KEY (uuid) REFERENCES players(uuid) ON DELETE CASCADE
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
         """);

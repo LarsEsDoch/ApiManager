@@ -30,7 +30,7 @@ public class PrefixAPIImpl implements IPrefixAPI {
         db().update("""
             CREATE TABLE IF NOT EXISTS player_prefixes (
                 uuid CHAR(36) NOT NULL PRIMARY KEY,
-                color INT DEFAULT 15,
+                color INT NOT NULL DEFAULT 15,
                 decorations INT NOT NULL DEFAULT 0,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,

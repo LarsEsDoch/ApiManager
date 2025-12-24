@@ -26,10 +26,10 @@ public class BanAPIImpl implements IBanAPI {
         db().update("""
             CREATE TABLE IF NOT EXISTS player_bans (
                 uuid CHAR(36) NOT NULL PRIMARY KEY,
-                is_banned BOOLEAN DEFAULT FALSE,
-                reason VARCHAR(255) DEFAULT NULL,
+                is_banned BOOLEAN NOT NULL DEFAULT FALSE,
+                reason VARCHAR(255) NOT NULL DEFAULT "",
                 banned_at TIMESTAMP DEFAULT NULL,
-                expires_at TIMESTAMP NULL,
+                expires_at TIMESTAMP DEFAULT NULL,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                 FOREIGN KEY (uuid) REFERENCES players(uuid) ON DELETE CASCADE
@@ -41,7 +41,7 @@ public class BanAPIImpl implements IBanAPI {
         db().update("""
             INSERT IGNORE INTO player_bans (uuid, is_banned, reason, banned_at, expires_at)
             VALUES (?, ?, ?, ?, ?)
-        """, player.getUniqueId().toString(), false, null, null, null);
+        """, player.getUniqueId().toString(), false, "", null, null);
     }
 
     public boolean doesUserExist(OfflinePlayer player) {
@@ -73,12 +73,10 @@ public class BanAPIImpl implements IBanAPI {
     }
 
     @Override
-    public void setBanned(OfflinePlayer player, String reason, Integer days) {
+    public void setBanned(OfflinePlayer player, String reason, Instant expiresAt) {
         ApiManagerValidateParameter.validatePlayer(player);
         ApiManagerValidateParameter.validateReason(reason);
-        Instant expiresAt = (days != null && days > 0)
-                ? Instant.now().plus(days, ChronoUnit.DAYS)
-                : null;
+        ApiManagerValidateParameter.validateExpiresAt(expiresAt);
         Instant bannedAt = Instant.now();
 
         repo().updateColumns(TABLE,
@@ -88,12 +86,10 @@ public class BanAPIImpl implements IBanAPI {
     }
 
     @Override
-    public CompletableFuture<Void> setBannedAsync(OfflinePlayer player, String reason, Integer days) {
+    public CompletableFuture<Void> setBannedAsync(OfflinePlayer player, String reason, Instant expiresAt) {
         ApiManagerValidateParameter.validatePlayer(player);
         ApiManagerValidateParameter.validateReason(reason);
-        Instant expiresAt = (days != null && days > 0)
-                ? Instant.now().plus(days, ChronoUnit.DAYS)
-                : null;
+        ApiManagerValidateParameter.validateExpiresAt(expiresAt);
         Instant bannedAt = Instant.now();
 
         return repo().updateColumnsAsync(TABLE,
@@ -107,7 +103,7 @@ public class BanAPIImpl implements IBanAPI {
         ApiManagerValidateParameter.validatePlayer(player);
         repo().updateColumns(TABLE,
             new String[]{"is_banned", "banned_at", "expires_at", "reason"},
-            new Object[]{false, null, null, null},
+            new Object[]{false, null, null, ""},
             "uuid = ?", player.getUniqueId().toString());
     }
 
@@ -116,7 +112,7 @@ public class BanAPIImpl implements IBanAPI {
         ApiManagerValidateParameter.validatePlayer(player);
         return repo().updateColumnsAsync(TABLE,
             new String[]{"is_banned", "banned_at", "expires_at", "reason"},
-            new Object[]{false, null, null, null},
+            new Object[]{false, null, null, ""},
             "uuid = ?", player.getUniqueId().toString());
     }
 
@@ -147,31 +143,27 @@ public class BanAPIImpl implements IBanAPI {
     }
 
     @Override
-    public void setDays(OfflinePlayer player, Integer days) {
+    public void setExpiresAt(OfflinePlayer player, Instant expiresAt) {
         ApiManagerValidateParameter.validatePlayer(player);
-        Instant expiresAt = (days != null && days > 0)
-                ? Instant.now().plus(days, ChronoUnit.DAYS)
-                : null;
+        ApiManagerValidateParameter.validateExpiresAt(expiresAt);
         repo().updateColumn(TABLE, "expires_at", expiresAt, "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
-    public CompletableFuture<Void> setDaysAsync(OfflinePlayer player, Integer days) {
+    public CompletableFuture<Void> setExpiresAtAsync(OfflinePlayer player, Instant expiresAt) {
         ApiManagerValidateParameter.validatePlayer(player);
-        Instant expiresAt = (days != null && days > 0)
-                ? Instant.now().plus(days, ChronoUnit.DAYS)
-                : null;
+        ApiManagerValidateParameter.validateExpiresAt(expiresAt);
         return repo().updateColumnAsync(TABLE, "expires_at", expiresAt, "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
-    public Instant getEnd(OfflinePlayer player) {
+    public Instant getExpiration(OfflinePlayer player) {
         ApiManagerValidateParameter.validatePlayer(player);
         return repo().getInstant(TABLE, "expires_at", "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
-    public CompletableFuture<Instant> getEndAsync(OfflinePlayer player) {
+    public CompletableFuture<Instant> getExpirationAsync(OfflinePlayer player) {
         ApiManagerValidateParameter.validatePlayer(player);
         return repo().getInstantAsync(TABLE, "expires_at", "uuid = ?", player.getUniqueId().toString());
     }

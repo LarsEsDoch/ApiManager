@@ -26,8 +26,8 @@ public class StatusAPIImpl implements IStatusAPI {
         db().update("""
             CREATE TABLE IF NOT EXISTS player_status (
                 uuid CHAR(36) NOT NULL PRIMARY KEY,
-                status VARCHAR(255) DEFAULT '',
-                color INT DEFAULT 0,
+                status VARCHAR(255) NOT NULL DEFAULT '',
+                color INT NOT NULL DEFAULT 0,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                 FOREIGN KEY (uuid) REFERENCES players(uuid) ON DELETE CASCADE

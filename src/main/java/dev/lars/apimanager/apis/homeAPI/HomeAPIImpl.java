@@ -30,7 +30,7 @@ public class HomeAPIImpl implements IHomeAPI {
                 uuid CHAR(36) NOT NULL,
                 name VARCHAR(255) NOT NULL,
                 location VARCHAR(255) NOT NULL,
-                is_public BOOLEAN DEFAULT FALSE,
+                is_public BOOLEAN NOT NULL DEFAULT FALSE,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                 FOREIGN KEY (uuid) REFERENCES players(uuid) ON DELETE CASCADE,

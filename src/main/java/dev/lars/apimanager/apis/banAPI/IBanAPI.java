@@ -15,9 +15,9 @@ public interface IBanAPI {
 
     CompletableFuture<Instant> getUpdatedAtAsync(OfflinePlayer player);
 
-    void setBanned(OfflinePlayer player, String reason, Integer hours);
+    void setBanned(OfflinePlayer player, String reason, Instant expiresAt);
 
-    CompletableFuture<Void> setBannedAsync(OfflinePlayer player, String reason, Integer hours);
+    CompletableFuture<Void> setBannedAsync(OfflinePlayer player, String reason, Instant expiresAt);
 
     void setUnBanned(OfflinePlayer player);
 
@@ -35,13 +35,13 @@ public interface IBanAPI {
 
     CompletableFuture<String> getReasonAsync(OfflinePlayer player);
 
-    void setDays(OfflinePlayer player, Integer days);
+    void setExpiresAt(OfflinePlayer player, Instant expiresAt);
 
-    CompletableFuture<Void> setDaysAsync(OfflinePlayer player, Integer days);
+    CompletableFuture<Void> setExpiresAtAsync(OfflinePlayer player, Instant expiresAt);
 
-    Instant getEnd(OfflinePlayer player);
+    Instant getExpiration(OfflinePlayer player);
 
-    CompletableFuture<Instant> getEndAsync(OfflinePlayer player);
+    CompletableFuture<Instant> getExpirationAsync(OfflinePlayer player);
 
     List<String> getBannedPlayers();
 

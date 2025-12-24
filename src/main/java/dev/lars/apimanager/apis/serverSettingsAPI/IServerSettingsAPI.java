@@ -39,9 +39,9 @@ public interface IServerSettingsAPI {
 
     CompletableFuture<Boolean> isRealWeatherEnabledAsync();
 
-    void setMaintenanceEnabled(Boolean enabled);
+    void setMaintenanceEnabled(boolean enabled);
 
-    CompletableFuture<Void> setMaintenanceEnabledAsync(Boolean enabled);
+    CompletableFuture<Void> setMaintenanceEnabledAsync(boolean enabled);
 
     void enableMaintenance(String reason, Instant start, Instant estimatedEnd, Instant deadline);
 

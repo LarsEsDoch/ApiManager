@@ -26,7 +26,7 @@ public class RankAPIImpl implements IRankAPI {
             CREATE TABLE IF NOT EXISTS player_ranks (
                 uuid CHAR(36) NOT NULL PRIMARY KEY,
                 rank_id INT NOT NULL DEFAULT 0,
-                expires_at TIMESTAMP NULL,
+                expires_at TIMESTAMP DEFAULT NULL,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                 FOREIGN KEY (uuid) REFERENCES players(uuid) ON DELETE CASCADE

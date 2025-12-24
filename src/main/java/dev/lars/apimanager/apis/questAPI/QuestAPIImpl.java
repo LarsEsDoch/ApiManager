@@ -28,7 +28,7 @@ public class QuestAPIImpl implements IQuestAPI {
                 active_quest_id INT NOT NULL DEFAULT -1,
                 quest_name VARCHAR(255) NOT NULL DEFAULT '',
                 is_quest_complete BOOLEAN NOT NULL DEFAULT FALSE,
-                target INT NULL,
+                target INT DEFAULT NULL,
                 progress INT NOT NULL DEFAULT 0,
                 last_quest_at TIMESTAMP NULL,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

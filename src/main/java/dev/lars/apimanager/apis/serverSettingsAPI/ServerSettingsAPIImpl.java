@@ -39,7 +39,7 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
                 server_name VARCHAR(255) NOT NULL DEFAULT 'A Minecraft Server',
                 server_name_startcolor CHAR(7) NOT NULL DEFAULT '#ffffff',
                 server_name_endcolor CHAR(7) NOT NULL DEFAULT '#ffffff',
-                server_version VARCHAR(50) NOT NULL DEFAULT '1.21.10',
+                server_version VARCHAR(50) NOT NULL DEFAULT '1.21.11',
                 spawn_location VARCHAR(255) DEFAULT NULL,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
@@ -144,23 +144,24 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
     }
 
     @Override
-    public void setMaintenanceEnabled(Boolean enabled) {
-        repo().updateColumns(TABLE,
-            new String[]{"is_maintenance_enabled"},
-            new Object[]{enabled},
+    public void setMaintenanceEnabled(boolean enabled) {
+        repo().updateColumn(TABLE,
+            "is_maintenance_enabled",
+            enabled,
             WHERE_ID);
     }
 
     @Override
-    public CompletableFuture<Void> setMaintenanceEnabledAsync(Boolean enabled) {
-        return repo().updateColumnsAsync(TABLE,
-            new String[]{"is_maintenance_enabled"},
-            new Object[]{enabled},
+    public CompletableFuture<Void> setMaintenanceEnabledAsync(boolean enabled) {
+        return repo().updateColumnAsync(TABLE,
+            "is_maintenance_enabled",
+            enabled,
             WHERE_ID);
     }
 
     @Override
     public void enableMaintenance(String reason, Instant start, Instant estimatedEnd, Instant deadline) {
+        ApiManagerValidateParameter.validateReason(reason);
         repo().updateColumns(TABLE,
             new String[]{"is_maintenance_enabled", "maintenance_reason", "maintenance_start", "maintenance_estimated_end", "maintenance_deadline"},
             new Object[]{true, reason, start, estimatedEnd, deadline},
@@ -169,6 +170,7 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
 
     @Override
     public CompletableFuture<Void> enableMaintenanceAsync(String reason, Instant start, Instant estimatedEnd, Instant deadline) {
+        ApiManagerValidateParameter.validateReason(reason);
         return repo().updateColumnsAsync(TABLE,
             new String[]{"is_maintenance_enabled", "maintenance_reason", "maintenance_start", "maintenance_estimated_end", "maintenance_deadline"},
             new Object[]{true, reason, start, estimatedEnd, deadline},
@@ -193,14 +195,12 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
 
     @Override
     public boolean isMaintenanceEnabled() {
-        Boolean result = repo().getBoolean(TABLE, "is_maintenance_enabled", WHERE_ID);
-        return result != null && result;
+        return repo().getBoolean(TABLE, "is_maintenance_enabled", WHERE_ID);
     }
 
     @Override
     public CompletableFuture<Boolean> isMaintenanceEnabledAsync() {
-        return repo().getBooleanAsync(TABLE, "is_maintenance_enabled", WHERE_ID)
-            .thenApply(result -> result != null && result);
+        return repo().getBooleanAsync(TABLE, "is_maintenance_enabled", WHERE_ID);
     }
 
     @Override

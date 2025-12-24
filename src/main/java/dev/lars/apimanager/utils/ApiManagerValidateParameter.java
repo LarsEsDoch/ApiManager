@@ -82,6 +82,12 @@ public class ApiManagerValidateParameter {
         }
     }
 
+    public static void validateExpiresAt(Instant expiresAt) {
+        if (expiresAt == null) {
+            throw new IllegalArgumentException("The expiration cannot be null");
+        }
+    }
+
     public static void validateServerNameColors(List<String> serverNameColors) {
         if (serverNameColors == null || serverNameColors.getFirst() == null || serverNameColors.getLast() == null) {
             throw new IllegalArgumentException("Server name colors cannot be null");
