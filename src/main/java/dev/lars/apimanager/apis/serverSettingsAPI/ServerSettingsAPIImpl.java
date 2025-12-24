@@ -144,6 +144,22 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
     }
 
     @Override
+    public void setMaintenanceEnabled(Boolean enabled) {
+        repo().updateColumns(TABLE,
+            new String[]{"is_maintenance_enabled"},
+            new Object[]{enabled},
+            WHERE_ID);
+    }
+
+    @Override
+    public CompletableFuture<Void> setMaintenanceEnabledAsync(Boolean enabled) {
+        return repo().updateColumnsAsync(TABLE,
+            new String[]{"is_maintenance_enabled"},
+            new Object[]{enabled},
+            WHERE_ID);
+    }
+
+    @Override
     public void enableMaintenance(String reason, Instant start, Instant estimatedEnd, Instant deadline) {
         repo().updateColumns(TABLE,
             new String[]{"is_maintenance_enabled", "maintenance_reason", "maintenance_start", "maintenance_estimated_end", "maintenance_deadline"},
