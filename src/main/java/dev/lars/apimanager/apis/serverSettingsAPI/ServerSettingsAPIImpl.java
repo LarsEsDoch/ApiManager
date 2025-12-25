@@ -41,6 +41,8 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
                 server_name_endcolor CHAR(7) NOT NULL DEFAULT '#ffffff',
                 server_version VARCHAR(50) NOT NULL DEFAULT '1.21.11',
                 spawn_location VARCHAR(255) DEFAULT NULL,
+                nether_unlock_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                end_unlock_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -412,5 +414,49 @@ public class ServerSettingsAPIImpl implements IServerSettingsAPI {
     public CompletableFuture<Location> getSpawnLocationAsync() {
         return repo().getStringAsync(TABLE, "spawn_location", WHERE_ID)
             .thenApply(ApiManagerFormatLocation::deserializeLocation);
+    }
+
+    @Override
+    public void setNetherUnlockAt(Instant unlockAt) {
+        ApiManagerValidateParameter.validateInstant(unlockAt);
+        repo().updateColumn(TABLE, "nether_unlock_at", unlockAt, WHERE_ID);
+    }
+
+    @Override
+    public CompletableFuture<Void> setNetherUnlockAtAsync(Instant unlockAt) {
+        ApiManagerValidateParameter.validateInstant(unlockAt);
+        return repo().updateColumnAsync(TABLE, "nether_unlock_at", unlockAt, WHERE_ID);
+    }
+
+    @Override
+    public Instant getNetherUnlockAt() {
+        return repo().getInstant(TABLE, "nether_unlock_at", WHERE_ID);
+    }
+
+    @Override
+    public CompletableFuture<Instant> getNetherUnlockAtAsync() {
+        return repo().getInstantAsync(TABLE, "nether_unlock_at", WHERE_ID);
+    }
+
+    @Override
+    public void setEndUnlockAt(Instant unlockAt) {
+        ApiManagerValidateParameter.validateInstant(unlockAt);
+        repo().updateColumn(TABLE, "end_unlock_at", unlockAt, WHERE_ID);
+    }
+
+    @Override
+    public CompletableFuture<Void> setEndUnlockAtAsync(Instant unlockAt) {
+        ApiManagerValidateParameter.validateInstant(unlockAt);
+        return repo().updateColumnAsync(TABLE, "end_unlock_at", unlockAt, WHERE_ID);
+    }
+
+    @Override
+    public Instant getEndUnlockAt() {
+        return repo().getInstant(TABLE, "end_unlock_at", WHERE_ID);
+    }
+
+    @Override
+    public CompletableFuture<Instant> getEndUnlockAtAsync() {
+        return repo().getInstantAsync(TABLE, "end_unlock_at", WHERE_ID);
     }
 }

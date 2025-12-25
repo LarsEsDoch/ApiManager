@@ -126,4 +126,20 @@ public interface IServerSettingsAPI {
     Location getSpawnLocation();
 
     CompletableFuture<Location> getSpawnLocationAsync();
+
+    void setNetherUnlockAt(Instant unlockAt);
+
+    CompletableFuture<Void> setNetherUnlockAtAsync(Instant unlockAt);
+
+    Instant getNetherUnlockAt();
+
+    CompletableFuture<Instant> getNetherUnlockAtAsync();
+
+    void setEndUnlockAt(Instant unlockAt);
+
+    CompletableFuture<Void> setEndUnlockAtAsync(Instant unlockAt);
+
+    Instant getEndUnlockAt();
+
+    CompletableFuture<Instant> getEndUnlockAtAsync();
 }
