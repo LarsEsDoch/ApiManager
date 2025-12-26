@@ -16,6 +16,8 @@ import dev.lars.apimanager.apis.languageAPI.LanguageAPI;
 import dev.lars.apimanager.apis.languageAPI.LanguageAPIImpl;
 import dev.lars.apimanager.apis.limitAPI.LimitAPI;
 import dev.lars.apimanager.apis.limitAPI.LimitAPIImpl;
+import dev.lars.apimanager.apis.maintenanceAPI.MaintenanceAPI;
+import dev.lars.apimanager.apis.maintenanceAPI.MaintenanceAPIImpl;
 import dev.lars.apimanager.apis.playerAPI.PlayerAPI;
 import dev.lars.apimanager.apis.playerAPI.PlayerAPIImpl;
 import dev.lars.apimanager.apis.playerIdentityAPI.PlayerIdentityAPI;
@@ -24,12 +26,16 @@ import dev.lars.apimanager.apis.playerSettingsAPI.PlayerSettingsAPI;
 import dev.lars.apimanager.apis.playerSettingsAPI.PlayerSettingsAPIImpl;
 import dev.lars.apimanager.apis.prefixAPI.PrefixAPI;
 import dev.lars.apimanager.apis.prefixAPI.PrefixAPIImpl;
+import dev.lars.apimanager.apis.progressionAPI.ProgressionAPI;
+import dev.lars.apimanager.apis.progressionAPI.ProgressionAPIImpl;
 import dev.lars.apimanager.apis.questAPI.QuestAPI;
 import dev.lars.apimanager.apis.questAPI.QuestAPIImpl;
 import dev.lars.apimanager.apis.rankAPI.RankAPI;
 import dev.lars.apimanager.apis.rankAPI.RankAPIImpl;
-import dev.lars.apimanager.apis.serverSettingsAPI.ServerSettingsAPI;
-import dev.lars.apimanager.apis.serverSettingsAPI.ServerSettingsAPIImpl;
+import dev.lars.apimanager.apis.serverFeatureAPI.ServerFeatureAPI;
+import dev.lars.apimanager.apis.serverFeatureAPI.ServerFeatureAPIImpl;
+import dev.lars.apimanager.apis.serverStateAPI.ServerStateAPI;
+import dev.lars.apimanager.apis.serverStateAPI.ServerStateAPIImpl;
 import dev.lars.apimanager.apis.statusAPI.StatusAPI;
 import dev.lars.apimanager.apis.statusAPI.StatusAPIImpl;
 import dev.lars.apimanager.apis.timerAPI.TimerAPI;
@@ -56,7 +62,10 @@ public final class ApiManager extends JavaPlugin {
     private volatile IDatabaseManager databaseManager;
     private ConnectDatabase connectDatabase;
 
-    private ServerSettingsAPIImpl serverSettingsAPI;
+    private ServerStateAPIImpl serverStateAPI;
+    private ServerFeatureAPIImpl serverFeatureAPI;
+    private MaintenanceAPIImpl maintenanceAPI;
+    private ProgressionAPIImpl progressionAPI;
     private PlayerAPIImpl playerAPI;
     private ChunkAPIImpl chunkAPI;
     private HomeAPIImpl homeAPI;
@@ -119,8 +128,17 @@ public final class ApiManager extends JavaPlugin {
     }
 
     private void instantiateApis() {
-        serverSettingsAPI = new ServerSettingsAPIImpl();
-        ServerSettingsAPI.setApi(serverSettingsAPI);
+        serverStateAPI = new ServerStateAPIImpl();
+        ServerStateAPI.setApi(serverStateAPI);
+
+        serverFeatureAPI = new ServerFeatureAPIImpl();
+        ServerFeatureAPI.setApi(serverFeatureAPI);
+
+        maintenanceAPI = new MaintenanceAPIImpl();
+        MaintenanceAPI.setApi(maintenanceAPI);
+
+        progressionAPI = new ProgressionAPIImpl();
+        ProgressionAPI.setApi(progressionAPI);
 
         playerAPI = new PlayerAPIImpl();
         PlayerAPI.setApi(playerAPI);
@@ -173,7 +191,10 @@ public final class ApiManager extends JavaPlugin {
 
     private void buildCreateTableList() {
         createTableRunnable.clear();
-        createTableRunnable.add(() -> serverSettingsAPI.createTables());
+        createTableRunnable.add(() -> serverStateAPI.createTables());
+        createTableRunnable.add(() -> serverFeatureAPI.createTables());
+        createTableRunnable.add(() -> maintenanceAPI.createTables());
+        createTableRunnable.add(() -> progressionAPI.createTables());
         createTableRunnable.add(() -> playerAPI.createTables());
         createTableRunnable.add(() -> chunkAPI.createTables());
         createTableRunnable.add(() -> homeAPI.createTables());
@@ -203,15 +224,15 @@ public final class ApiManager extends JavaPlugin {
     }
 
     private void onApisReady() {
-        serverSettingsAPI.setServerOnline(true);
+        serverStateAPI.setServerOnline(true);
         ApiManagerStatements.logToConsole("All APIs are ready!", NamedTextColor.DARK_GREEN);
     }
 
     @Override
     public void onDisable() {
-        if (serverSettingsAPI != null) {
+        if (serverStateAPI != null) {
             try {
-                serverSettingsAPI.setServerOnline(false);
+                serverStateAPI.setServerOnline(false);
             } catch (Exception ignored) {}
         }
         if (databaseManager != null) {
@@ -246,8 +267,20 @@ public final class ApiManager extends JavaPlugin {
         return databaseManager;
     }
 
-    public ServerSettingsAPIImpl getServerSettingsAPI() {
-        return serverSettingsAPI;
+    public ServerStateAPIImpl getServerStateAPI() {
+        return serverStateAPI;
+    }
+
+    public ServerFeatureAPIImpl getServerFeatureAPI() {
+        return serverFeatureAPI;
+    }
+
+    public MaintenanceAPIImpl getMaintenanceAPI() {
+        return maintenanceAPI;
+    }
+
+    public ProgressionAPIImpl getProgressionAPI() {
+        return progressionAPI;
     }
 
     public PlayerAPIImpl getPlayerAPI() {
