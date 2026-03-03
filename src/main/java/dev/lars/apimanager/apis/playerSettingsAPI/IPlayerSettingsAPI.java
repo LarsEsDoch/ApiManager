@@ -21,12 +21,4 @@ public interface IPlayerSettingsAPI {
     boolean getBedToggle(OfflinePlayer player);
 
     CompletableFuture<Boolean> getBedToggleAsync(OfflinePlayer player);
-
-    void setScoreboardToggle(OfflinePlayer player, boolean toggle);
-
-    CompletableFuture<Void> setScoreboardToggleAsync(OfflinePlayer player, boolean toggle);
-
-    boolean getScoreboardToggle(OfflinePlayer player);
-
-    CompletableFuture<Boolean> getScoreboardToggleAsync(OfflinePlayer player);
 }

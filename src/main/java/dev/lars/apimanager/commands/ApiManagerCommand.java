@@ -90,7 +90,7 @@ public record ApiManagerCommand(ApiManager plugin, ConnectDatabase connectDataba
             sender.sendMessage(ApiManagerStatements.getPrefix().append(Component.text("Command ", NamedTextColor.GRAY))
                 .append(Component.text("/" + plugin.getName() + " /am", NamedTextColor.GOLD)));
             return;
-        } else if(sub.equalsIgnoreCase("status") || sub.equalsIgnoreCase("s")) {
+        } else if (sub.equalsIgnoreCase("status") || sub.equalsIgnoreCase("s")) {
             handleStatus(sender);
             return;
         }

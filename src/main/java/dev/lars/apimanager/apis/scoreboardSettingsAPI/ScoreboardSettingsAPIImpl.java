@@ -1,4 +1,4 @@
-package dev.lars.apimanager.apis.playerSettingsAPI;
+package dev.lars.apimanager.apis.scoreboardSettingsAPI;
 
 import dev.lars.apimanager.ApiManager;
 import dev.lars.apimanager.database.DatabaseRepository;
@@ -9,8 +9,8 @@ import org.bukkit.OfflinePlayer;
 import java.time.Instant;
 import java.util.concurrent.CompletableFuture;
 
-public class PlayerSettingsAPIImpl implements IPlayerSettingsAPI {
-    private static final String TABLE = "player_settings";
+public class ScoreboardSettingsAPIImpl implements IScoreboardSettingsAPI {
+    private static final String TABLE = "scoreboard_settings";
 
     private DatabaseRepository repo() {
         return new DatabaseRepository();
@@ -22,9 +22,9 @@ public class PlayerSettingsAPIImpl implements IPlayerSettingsAPI {
 
     public void createTables() {
         db().update("""
-            CREATE TABLE IF NOT EXISTS player_settings (
+            CREATE TABLE IF NOT EXISTS scoreboard_settings (
                 uuid CHAR(36) NOT NULL PRIMARY KEY,
-                bed_toggle BOOLEAN NOT NULL DEFAULT TRUE,
+                scoreboard_toggle BOOLEAN NOT NULL DEFAULT TRUE,
                 FOREIGN KEY (uuid) REFERENCES players(uuid) ON DELETE CASCADE
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
         """);
@@ -32,7 +32,7 @@ public class PlayerSettingsAPIImpl implements IPlayerSettingsAPI {
 
     public void initPlayer(OfflinePlayer player) {
         db().update("""
-            INSERT IGNORE INTO player_settings (uuid, bed_toggle)
+            INSERT IGNORE INTO scoreboard_settings (uuid, scoreboard_toggle)
             VALUES (?, ?)
         """, player.getUniqueId().toString(), true);
     }
@@ -66,28 +66,28 @@ public class PlayerSettingsAPIImpl implements IPlayerSettingsAPI {
     }
 
     @Override
-    public void setBedToggle(OfflinePlayer player, boolean toggle) {
+    public void setScoreboardToggle(OfflinePlayer player, boolean toggle) {
         ApiManagerValidateParameter.validatePlayer(player);
-        repo().updateColumn(TABLE, "bed_toggle", toggle, "uuid = ?", player.getUniqueId().toString());
+        repo().updateColumn(TABLE, "scoreboard_toggle", toggle, "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
-    public CompletableFuture<Void> setBedToggleAsync(OfflinePlayer player, boolean toggle) {
+    public CompletableFuture<Void> setScoreboardToggleAsync(OfflinePlayer player, boolean toggle) {
         ApiManagerValidateParameter.validatePlayer(player);
-        return repo().updateColumnAsync(TABLE, "bed_toggle", toggle, "uuid = ?", player.getUniqueId().toString());
+        return repo().updateColumnAsync(TABLE, "scoreboard_toggle", toggle, "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
-    public boolean getBedToggle(OfflinePlayer player) {
+    public boolean getScoreboardToggle(OfflinePlayer player) {
         ApiManagerValidateParameter.validatePlayer(player);
-        Boolean result = repo().getBoolean(TABLE, "bed_toggle", "uuid = ?", player.getUniqueId().toString());
+        Boolean result = repo().getBoolean(TABLE, "scoreboard_toggle", "uuid = ?", player.getUniqueId().toString());
         return result == null || result;
     }
 
     @Override
-    public CompletableFuture<Boolean> getBedToggleAsync(OfflinePlayer player) {
+    public CompletableFuture<Boolean> getScoreboardToggleAsync(OfflinePlayer player) {
         ApiManagerValidateParameter.validatePlayer(player);
-        return repo().getBooleanAsync(TABLE, "bed_toggle", "uuid = ?", player.getUniqueId().toString())
+        return repo().getBooleanAsync(TABLE, "scoreboard_toggle", "uuid = ?", player.getUniqueId().toString())
             .thenApply(result -> result == null || result);
     }
 }
