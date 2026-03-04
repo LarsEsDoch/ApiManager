@@ -24,7 +24,10 @@ public class PlayerSettingsAPIImpl implements IPlayerSettingsAPI {
         db().update("""
             CREATE TABLE IF NOT EXISTS player_settings (
                 uuid CHAR(36) NOT NULL PRIMARY KEY,
-                bed_toggle BOOLEAN NOT NULL DEFAULT TRUE,
+                respawn_target      ENUM('BED','HOME','SPAWN') NOT NULL DEFAULT 'BED',
+                respawn_home_name   VARCHAR(255) DEFAULT NULL,
+                join_target         ENUM('LAST_LOCATION','HOME','SPAWN','BED') NOT NULL DEFAULT 'LAST_LOCATION',
+                join_home_name      VARCHAR(255) DEFAULT NULL,
                 FOREIGN KEY (uuid) REFERENCES players(uuid) ON DELETE CASCADE
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
         """);
@@ -32,9 +35,9 @@ public class PlayerSettingsAPIImpl implements IPlayerSettingsAPI {
 
     public void initPlayer(OfflinePlayer player) {
         db().update("""
-            INSERT IGNORE INTO player_settings (uuid, bed_toggle)
-            VALUES (?, ?)
-        """, player.getUniqueId().toString(), true);
+            INSERT IGNORE INTO player_settings (uuid, respawn_target, respawn_home_name, join_target, join_home_name)
+            VALUES (?, ?, ?, ?, ?)
+        """, player.getUniqueId().toString(), "BED", null, "LAST_LOCATION", null);
     }
 
     public boolean doesUserExist(OfflinePlayer player) {
@@ -63,31 +66,5 @@ public class PlayerSettingsAPIImpl implements IPlayerSettingsAPI {
     public CompletableFuture<Instant> getUpdatedAtAsync(OfflinePlayer player) {
         ApiManagerValidateParameter.validatePlayer(player);
         return repo().getInstantAsync(TABLE, "updated_at", "uuid = ?", player.getUniqueId().toString());
-    }
-
-    @Override
-    public void setBedToggle(OfflinePlayer player, boolean toggle) {
-        ApiManagerValidateParameter.validatePlayer(player);
-        repo().updateColumn(TABLE, "bed_toggle", toggle, "uuid = ?", player.getUniqueId().toString());
-    }
-
-    @Override
-    public CompletableFuture<Void> setBedToggleAsync(OfflinePlayer player, boolean toggle) {
-        ApiManagerValidateParameter.validatePlayer(player);
-        return repo().updateColumnAsync(TABLE, "bed_toggle", toggle, "uuid = ?", player.getUniqueId().toString());
-    }
-
-    @Override
-    public boolean getBedToggle(OfflinePlayer player) {
-        ApiManagerValidateParameter.validatePlayer(player);
-        Boolean result = repo().getBoolean(TABLE, "bed_toggle", "uuid = ?", player.getUniqueId().toString());
-        return result == null || result;
-    }
-
-    @Override
-    public CompletableFuture<Boolean> getBedToggleAsync(OfflinePlayer player) {
-        ApiManagerValidateParameter.validatePlayer(player);
-        return repo().getBooleanAsync(TABLE, "bed_toggle", "uuid = ?", player.getUniqueId().toString())
-            .thenApply(result -> result == null || result);
     }
 }

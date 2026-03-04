@@ -13,12 +13,4 @@ public interface IPlayerSettingsAPI {
     Instant getUpdatedAt(OfflinePlayer player);
 
     CompletableFuture<Instant> getUpdatedAtAsync(OfflinePlayer player);
-
-    void setBedToggle(OfflinePlayer player, boolean toggle);
-
-    CompletableFuture<Void> setBedToggleAsync(OfflinePlayer player, boolean toggle);
-
-    boolean getBedToggle(OfflinePlayer player);
-
-    CompletableFuture<Boolean> getBedToggleAsync(OfflinePlayer player);
 }
