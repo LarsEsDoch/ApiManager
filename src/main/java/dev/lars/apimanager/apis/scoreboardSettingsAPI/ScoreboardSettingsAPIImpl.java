@@ -25,6 +25,20 @@ public class ScoreboardSettingsAPIImpl implements IScoreboardSettingsAPI {
             CREATE TABLE IF NOT EXISTS scoreboard_settings (
                 uuid CHAR(36) NOT NULL PRIMARY KEY,
                 scoreboard_toggle BOOLEAN NOT NULL DEFAULT TRUE,
+                show_coins BOOLEAN NOT NULL DEFAULT FALSE,
+                show_playtime BOOLEAN NOT NULL DEFAULT TRUE,
+                show_deaths BOOLEAN NOT NULL DEFAULT FALSE,
+                show_coordinates BOOLEAN NOT NULL DEFAULT TRUE,
+                show_quests BOOLEAN NOT NULL DEFAULT FALSE,
+                show_online_players BOOLEAN NOT NULL DEFAULT FALSE,
+                show_ping BOOLEAN NOT NULL DEFAULT FALSE,
+                show_biom BOOLEAN NOT NULL DEFAULT TRUE,
+                show_weather BOOLEAN NOT NULL DEFAULT FALSE,
+                show_condition BOOLEAN NOT NULL DEFAULT FALSE,
+                show_event_countdown BOOLEAN NOT NULL DEFAULT FALSE,
+                show_kills BOOLEAN NOT NULL DEFAULT FALSE,
+                show_progress BOOLEAN NOT NULL DEFAULT TRUE,
+                show_session_time BOOLEAN NOT NULL DEFAULT FALSE,
                 FOREIGN KEY (uuid) REFERENCES players(uuid) ON DELETE CASCADE
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
         """);
@@ -32,9 +46,9 @@ public class ScoreboardSettingsAPIImpl implements IScoreboardSettingsAPI {
 
     public void initPlayer(OfflinePlayer player) {
         db().update("""
-            INSERT IGNORE INTO scoreboard_settings (uuid, scoreboard_toggle)
-            VALUES (?, ?)
-        """, player.getUniqueId().toString(), true);
+            INSERT IGNORE INTO scoreboard_settings (uuid, scoreboard_toggle, show_coins, show_playtime, show_deaths, show_coordinates, show_quests, show_online_players, show_ping, show_biom, show_weather, show_condition, show_event_countdown, show_kills, show_progress, show_session_time)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, player.getUniqueId().toString(), true, false, true, false, true, false, false, false, true, false, false, false, false, true, false);
     }
 
     public boolean doesUserExist(OfflinePlayer player) {
