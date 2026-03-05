@@ -1,5 +1,7 @@
 package dev.lars.apimanager.utils;
 
+import dev.lars.apimanager.apis.playerSettingsAPI.JoinTarget;
+import dev.lars.apimanager.apis.playerSettingsAPI.RespawnTarget;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Chunk;
@@ -91,6 +93,18 @@ public class ApiManagerValidateParameter {
     public static void validateServerNameColors(List<String> serverNameColors) {
         if (serverNameColors == null || serverNameColors.getFirst() == null || serverNameColors.getLast() == null) {
             throw new IllegalArgumentException("Server name colors cannot be null");
+        }
+    }
+
+    public static void validateRespawnTarget(RespawnTarget respawnTarget) {
+        if (respawnTarget == null) {
+            throw new IllegalArgumentException("Respawn target cannot be null");
+        }
+    }
+
+    public static void validateJoinTarget(JoinTarget joinTarget) {
+        if (joinTarget == null) {
+            throw new IllegalArgumentException("Join target cannot be null");
         }
     }
 }
