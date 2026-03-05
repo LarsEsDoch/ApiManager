@@ -32,6 +32,8 @@ import dev.lars.apimanager.apis.questAPI.QuestAPI;
 import dev.lars.apimanager.apis.questAPI.QuestAPIImpl;
 import dev.lars.apimanager.apis.rankAPI.RankAPI;
 import dev.lars.apimanager.apis.rankAPI.RankAPIImpl;
+import dev.lars.apimanager.apis.scoreboardSettingsAPI.ScoreboardSettingsAPI;
+import dev.lars.apimanager.apis.scoreboardSettingsAPI.ScoreboardSettingsAPIImpl;
 import dev.lars.apimanager.apis.serverFeatureAPI.ServerFeatureAPI;
 import dev.lars.apimanager.apis.serverFeatureAPI.ServerFeatureAPIImpl;
 import dev.lars.apimanager.apis.serverStateAPI.ServerStateAPI;
@@ -79,6 +81,7 @@ public final class ApiManager extends JavaPlugin {
     private StatusAPIImpl statusAPI;
     private PlayerIdentityAPIImpl playerIdentityAPI;
     private PlayerSettingsAPIImpl playerSettingsAPI;
+    private ScoreboardSettingsAPIImpl scoreboardSettingsAPI;
     private EconomyAPIImpl economyAPI;
     private QuestAPIImpl questAPI;
     private TimerAPIImpl timerAPI;
@@ -179,6 +182,9 @@ public final class ApiManager extends JavaPlugin {
         playerSettingsAPI = new PlayerSettingsAPIImpl();
         PlayerSettingsAPI.setApi(playerSettingsAPI);
 
+        scoreboardSettingsAPI = new ScoreboardSettingsAPIImpl();
+        ScoreboardSettingsAPI.setApi(scoreboardSettingsAPI);
+
         economyAPI = new EconomyAPIImpl();
         EconomyAPI.setApi(economyAPI);
 
@@ -208,6 +214,7 @@ public final class ApiManager extends JavaPlugin {
         createTableRunnable.add(() -> statusAPI.createTables());
         createTableRunnable.add(() -> playerIdentityAPI.createTables());
         createTableRunnable.add(() -> playerSettingsAPI.createTables());
+        createTableRunnable.add(() -> scoreboardSettingsAPI.createTables());
         createTableRunnable.add(() -> economyAPI.createTables());
         createTableRunnable.add(() -> questAPI.createTables());
         createTableRunnable.add(() -> timerAPI.createTables());
@@ -218,7 +225,7 @@ public final class ApiManager extends JavaPlugin {
             try {
                 r.run();
             } catch (Exception e) {
-                ApiManagerStatements.logToConsole("createTables() failed for one API: " + e.getMessage(), NamedTextColor.GOLD);
+                ApiManagerStatements.logToConsole("createTables() failed for API: " + e.getMessage(), NamedTextColor.GOLD);
             }
         }
     }
@@ -333,6 +340,10 @@ public final class ApiManager extends JavaPlugin {
 
     public PlayerSettingsAPIImpl getPlayerSettingsAPI() {
         return playerSettingsAPI;
+    }
+
+    public ScoreboardSettingsAPIImpl getScoreboardSettingsAPI() {
+        return  scoreboardSettingsAPI;
     }
 
     public EconomyAPIImpl getEconomyAPI() {
