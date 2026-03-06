@@ -18,13 +18,13 @@ public interface ICourtAPI {
 
     CompletableFuture<Void> reportAsync(OfflinePlayer player, OfflinePlayer prosecutor, String reason);
 
-    void setStatus(OfflinePlayer player, int status);
+    void setStatus(OfflinePlayer player, CourtStatus status);
 
-    CompletableFuture<Void> setStatusAsync(OfflinePlayer player, int status);
+    CompletableFuture<Void> setStatusAsync(OfflinePlayer player, CourtStatus status);
 
-    Integer getStatus(OfflinePlayer player);
+    CourtStatus getStatus(OfflinePlayer player);
 
-    CompletableFuture<Integer> getStatusAsync(OfflinePlayer player);
+    CompletableFuture<CourtStatus> getStatusAsync(OfflinePlayer player);
 
     void setReason(OfflinePlayer player, String reason);
 
