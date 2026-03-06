@@ -13,6 +13,7 @@ import dev.lars.apimanager.apis.playerSettingsAPI.PlayerSettingsAPIImpl;
 import dev.lars.apimanager.apis.prefixAPI.PrefixAPIImpl;
 import dev.lars.apimanager.apis.questAPI.QuestAPIImpl;
 import dev.lars.apimanager.apis.rankAPI.RankAPIImpl;
+import dev.lars.apimanager.apis.scoreboardSettingsAPI.ScoreboardSettingsAPIImpl;
 import dev.lars.apimanager.apis.statusAPI.StatusAPIImpl;
 import dev.lars.apimanager.apis.timerAPI.TimerAPIImpl;
 import org.bukkit.entity.Player;
@@ -26,20 +27,23 @@ public class JoinListener implements Listener {
     public void onLogin(PlayerLoginEvent e) {
         Player player = e.getPlayer();
 
-        PlayerAPIImpl playerAPI = ApiManager.getInstance().getPlayerAPI();
-        LanguageAPIImpl languageAPI = ApiManager.getInstance().getLanguageAPI();
-        BackpackAPIImpl backpackAPI = ApiManager.getInstance().getBackpackAPI();
-        LimitAPIImpl limitAPI = ApiManager.getInstance().getLimitAPI();
-        BanAPIImpl banAPI = ApiManager.getInstance().getBanAPI();
-        CourtAPIImpl courtAPI = ApiManager.getInstance().getCourtAPI();
-        RankAPIImpl rankAPI = ApiManager.getInstance().getRankAPI();
-        PrefixAPIImpl prefixAPI = ApiManager.getInstance().getPrefixAPI();
-        StatusAPIImpl statusAPI = ApiManager.getInstance().getStatusAPI();
-        PlayerIdentityAPIImpl playerIdentityAPI = ApiManager.getInstance().getPlayerIdentityAPI();
-        PlayerSettingsAPIImpl playerSettingsAPI = ApiManager.getInstance().getPlayerSettingsAPI();
-        EconomyAPIImpl economyAPI = ApiManager.getInstance().getEconomyAPI();
-        QuestAPIImpl questAPI = ApiManager.getInstance().getQuestAPI();
-        TimerAPIImpl timerAPI = ApiManager.getInstance().getTimerAPI();
+        ApiManager plugin = ApiManager.getInstance();
+
+        PlayerAPIImpl playerAPI = plugin.getPlayerAPI();
+        LanguageAPIImpl languageAPI = plugin.getLanguageAPI();
+        BackpackAPIImpl backpackAPI = plugin.getBackpackAPI();
+        LimitAPIImpl limitAPI = plugin.getLimitAPI();
+        BanAPIImpl banAPI = plugin.getBanAPI();
+        CourtAPIImpl courtAPI = plugin.getCourtAPI();
+        RankAPIImpl rankAPI = plugin.getRankAPI();
+        PrefixAPIImpl prefixAPI = plugin.getPrefixAPI();
+        StatusAPIImpl statusAPI = plugin.getStatusAPI();
+        PlayerIdentityAPIImpl playerIdentityAPI = plugin.getPlayerIdentityAPI();
+        PlayerSettingsAPIImpl playerSettingsAPI = plugin.getPlayerSettingsAPI();
+        ScoreboardSettingsAPIImpl scoreboardSettingsAPI = plugin.getScoreboardSettingsAPI();
+        EconomyAPIImpl economyAPI = plugin.getEconomyAPI();
+        QuestAPIImpl questAPI = plugin.getQuestAPI();
+        TimerAPIImpl timerAPI = plugin.getTimerAPI();
 
         if (!playerAPI.doesUserExist(player)) {
             playerAPI.initPlayer(player);
@@ -83,6 +87,10 @@ public class JoinListener implements Listener {
 
         if (!playerSettingsAPI.doesUserExist(player)) {
             playerSettingsAPI.initPlayer(player);
+        }
+
+        if (!scoreboardSettingsAPI.doesUserExist(player)) {
+            scoreboardSettingsAPI.initPlayer(player);
         }
 
         if (!economyAPI.doesUserExist(player)) {
