@@ -20,22 +20,22 @@ public class ServerFeatureAPIImpl implements IServerFeatureAPI {
     }
 
     public void createTables() {
-        db().update("""
-            CREATE TABLE IF NOT EXISTS server_feature (
-                id INT PRIMARY KEY CHECK (id = 1),
+        db().update(String.format("""
+            CREATE TABLE IF NOT EXISTS %s (
+                id INT PRIMARY KEY CHECK (%s),
                 is_real_time_enabled BOOLEAN NOT NULL DEFAULT FALSE,
                 is_real_weather_enabled BOOLEAN NOT NULL DEFAULT FALSE,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-        """);
+        """, TABLE, WHERE_ID));
 
         if (repo().count(TABLE, WHERE_ID) < 1) {
-            db().update("""
-                INSERT INTO server_feature
+            db().update(String.format("""
+                INSERT INTO %s
                 (id, is_real_time_enabled, is_real_weather_enabled)
                 VALUES (1, ?, ?)
-            """, false, false);
+            """, TABLE), false, false);
         }
     }
 

@@ -21,9 +21,9 @@ public class MaintenanceAPIImpl implements IMaintenanceAPI {
     }
 
     public void createTables() {
-        db().update("""
-            CREATE TABLE IF NOT EXISTS server_maintenance (
-                id INT PRIMARY KEY CHECK (id = 1),
+        db().update(String.format("""
+            CREATE TABLE IF NOT EXISTS %s (
+                id INT PRIMARY KEY CHECK (%s),
                 is_maintenance_enabled BOOLEAN NOT NULL DEFAULT FALSE,
                 maintenance_reason VARCHAR(255) NOT NULL DEFAULT '',
                 maintenance_start TIMESTAMP DEFAULT NULL,
@@ -32,14 +32,14 @@ public class MaintenanceAPIImpl implements IMaintenanceAPI {
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-        """);
+        """, TABLE, WHERE_ID));
 
         if (repo().count(TABLE, WHERE_ID) < 1) {
-            db().update("""
-                INSERT INTO server_maintenance
+            db().update(String.format("""
+                INSERT INTO %s
                 (id, is_maintenance_enabled, maintenance_reason, maintenance_start, maintenance_estimated_end, maintenance_deadline)
                 VALUES (1, ?, ?, ?, ?, ?)
-            """, false, "", null, null, null);
+            """, TABLE), false, "", null, null, null);
         }
     }
 

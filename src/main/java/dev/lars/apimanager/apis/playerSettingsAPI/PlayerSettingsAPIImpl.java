@@ -21,8 +21,8 @@ public class PlayerSettingsAPIImpl implements IPlayerSettingsAPI {
     }
 
     public void createTables() {
-        db().update("""
-            CREATE TABLE IF NOT EXISTS player_settings (
+        db().update(String.format("""
+            CREATE TABLE IF NOT EXISTS %s (
                 uuid CHAR(36) NOT NULL PRIMARY KEY,
                 respawn_target ENUM('BED','HOME','SPAWN') NOT NULL DEFAULT 'BED',
                 respawn_home_name VARCHAR(255) DEFAULT NULL,
@@ -32,14 +32,14 @@ public class PlayerSettingsAPIImpl implements IPlayerSettingsAPI {
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                 FOREIGN KEY (uuid) REFERENCES players(uuid) ON DELETE CASCADE
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-        """);
+        """, TABLE));
     }
 
     public void initPlayer(OfflinePlayer player) {
-        db().update("""
-            INSERT IGNORE INTO player_settings (uuid, respawn_target, respawn_home_name, join_target, join_home_name)
+        db().update(String.format("""
+            INSERT IGNORE INTO %s (uuid, respawn_target, respawn_home_name, join_target, join_home_name)
             VALUES (?, ?, ?, ?, ?)
-        """, player.getUniqueId().toString(), "BED", null, "LAST_LOCATION", null);
+        """, TABLE), player.getUniqueId().toString(), "BED", null, "LAST_LOCATION", null);
     }
 
     public boolean doesUserExist(OfflinePlayer player) {

@@ -21,8 +21,8 @@ public class PlayerIdentityAPIImpl implements IPlayerIdentityAPI {
     }
 
     public void createTables() {
-        db().update("""
-            CREATE TABLE IF NOT EXISTS player_identity (
+        db().update(String.format("""
+            CREATE TABLE IF NOT EXISTS %s (
                 uuid CHAR(36) NOT NULL PRIMARY KEY,
                 vanished BOOLEAN NOT NULL DEFAULT FALSE,
                 nickname VARCHAR(32) DEFAULT NULL,
@@ -31,14 +31,14 @@ public class PlayerIdentityAPIImpl implements IPlayerIdentityAPI {
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                 FOREIGN KEY (uuid) REFERENCES players(uuid) ON DELETE CASCADE
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-        """);
+        """, TABLE));
     }
 
     public void initPlayer(OfflinePlayer player) {
-        db().update("""
-            INSERT IGNORE INTO player_identity (uuid, vanished, nickname, disguise_rank_id)
+        db().update(String.format("""
+            INSERT IGNORE INTO %s (uuid, vanished, nickname, disguise_rank_id)
             VALUES (?, ?, ?, ?)
-        """, player.getUniqueId().toString(), false, null, null);
+        """, TABLE), player.getUniqueId().toString(), false, null, null);
     }
 
     public boolean doesUserExist(OfflinePlayer player) {

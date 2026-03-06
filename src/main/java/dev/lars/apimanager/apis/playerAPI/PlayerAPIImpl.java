@@ -21,8 +21,8 @@ public class PlayerAPIImpl implements IPlayerAPI {
     }
 
     public void createTables() {
-        db().update("""
-            CREATE TABLE IF NOT EXISTS players (
+        db().update(String.format("""
+            CREATE TABLE IF NOT EXISTS %s (
                 uuid CHAR(36) NOT NULL PRIMARY KEY,
                 name VARCHAR(16) NOT NULL DEFAULT '',
                 playtime BIGINT NOT NULL DEFAULT 0,
@@ -32,14 +32,14 @@ public class PlayerAPIImpl implements IPlayerAPI {
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-        """);
+        """, TABLE));
     }
 
     public void initPlayer(OfflinePlayer player) {
-        db().update("""
-            INSERT IGNORE INTO players (uuid, name, playtime, is_online)
+        db().update(String.format("""
+            INSERT IGNORE INTO %s (uuid, name, playtime, is_online)
             VALUES (?, ?, ?, ?)
-        """, player.getUniqueId().toString(), player.getName(), 0, false);
+        """, TABLE), player.getUniqueId().toString(), player.getName(), 0, false);
     }
 
     public boolean doesUserExist(OfflinePlayer player) {

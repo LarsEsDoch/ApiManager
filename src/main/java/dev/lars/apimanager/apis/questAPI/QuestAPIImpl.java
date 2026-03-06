@@ -21,8 +21,8 @@ public class QuestAPIImpl implements IQuestAPI {
     }
 
     public void createTables() {
-        db().update("""
-            CREATE TABLE IF NOT EXISTS player_quests (
+        db().update(String.format("""
+            CREATE TABLE IF NOT EXISTS %s (
                 uuid CHAR(36) NOT NULL PRIMARY KEY,
                 streak INT NOT NULL DEFAULT 0,
                 active_quest_id INT NOT NULL DEFAULT -1,
@@ -35,14 +35,14 @@ public class QuestAPIImpl implements IQuestAPI {
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                 FOREIGN KEY (uuid) REFERENCES players(uuid) ON DELETE CASCADE
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-        """);
+        """, TABLE));
     }
 
     public void initPlayer(OfflinePlayer player) {
-        db().update("""
-            INSERT IGNORE INTO player_quests (uuid, streak, active_quest_id, quest_name, is_quest_complete, target, progress, last_quest_at)
+        db().update(String.format("""
+            INSERT IGNORE INTO %s (uuid, streak, active_quest_id, quest_name, is_quest_complete, target, progress, last_quest_at)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-        """, player.getUniqueId().toString(), 0, -1, "", false, null, 0, null);
+        """, TABLE), player.getUniqueId().toString(), 0, -1, "", false, null, 0, null);
     }
 
     public boolean doesUserExist(OfflinePlayer player) {

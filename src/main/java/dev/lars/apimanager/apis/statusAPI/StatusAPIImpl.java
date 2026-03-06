@@ -23,8 +23,8 @@ public class StatusAPIImpl implements IStatusAPI {
     }
 
     public void createTables() {
-        db().update("""
-            CREATE TABLE IF NOT EXISTS player_status (
+        db().update(String.format("""
+            CREATE TABLE IF NOT EXISTS %s (
                 uuid CHAR(36) NOT NULL PRIMARY KEY,
                 status VARCHAR(255) NOT NULL DEFAULT '',
                 color INT NOT NULL DEFAULT 0,
@@ -32,14 +32,14 @@ public class StatusAPIImpl implements IStatusAPI {
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                 FOREIGN KEY (uuid) REFERENCES players(uuid) ON DELETE CASCADE
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-        """);
+        """, TABLE));
     }
 
     public void initPlayer(OfflinePlayer player) {
-        db().update("""
-            INSERT IGNORE INTO player_status (uuid, status, color)
+        db().update(String.format("""
+            INSERT IGNORE INTO %s (uuid, status, color)
             VALUES (?, ?, ?)
-        """, player.getUniqueId().toString(), "", 0);
+        """, TABLE), player.getUniqueId().toString(), "", 0);
     }
 
     public boolean doesUserExist(OfflinePlayer player) {

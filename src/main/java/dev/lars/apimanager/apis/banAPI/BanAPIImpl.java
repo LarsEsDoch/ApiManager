@@ -22,8 +22,8 @@ public class BanAPIImpl implements IBanAPI {
     }
 
     public void createTables() {
-        db().update("""
-            CREATE TABLE IF NOT EXISTS player_bans (
+        db().update(String.format("""
+            CREATE TABLE IF NOT EXISTS %s (
                 uuid CHAR(36) NOT NULL PRIMARY KEY,
                 is_banned BOOLEAN NOT NULL DEFAULT FALSE,
                 reason VARCHAR(255) NOT NULL DEFAULT "",
@@ -33,14 +33,14 @@ public class BanAPIImpl implements IBanAPI {
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                 FOREIGN KEY (uuid) REFERENCES players(uuid) ON DELETE CASCADE
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-        """);
+        """, TABLE));
     }
 
     public void initPlayer(OfflinePlayer player) {
-        db().update("""
-            INSERT IGNORE INTO player_bans (uuid, is_banned, reason, banned_at, expires_at)
+        db().update(String.format("""
+            INSERT IGNORE INTO %s (uuid, is_banned, reason, banned_at, expires_at)
             VALUES (?, ?, ?, ?, ?)
-        """, player.getUniqueId().toString(), false, "", null, null);
+        """, TABLE), player.getUniqueId().toString(), false, "", null, null);
     }
 
     public boolean doesUserExist(OfflinePlayer player) {

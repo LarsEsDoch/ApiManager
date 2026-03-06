@@ -30,22 +30,22 @@ public class BackpackAPIImpl implements IBackpackAPI {
     }
 
     public void createTables() {
-        db().update("""
-            CREATE TABLE IF NOT EXISTS player_backpacks (
-                uuid CHAR(36) NOT NULL PRIMARY KEY,
-                data LONGBLOB DEFAULT NULL,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                FOREIGN KEY (uuid) REFERENCES players(uuid) ON DELETE CASCADE
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-        """);
+        db().update(String.format("""
+        CREATE TABLE IF NOT EXISTS %s (
+            uuid CHAR(36) NOT NULL PRIMARY KEY,
+            data LONGBLOB DEFAULT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            FOREIGN KEY (uuid) REFERENCES players(uuid) ON DELETE CASCADE
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+        """, TABLE));
     }
 
     public void initPlayer(OfflinePlayer player) {
-        db().update("""
-            INSERT IGNORE INTO player_backpacks (uuid, data)
+        db().update(String.format("""
+            INSERT IGNORE INTO %s (uuid, data)
             VALUES (?, ?)
-        """, player.getUniqueId().toString(), null);
+        """, TABLE), player.getUniqueId().toString(), null);
     }
 
     public boolean doesUserExist(OfflinePlayer player) {

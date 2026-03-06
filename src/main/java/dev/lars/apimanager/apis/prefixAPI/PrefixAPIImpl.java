@@ -27,8 +27,8 @@ public class PrefixAPIImpl implements IPrefixAPI {
     }
 
     public void createTables() {
-        db().update("""
-            CREATE TABLE IF NOT EXISTS player_prefixes (
+        db().update(String.format("""
+            CREATE TABLE IF NOT EXISTS %s (
                 uuid CHAR(36) NOT NULL PRIMARY KEY,
                 color INT NOT NULL DEFAULT 15,
                 decorations INT NOT NULL DEFAULT 0,
@@ -36,14 +36,14 @@ public class PrefixAPIImpl implements IPrefixAPI {
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                 FOREIGN KEY (uuid) REFERENCES players(uuid) ON DELETE CASCADE
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-        """);
+        """, TABLE));
     }
 
     public void initPlayer(OfflinePlayer player) {
-        db().update("""
-            INSERT IGNORE INTO player_prefixes (uuid, color, decorations)
+        db().update(String.format("""
+            INSERT IGNORE INTO %s (uuid, color, decorations)
             VALUES (?, ?, ?)
-        """, player.getUniqueId().toString(), 15, 0);
+        """, TABLE), player.getUniqueId().toString(), 15, 0);
     }
 
     public boolean doesUserExist(OfflinePlayer player) {

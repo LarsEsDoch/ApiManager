@@ -22,8 +22,8 @@ public class RankAPIImpl implements IRankAPI {
     }
 
     public void createTables() {
-        db().update("""
-            CREATE TABLE IF NOT EXISTS player_ranks (
+        db().update(String.format("""
+            CREATE TABLE IF NOT EXISTS %s (
                 uuid CHAR(36) NOT NULL PRIMARY KEY,
                 rank_id INT NOT NULL DEFAULT 0,
                 expires_at TIMESTAMP DEFAULT NULL,
@@ -31,14 +31,14 @@ public class RankAPIImpl implements IRankAPI {
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                 FOREIGN KEY (uuid) REFERENCES players(uuid) ON DELETE CASCADE
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-        """);
+        """, TABLE));
     }
 
     public void initPlayer(OfflinePlayer player) {
-        db().update("""
-            INSERT IGNORE INTO player_ranks (uuid, rank_id, expires_at)
+        db().update(String.format("""
+            INSERT IGNORE INTO %s (uuid, rank_id, expires_at)
             VALUES (?, ?, ?)
-        """, player.getUniqueId().toString(), 0, null);
+        """, TABLE), player.getUniqueId().toString(), 0, null);
     }
 
     public boolean doesUserExist(OfflinePlayer player) {

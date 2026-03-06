@@ -21,22 +21,22 @@ public class LanguageAPIImpl implements ILanguageAPI {
     }
 
     public void createTables() {
-        db().update("""
-            CREATE TABLE IF NOT EXISTS player_languages (
+        db().update(String.format("""
+            CREATE TABLE IF NOT EXISTS %s (
                 uuid CHAR(36) NOT NULL PRIMARY KEY,
                 language_id INT NOT NULL DEFAULT 1,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                 FOREIGN KEY (uuid) REFERENCES players(uuid) ON DELETE CASCADE
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-        """);
+        """, TABLE));
     }
 
     public void initPlayer(OfflinePlayer player) {
-        db().update("""
-            INSERT IGNORE INTO player_languages (uuid, language_id)
+        db().update(String.format("""
+            INSERT IGNORE INTO %s (uuid, language_id)
             VALUES (?, ?)
-        """, player.getUniqueId().toString(), 1);
+        """, TABLE), player.getUniqueId().toString(), 1);
     }
 
     public boolean doesUserExist(OfflinePlayer player) {

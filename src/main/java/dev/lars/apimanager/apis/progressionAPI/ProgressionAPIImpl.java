@@ -22,22 +22,22 @@ public class ProgressionAPIImpl implements IProgressionAPI {
     }
 
     public void createTables() {
-        db().update("""
-            CREATE TABLE IF NOT EXISTS server_progression (
-                id INT PRIMARY KEY CHECK (id = 1),
+        db().update(String.format("""
+            CREATE TABLE IF NOT EXISTS %s (
+                id INT PRIMARY KEY CHECK (%s),
                 nether_unlock_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
                 end_unlock_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-        """);
+        """, TABLE, WHERE_ID));
 
         if (repo().count(TABLE, WHERE_ID) < 1) {
-            db().update("""
-                INSERT INTO server_progression
+            db().update(String.format("""
+                INSERT INTO %s
                 (id, nether_unlock_at, end_unlock_at)
                 VALUES (1, ?, ?)
-            """, Timestamp.from(Instant.now()), Timestamp.from(Instant.now()));
+            """, TABLE), Timestamp.from(Instant.now()), Timestamp.from(Instant.now()));
         }
     }
 

@@ -24,8 +24,8 @@ public class HomeAPIImpl implements IHomeAPI {
     }
 
     public void createTables() {
-        db().update("""
-            CREATE TABLE IF NOT EXISTS player_homes (
+        db().update(String.format("""
+            CREATE TABLE IF NOT EXISTS %s (
                 id INT AUTO_INCREMENT PRIMARY KEY,
                 uuid CHAR(36) NOT NULL,
                 name VARCHAR(255) NOT NULL,
@@ -36,7 +36,7 @@ public class HomeAPIImpl implements IHomeAPI {
                 FOREIGN KEY (uuid) REFERENCES players(uuid) ON DELETE CASCADE,
                 UNIQUE KEY unique_home (uuid, name)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-        """);
+        """, TABLE));
     }
 
     @Override
@@ -64,10 +64,10 @@ public class HomeAPIImpl implements IHomeAPI {
         ApiManagerValidateParameter.validatePlayer(player);
         ApiManagerValidateParameter.validateName(name);
         ApiManagerValidateParameter.validateLocation(location);
-        db().update("""
-            INSERT INTO player_homes (uuid, name, location, is_public)
+        db().update(String.format("""
+            INSERT INTO %s (uuid, name, location, is_public)
             VALUES (?, ?, ?, ?)
-        """, player.getUniqueId().toString(), name, ApiManagerFormatLocation.serializeLocation(location), isPublic);
+        """, TABLE), player.getUniqueId().toString(), name, ApiManagerFormatLocation.serializeLocation(location), isPublic);
     }
 
     @Override
@@ -75,10 +75,10 @@ public class HomeAPIImpl implements IHomeAPI {
         ApiManagerValidateParameter.validatePlayer(player);
         ApiManagerValidateParameter.validateName(name);
         ApiManagerValidateParameter.validateLocation(location);
-        return db().updateAsync("""
-            INSERT INTO player_homes (uuid, name, location, is_public)
+        return db().updateAsync(String.format("""
+            INSERT INTO %s (uuid, name, location, is_public)
             VALUES (?, ?, ?, ?)
-        """, player.getUniqueId().toString(), name, ApiManagerFormatLocation.serializeLocation(location), isPublic);
+        """, TABLE), player.getUniqueId().toString(), name, ApiManagerFormatLocation.serializeLocation(location), isPublic);
     }
 
     @Override

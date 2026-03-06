@@ -21,8 +21,8 @@ public class LimitAPIImpl implements ILimitAPI {
     }
 
     public void createTables() {
-        db().update("""
-            CREATE TABLE IF NOT EXISTS player_limits (
+        db().update(String.format("""
+            CREATE TABLE IF NOT EXISTS %s (
                 uuid CHAR(36) NOT NULL PRIMARY KEY,
                 backpack_slots INT NOT NULL DEFAULT 9,
                 max_chunks INT DEFAULT 32,
@@ -31,14 +31,14 @@ public class LimitAPIImpl implements ILimitAPI {
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                 FOREIGN KEY (uuid) REFERENCES players(uuid) ON DELETE CASCADE
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-        """);
+        """, TABLE));
     }
 
     public void initPlayer(OfflinePlayer player) {
-        db().update("""
-            INSERT IGNORE INTO player_limits (uuid, backpack_slots, max_chunks, max_homes)
+        db().update(String.format("""
+            INSERT IGNORE INTO %s (uuid, backpack_slots, max_chunks, max_homes)
             VALUES (?, ?, ?, ?)
-        """, player.getUniqueId().toString(), 9, 32, 32);
+        """, TABLE), player.getUniqueId().toString(), 9, 32, 32);
     }
 
     public boolean doesUserExist(OfflinePlayer player) {

@@ -21,8 +21,8 @@ public class ScoreboardSettingsAPIImpl implements IScoreboardSettingsAPI {
     }
 
     public void createTables() {
-        db().update("""
-            CREATE TABLE IF NOT EXISTS scoreboard_settings (
+        db().update(String.format("""
+            CREATE TABLE IF NOT EXISTS %s (
                 uuid CHAR(36) NOT NULL PRIMARY KEY,
                 scoreboard_toggle BOOLEAN NOT NULL DEFAULT TRUE,
                 show_coins BOOLEAN NOT NULL DEFAULT FALSE,
@@ -43,14 +43,14 @@ public class ScoreboardSettingsAPIImpl implements IScoreboardSettingsAPI {
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                 FOREIGN KEY (uuid) REFERENCES players(uuid) ON DELETE CASCADE
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-        """);
+        """, TABLE));
     }
 
     public void initPlayer(OfflinePlayer player) {
-        db().update("""
-            INSERT IGNORE INTO scoreboard_settings (uuid, scoreboard_toggle, show_coins, show_playtime, show_deaths, show_coordinates, show_quests, show_online_players, show_ping, show_biom, show_weather, show_condition, show_event_countdown, show_kills, show_progress, show_session_time)
+        db().update(String.format("""
+            INSERT IGNORE INTO %s (uuid, scoreboard_toggle, show_coins, show_playtime, show_deaths, show_coordinates, show_quests, show_online_players, show_ping, show_biom, show_weather, show_condition, show_event_countdown, show_kills, show_progress, show_session_time)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """, player.getUniqueId().toString(), true, false, true, false, true, false, false, false, true, false, false, false, false, true, false);
+        """, TABLE), player.getUniqueId().toString(), true, false, true, false, true, false, false, false, true, false, false, false, false, true, false);
     }
 
     public boolean doesUserExist(OfflinePlayer player) {

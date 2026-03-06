@@ -28,8 +28,8 @@ public class CourtAPIImpl implements ICourtAPI {
     }
 
     public void createTables() {
-        db().update("""
-            CREATE TABLE IF NOT EXISTS player_court (
+        db().update(String.format("""
+            CREATE TABLE IF NOT EXISTS %s (
                 uuid CHAR(36) NOT NULL PRIMARY KEY,
                 prosecutor_uuid CHAR(36) DEFAULT NULL,
                 status INT NOT NULL DEFAULT 0,
@@ -40,14 +40,14 @@ public class CourtAPIImpl implements ICourtAPI {
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                 FOREIGN KEY (uuid) REFERENCES players(uuid) ON DELETE CASCADE
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-        """);
+        """, TABLE));
     }
 
     public void initPlayer(OfflinePlayer player) {
-        db().update("""
-            INSERT IGNORE INTO player_court (uuid, prosecutor_uuid, status, reason, time, cell)
+        db().update(String.format("""
+            INSERT IGNORE INTO %s (uuid, prosecutor_uuid, status, reason, time, cell)
             VALUES (?, ?, ?, ?, ?, ?)
-        """, player.getUniqueId().toString(), null, STATUS_FREE, "", 0, 0);
+        """, TABLE), player.getUniqueId().toString(), null, STATUS_FREE, "", 0, 0);
     }
 
     public boolean doesUserExist(OfflinePlayer player) {

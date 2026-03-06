@@ -24,8 +24,8 @@ public class ServerStateAPIImpl implements IServerStateAPI {
     }
 
     public void createTables() {
-        db().update("""
-            CREATE TABLE IF NOT EXISTS server_state (
+        db().update(String.format("""
+            CREATE TABLE IF NOT EXISTS %s (
                 id INT PRIMARY KEY CHECK (id = 1),
                 is_server_online BOOLEAN NOT NULL DEFAULT FALSE,
                 max_players INT NOT NULL DEFAULT 20,
@@ -37,14 +37,14 @@ public class ServerStateAPIImpl implements IServerStateAPI {
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-        """);
+        """, TABLE));
 
         if (repo().count(TABLE, WHERE_ID) < 1) {
-            db().update("""
-                INSERT INTO server_state
+            db().update(String.format("""
+                INSERT INTO %s
                 (id, is_server_online, max_players, server_name, server_name_startcolor, server_name_endcolor, server_version, spawn_location)
                 VALUES (1, ?, ?, ?, ?, ?, ?, ?)
-            """, false, 20, "A Minecraft Server", "#ffffff", "#ffffff", "1.21.11", null);
+            """, TABLE), false, 20, "A Minecraft Server", "#ffffff", "#ffffff", "1.21.11", null);
         }
     }
 

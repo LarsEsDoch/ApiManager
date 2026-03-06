@@ -27,8 +27,8 @@ public class EconomyAPIImpl implements IEconomyAPI {
     }
 
     public void createTables() {
-        db().update("""
-            CREATE TABLE IF NOT EXISTS player_economy (
+        db().update(String.format("""
+            CREATE TABLE IF NOT EXISTS %s (
                 uuid CHAR(36) NOT NULL PRIMARY KEY,
                 balance INT NOT NULL DEFAULT 0,
                 gifts VARCHAR(255) NOT NULL DEFAULT '',
@@ -36,14 +36,14 @@ public class EconomyAPIImpl implements IEconomyAPI {
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                 FOREIGN KEY (uuid) REFERENCES players(uuid) ON DELETE CASCADE
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-        """);
+        """, TABLE));
     }
 
     public void initPlayer(OfflinePlayer player) {
-        db().update("""
-            INSERT IGNORE INTO player_economy (uuid, balance, gifts)
+        db().update(String.format("""
+            INSERT IGNORE INTO %s (uuid, balance, gifts)
             VALUES (?, ?, ?)
-        """, player.getUniqueId().toString(), 0, "");
+        """, TABLE), player.getUniqueId().toString(), 0, "");
     }
 
     public boolean doesUserExist(OfflinePlayer player) {
@@ -166,7 +166,7 @@ public class EconomyAPIImpl implements IEconomyAPI {
     public List<Integer> getGifts(OfflinePlayer player) {
         ApiManagerValidateParameter.validatePlayer(player);
         return db().query(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT gifts FROM player_economy WHERE uuid=?")) {
+            try (PreparedStatement ps = conn.prepareStatement(String.format("SELECT gifts FROM %s WHERE uuid=?", TABLE))) {
                 ps.setString(1, player.getUniqueId().toString());
                 try (ResultSet rs = ps.executeQuery()) {
                     if (rs.next()) {
@@ -189,7 +189,7 @@ public class EconomyAPIImpl implements IEconomyAPI {
     public CompletableFuture<List<Integer>> getGiftsAsync(OfflinePlayer player) {
         ApiManagerValidateParameter.validatePlayer(player);
         return db().queryAsync(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT gifts FROM player_economy WHERE uuid=?")) {
+            try (PreparedStatement ps = conn.prepareStatement(String.format("SELECT gifts FROM %s WHERE uuid=?", TABLE))) {
                 ps.setString(1, player.getUniqueId().toString());
                 try (ResultSet rs = ps.executeQuery()) {
                     if (rs.next()) {

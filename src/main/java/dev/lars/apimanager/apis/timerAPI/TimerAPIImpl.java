@@ -21,8 +21,8 @@ public class TimerAPIImpl implements ITimerAPI {
     }
 
     public void createTables() {
-        db().update("""
-            CREATE TABLE IF NOT EXISTS player_timers (
+        db().update(String.format("""
+            CREATE TABLE IF NOT EXISTS %s (
                 uuid CHAR(36) NOT NULL PRIMARY KEY,
                 time INT NOT NULL DEFAULT 0,
                 is_enabled BOOLEAN NOT NULL DEFAULT FALSE,
@@ -33,14 +33,14 @@ public class TimerAPIImpl implements ITimerAPI {
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                 FOREIGN KEY (uuid) REFERENCES players(uuid) ON DELETE CASCADE
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-        """);
+        """, TABLE));
     }
 
     public void initPlayer(OfflinePlayer player) {
-        db().update("""
-            INSERT IGNORE INTO player_timers (uuid, time, is_enabled, is_public, is_running, is_timer_mode_enabled)
+        db().update(String.format("""
+            INSERT IGNORE INTO %s (uuid, time, is_enabled, is_public, is_running, is_timer_mode_enabled)
             VALUES (?, ?, ?, ?, ?, ?)
-        """, player.getUniqueId().toString(), 0, false, false, false, false);
+        """, TABLE), player.getUniqueId().toString(), 0, false, false, false, false);
     }
 
     public boolean doesUserExist(OfflinePlayer player) {
