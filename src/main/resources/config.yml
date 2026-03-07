@@ -6,8 +6,8 @@
 # ============================================
 
 database:
-  host: "127.0.0.1"          # IP or hostname of your database server
+  host: "Enter the IP of your database"          # IP or hostname of your database server
   port: 3306                 # Default MySQL port
-  name: "my_database"        # Name of the database (schema)
-  username: "root"           # Database user
-  password: "password123"    # User password
+  database: "Enter the name of the database"        # Name of the database (schema)
+  username: "Enter the database user"           # Database user
+  password: "Enter the password of the user"    # User password

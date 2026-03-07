@@ -25,7 +25,7 @@ public record ConnectDatabase(ApiManager plugin) {
             return false;
         }
 
-        if (!isHostReachable(host, port, 3000)) {
+        if (!isHostReachable(host, port, 1000)) {
             ApiManagerStatements.logToConsole("Couldn't connect to " + host + " on port " + port + " with user " + user, NamedTextColor.RED);
             plugin.setDatabaseManager(new SafeDatabaseManager());
             return false;
