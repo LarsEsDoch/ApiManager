@@ -273,6 +273,54 @@ public class DatabaseRepository {
         Object[] allParams = combineParams(new Object[]{amount}, whereParams);
         return db().updateAsync(sql, allParams);
     }
+    
+    public void insert(String table, String[] columns, Object... values) {
+        String safeTable = SqlIdentifierValidator.validate(table);
+        String[] safeColumns = SqlIdentifierValidator.validateAll(columns);
+
+        String columnList = String.join(", ", safeColumns);
+        String placeholders = "?, ".repeat(safeColumns.length);
+        placeholders = placeholders.substring(0, placeholders.length() - 2); // trim trailing ", "
+
+        String sql = "INSERT INTO " + safeTable + " (" + columnList + ") VALUES (" + placeholders + ")";
+        db().update(sql, values);
+    }
+
+    public void insertIgnore(String table, String[] columns, Object... values) {
+        String safeTable = SqlIdentifierValidator.validate(table);
+        String[] safeColumns = SqlIdentifierValidator.validateAll(columns);
+
+        String columnList = String.join(", ", safeColumns);
+        String placeholders = "?, ".repeat(safeColumns.length);
+        placeholders = placeholders.substring(0, placeholders.length() - 2);
+
+        String sql = "INSERT IGNORE INTO " + safeTable + " (" + columnList + ") VALUES (" + placeholders + ")";
+        db().update(sql, values);
+    }
+
+    public CompletableFuture<Void> insertAsync(String table, String[] columns, Object... values) {
+        String safeTable = SqlIdentifierValidator.validate(table);
+        String[] safeColumns = SqlIdentifierValidator.validateAll(columns);
+
+        String columnList = String.join(", ", safeColumns);
+        String placeholders = "?, ".repeat(safeColumns.length);
+        placeholders = placeholders.substring(0, placeholders.length() - 2);
+
+        String sql = "INSERT INTO " + safeTable + " (" + columnList + ") VALUES (" + placeholders + ")";
+        return db().updateAsync(sql, values);
+    }
+
+    public CompletableFuture<Void> insertIgnoreAsync(String table, String[] columns, Object... values) {
+        String safeTable = SqlIdentifierValidator.validate(table);
+        String[] safeColumns = SqlIdentifierValidator.validateAll(columns);
+
+        String columnList = String.join(", ", safeColumns);
+        String placeholders = "?, ".repeat(safeColumns.length);
+        placeholders = placeholders.substring(0, placeholders.length() - 2);
+
+        String sql = "INSERT IGNORE INTO " + safeTable + " (" + columnList + ") VALUES (" + placeholders + ")";
+        return db().updateAsync(sql, values);
+    }
 
     public void delete(String table, String whereClause, Object... params) {
         String sql = "DELETE FROM " + table + " WHERE " + whereClause;
