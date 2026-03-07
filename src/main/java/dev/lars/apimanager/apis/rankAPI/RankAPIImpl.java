@@ -72,26 +72,67 @@ public class RankAPIImpl implements IRankAPI {
     @Override
     public void setRank(OfflinePlayer player, int rankId, Integer days) {
         ApiManagerValidateParameter.validatePlayer(player);
-        Instant expires = (days != null && days > 0)
+        Instant expiresAt = (days != null && days > 0)
                 ? Instant.now().plus(days, ChronoUnit.DAYS)
                 : null;
 
         repo().updateColumns(TABLE,
             new String[]{"rank_id", "expires_at"},
-            new Object[]{rankId, expires},
+            new Object[]{rankId, expiresAt},
             "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public CompletableFuture<Void> setRankAsync(OfflinePlayer player, int rankId, Integer days) {
         ApiManagerValidateParameter.validatePlayer(player);
-        Instant expires = (days != null && days > 0)
+        Instant expiresAt = (days != null && days > 0)
                 ? Instant.now().plus(days, ChronoUnit.DAYS)
                 : null;
+
         return repo().updateColumnsAsync(TABLE,
             new String[]{"rank_id", "expires_at"},
-            new Object[]{rankId, expires},
+            new Object[]{rankId, expiresAt},
             "uuid = ?", player.getUniqueId().toString());
+    }
+
+    @Override
+    public void setRank(OfflinePlayer player, int rankId, Instant expiresAt) {
+        ApiManagerValidateParameter.validatePlayer(player);
+
+        repo().updateColumns(TABLE,
+            new String[]{"rank_id", "expires_at"},
+            new Object[]{rankId, expiresAt},
+            "uuid = ?", player.getUniqueId().toString());
+    }
+
+    @Override
+    public CompletableFuture<Void> setRankAsync(OfflinePlayer player, int rankId, Instant expiresAt) {
+        ApiManagerValidateParameter.validatePlayer(player);
+
+        return repo().updateColumnsAsync(TABLE,
+            new String[]{"rank_id", "expires_at"},
+            new Object[]{rankId, expiresAt},
+            "uuid = ?", player.getUniqueId().toString());
+    }
+
+    @Override
+    public void setRankDays(OfflinePlayer player, Integer days) {
+        ApiManagerValidateParameter.validatePlayer(player);
+        Instant expiresAt = (days != null && days > 0)
+                ? Instant.now().plus(days, ChronoUnit.DAYS)
+                : null;
+
+        repo().updateColumn(TABLE, "expires_at", expiresAt, "uuid = ?", player.getUniqueId().toString());
+    }
+
+    @Override
+    public CompletableFuture<Void> setRankDaysAsync(OfflinePlayer player, Integer days) {
+        ApiManagerValidateParameter.validatePlayer(player);
+        Instant expiresAt = (days != null && days > 0)
+                ? Instant.now().plus(days, ChronoUnit.DAYS)
+                : null;
+
+        return repo().updateColumnAsync(TABLE, "expires_at", expiresAt, "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
@@ -130,6 +171,18 @@ public class RankAPIImpl implements IRankAPI {
     public CompletableFuture<Integer> getRankIdAsync(OfflinePlayer player) {
         ApiManagerValidateParameter.validatePlayer(player);
         return repo().getIntegerAsync(TABLE, "rank_id", "uuid = ?", player.getUniqueId().toString());
+    }
+
+    @Override
+    public void setExpiresAt(OfflinePlayer player, Instant expiresAt) {
+        ApiManagerValidateParameter.validatePlayer(player);
+        repo().updateColumn(TABLE, "expires_at", expiresAt, "uuid = ?", player.getUniqueId().toString());
+    }
+
+    @Override
+    public CompletableFuture<Void> setExpiresAtAsync(OfflinePlayer player, Instant expiresAt) {
+        ApiManagerValidateParameter.validatePlayer(player);
+        return repo().updateColumnAsync(TABLE, "expires_at", expiresAt, "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
