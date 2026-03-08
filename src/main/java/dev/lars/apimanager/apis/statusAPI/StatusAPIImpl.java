@@ -36,10 +36,9 @@ public class StatusAPIImpl implements IStatusAPI {
     }
 
     public void initPlayer(OfflinePlayer player) {
-        db().update(String.format("""
-            INSERT IGNORE INTO %s (uuid, status, color)
-            VALUES (?, ?, ?)
-        """, TABLE), player.getUniqueId().toString(), "", 0);
+        repo().insertIgnore(TABLE,
+            new String[]{"uuid", "status", "color"},
+            player.getUniqueId().toString(), "", 0);
     }
 
     public boolean doesUserExist(OfflinePlayer player) {

@@ -37,10 +37,9 @@ public class CourtAPIImpl implements ICourtAPI {
     }
 
     public void initPlayer(OfflinePlayer player) {
-        db().update(String.format("""
-            INSERT IGNORE INTO %s (uuid, prosecutor_uuid, status, reason, time, cell)
-            VALUES (?, ?, ?, ?, ?, ?)
-        """, TABLE), player.getUniqueId().toString(), null, CourtStatus.FREE.getId(), "", 0, 0);
+        repo().insertIgnore(TABLE,
+            new String[]{"uuid", "prosecutor_uuid", "status", "reason", "time", "cell"},
+            player.getUniqueId().toString(), null, CourtStatus.FREE.getId(), "", 0, 0);
     }
 
     public boolean doesUserExist(OfflinePlayer player) {

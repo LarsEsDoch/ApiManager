@@ -36,10 +36,9 @@ public class PlayerSettingsAPIImpl implements IPlayerSettingsAPI {
     }
 
     public void initPlayer(OfflinePlayer player) {
-        db().update(String.format("""
-            INSERT IGNORE INTO %s (uuid, respawn_target, respawn_home_name, join_target, join_home_name)
-            VALUES (?, ?, ?, ?, ?)
-        """, TABLE), player.getUniqueId().toString(), "BED", null, "LAST_LOCATION", null);
+        repo().insertIgnore(TABLE,
+            new String[]{"uuid", "respawn_target", "respawn_home_name", "join_target", "join_home_name"},
+            player.getUniqueId().toString(), "BED", null, "LAST_LOCATION", null);
     }
 
     public boolean doesUserExist(OfflinePlayer player) {

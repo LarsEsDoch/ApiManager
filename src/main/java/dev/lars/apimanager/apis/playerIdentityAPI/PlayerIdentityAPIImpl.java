@@ -35,10 +35,9 @@ public class PlayerIdentityAPIImpl implements IPlayerIdentityAPI {
     }
 
     public void initPlayer(OfflinePlayer player) {
-        db().update(String.format("""
-            INSERT IGNORE INTO %s (uuid, vanished, nickname, disguise_rank_id)
-            VALUES (?, ?, ?, ?)
-        """, TABLE), player.getUniqueId().toString(), false, null, null);
+        repo().insertIgnore(TABLE,
+            new String[]{"uuid", "vanished", "nickname", "disguise_rank_id"},
+            player.getUniqueId().toString(), false, null, null);
     }
 
     public boolean doesUserExist(OfflinePlayer player) {

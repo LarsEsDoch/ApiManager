@@ -25,7 +25,7 @@ public class QuestAPIImpl implements IQuestAPI {
             CREATE TABLE IF NOT EXISTS %s (
                 uuid CHAR(36) NOT NULL PRIMARY KEY,
                 streak INT NOT NULL DEFAULT 0,
-                active_quest_id INT NOT NULL DEFAULT -1,
+                active_quest_id INT NOT NULL DEFAULT 1,
                 quest_name VARCHAR(255) NOT NULL DEFAULT '',
                 is_quest_complete BOOLEAN NOT NULL DEFAULT FALSE,
                 target INT DEFAULT NULL,
@@ -39,10 +39,9 @@ public class QuestAPIImpl implements IQuestAPI {
     }
 
     public void initPlayer(OfflinePlayer player) {
-        db().update(String.format("""
-            INSERT IGNORE INTO %s (uuid, streak, active_quest_id, quest_name, is_quest_complete, target, progress, last_quest_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-        """, TABLE), player.getUniqueId().toString(), 0, -1, "", false, null, 0, null);
+        repo().insertIgnore(TABLE,
+            new String[]{"uuid", "streak", "active_quest_id", "quest_name", "is_quest_complete", "target", "progress", "last_quest_at"},
+            player.getUniqueId().toString(), 0, 1, "", false, null, 0, null);
     }
 
     public boolean doesUserExist(OfflinePlayer player) {

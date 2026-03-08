@@ -40,10 +40,9 @@ public class EconomyAPIImpl implements IEconomyAPI {
     }
 
     public void initPlayer(OfflinePlayer player) {
-        db().update(String.format("""
-            INSERT IGNORE INTO %s (uuid, balance, gifts)
-            VALUES (?, ?, ?)
-        """, TABLE), player.getUniqueId().toString(), 0, "");
+        repo().insertIgnore(TABLE,
+            new String[]{"uuid", "balance", "gifts"},
+            player.getUniqueId().toString(), 0, "");
     }
 
     public boolean doesUserExist(OfflinePlayer player) {

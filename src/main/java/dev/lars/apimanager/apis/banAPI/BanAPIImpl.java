@@ -37,10 +37,9 @@ public class BanAPIImpl implements IBanAPI {
     }
 
     public void initPlayer(OfflinePlayer player) {
-        db().update(String.format("""
-            INSERT IGNORE INTO %s (uuid, is_banned, reason, banned_at, expires_at)
-            VALUES (?, ?, ?, ?, ?)
-        """, TABLE), player.getUniqueId().toString(), false, "", null, null);
+        repo().insertIgnore(TABLE,
+            new String[]{"uuid", "is_banned", "reason", "banned_at", "expires_at"},
+            player.getUniqueId().toString(), false, "", null, null);
     }
 
     public boolean doesUserExist(OfflinePlayer player) {

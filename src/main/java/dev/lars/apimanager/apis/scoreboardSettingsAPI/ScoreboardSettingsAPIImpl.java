@@ -10,7 +10,7 @@ import java.time.Instant;
 import java.util.concurrent.CompletableFuture;
 
 public class ScoreboardSettingsAPIImpl implements IScoreboardSettingsAPI {
-    private static final String TABLE = "scoreboard_settings";
+    private static final String TABLE = "player_scoreboards";
 
     private DatabaseRepository repo() {
         return new DatabaseRepository();
@@ -47,10 +47,13 @@ public class ScoreboardSettingsAPIImpl implements IScoreboardSettingsAPI {
     }
 
     public void initPlayer(OfflinePlayer player) {
-        db().update(String.format("""
-            INSERT IGNORE INTO %s (uuid, scoreboard_toggle, show_coins, show_playtime, show_deaths, show_coordinates, show_quests, show_online_players, show_ping, show_biom, show_weather, show_condition, show_event_countdown, show_kills, show_progress, show_session_time)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """, TABLE), player.getUniqueId().toString(), true, false, true, false, true, false, false, false, true, false, false, false, false, true, false);
+        repo().insertIgnore(TABLE,
+            new String[]{"uuid", "scoreboard_toggle", "show_coins", "show_playtime", "show_deaths",
+                "show_coordinates", "show_quests", "show_online_players", "show_ping", "show_biom",
+                "show_weather", "show_condition", "show_event_countdown", "show_kills",
+                "show_progress", "show_session_time"},
+            player.getUniqueId().toString(),
+            true, false, true, false, true, false, false, false, true, false, false, false, false, true, false);
     }
 
     public boolean doesUserExist(OfflinePlayer player) {

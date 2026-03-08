@@ -36,10 +36,9 @@ public class PlayerAPIImpl implements IPlayerAPI {
     }
 
     public void initPlayer(OfflinePlayer player) {
-        db().update(String.format("""
-            INSERT IGNORE INTO %s (uuid, name, playtime, is_online)
-            VALUES (?, ?, ?, ?)
-        """, TABLE), player.getUniqueId().toString(), player.getName(), 0, false);
+        repo().insertIgnore(TABLE,
+            new String[]{"uuid", "name", "playtime", "is_online"},
+            player.getUniqueId().toString(), player.getName(), 0, false);
     }
 
     public boolean doesUserExist(OfflinePlayer player) {
