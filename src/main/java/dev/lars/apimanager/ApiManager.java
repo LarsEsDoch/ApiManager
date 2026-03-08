@@ -220,7 +220,7 @@ public final class ApiManager extends JavaPlugin {
         createTableRunnable.add(() -> timerAPI.createTables());
     }
 
-    private void createAllTables() {
+    public void createAllTables() {
         for (Runnable r : createTableRunnable) {
             try {
                 r.run();
@@ -230,7 +230,7 @@ public final class ApiManager extends JavaPlugin {
         }
     }
 
-    private void onApisReady() {
+    public void onApisReady() {
         serverStateAPI.setServerOnline(true);
         ApiManagerStatements.logToConsole("All APIs are ready!", NamedTextColor.DARK_GREEN);
     }

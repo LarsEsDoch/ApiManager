@@ -61,6 +61,8 @@ public record ApiManagerCommand(ApiManager plugin, ConnectDatabase connectDataba
             if (dbm instanceof DatabaseManager real) {
                 real.readyFuture().thenRun(() -> Bukkit.getScheduler().runTask(plugin, () -> {
                     try {
+                        ApiManager.getInstance().createAllTables();
+                        ApiManager.getInstance().onApisReady();
                         sender.sendMessage(ApiManagerStatements.getPrefix().append(Component.text("Database configuration successfully reloaded!", NamedTextColor.GREEN)));
                     } catch (Exception e) {
                         sender.sendMessage(ApiManagerStatements.getPrefix().append(Component.text("Failed to reinitialize APIs: " + e.getMessage(), NamedTextColor.RED)));
