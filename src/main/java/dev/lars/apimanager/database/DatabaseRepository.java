@@ -309,7 +309,7 @@ public class DatabaseRepository {
         Object[] allParams = combineParams(new Object[]{amount}, whereParams);
         return db().updateAsync(sql, allParams);
     }
-    
+
     public void insert(String table, String[] columns, Object... values) {
         String safeTable = SqlIdentifierValidator.validate(table);
         String[] safeColumns = SqlIdentifierValidator.validateAll(columns);

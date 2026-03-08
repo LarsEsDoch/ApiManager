@@ -28,3 +28,4 @@ replay_pid*
 out/
 config-my.yml
 build/
+run/
