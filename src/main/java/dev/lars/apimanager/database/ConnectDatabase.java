@@ -3,17 +3,32 @@ package dev.lars.apimanager.database;
 import dev.lars.apimanager.ApiManager;
 import dev.lars.apimanager.utils.ApiManagerStatements;
 import net.kyori.adventure.text.format.NamedTextColor;
+import org.bukkit.configuration.InvalidConfigurationException;
+import org.bukkit.configuration.file.YamlConfiguration;
 
+import java.io.File;
+import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 
 public record ConnectDatabase(ApiManager plugin) {
     public boolean loadDatabaseConfig() {
-        String host = plugin.getConfig().getString("database.host");
-        int port = plugin.getConfig().getInt("database.port");
-        String database = plugin.getConfig().getString("database.database");
-        String user = plugin.getConfig().getString("database.username");
-        String password = plugin.getConfig().getString("database.password");
+        File configFile = new File(plugin.getDataFolder(), "config.yml");
+        YamlConfiguration config = new YamlConfiguration();
+
+        try {
+            config.load(configFile);
+        } catch (IOException | InvalidConfigurationException e) {
+            ApiManagerStatements.logToConsole("config.yml is damaged or invalid. Safe mode has been enabled.", NamedTextColor.RED);
+            plugin.setDatabaseManager(new SafeDatabaseManager());
+            return false;
+        }
+
+        String host = config.getString("database.host");
+        int port = config.getInt("database.port");
+        String database = config.getString("database.database");
+        String user = config.getString("database.username");
+        String password = config.getString("database.password");
 
         if (host == null || host.isEmpty() || host.equalsIgnoreCase("Enter the IP of your database") ||
                 database == null || database.isEmpty() || database.equalsIgnoreCase("Enter the name of the database") ||

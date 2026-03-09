@@ -11,6 +11,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.InvalidConfigurationException;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Instant;
@@ -40,8 +41,6 @@ public record ApiManagerCommand(ApiManager plugin, ConnectDatabase connectDataba
             handleTest(sender);
             return;
         } else if (sub.equalsIgnoreCase("reload") || sub.equalsIgnoreCase("rl")) {
-            plugin.reloadConfig();
-
             boolean success;
             try {
                 success = connectDatabase.loadDatabaseConfig();
