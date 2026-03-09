@@ -1,12 +1,12 @@
 package dev.lars.apimanager.apis.courtAPI;
 
 public enum CourtStatus {
-    FREE(0),
+    RELEASED(0),
     REPORTED(1),
-    WAITING(2),
-    COURT(3),
-    LOCKED(4),
-    JAILED(5);
+    AWAITING_FOR_COURT(2),
+    PROSECUTED(3),
+    SENTENCED(4),
+    IMPRISONED(5);
 
     private final int id;
 
@@ -22,6 +22,6 @@ public enum CourtStatus {
         for (CourtStatus status : values()) {
             if (status.id == id) return status;
         }
-        return FREE;
+        return RELEASED;
     }
 }

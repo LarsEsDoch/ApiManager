@@ -39,7 +39,7 @@ public class CourtAPIImpl implements ICourtAPI {
     public void initPlayer(OfflinePlayer player) {
         repo().insertIgnore(TABLE,
             new String[]{"uuid", "prosecutor_uuid", "status", "reason", "time", "cell"},
-            player.getUniqueId().toString(), null, CourtStatus.FREE.getId(), "", 0, 0);
+            player.getUniqueId().toString(), null, CourtStatus.RELEASED.getId(), "", 0, 0);
     }
 
     public boolean doesUserExist(OfflinePlayer player) {
