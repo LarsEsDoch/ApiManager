@@ -1,7 +1,38 @@
 name: ApiManager
-version: '4.5.0'
+version: '4.5.1'
 main: dev.lars.apimanager.ApiManager
 api-version: '1.21.11'
 author: LarsEsDoch
 description: Connects to maria databases via HikariCP to be usable as API
 website: "https://github.com/LarsEsDoch/ApiManager"
+
+permissions:
+  apimanager.*:
+    description: Grants access to all ApiManager commands
+    default: op
+    children:
+      apimanager.reload: true
+      apimanager.test: true
+      apimanager.log: true
+      apimanager.version: true
+      apimanager.status: true
+
+  apimanager.reload:
+    description: Allows reloading ApiManager configuration
+    default: op
+
+  apimanager.test:
+    description: Allows running the database test command
+    default: op
+
+  apimanager.log:
+    description: Allows enabling, disabling, and viewing SQL logging
+    default: op
+
+  apimanager.version:
+    description: Allows viewing plugin version information
+    default: true
+
+  apimanager.status:
+    description: Allows viewing database status information
+    default: op
