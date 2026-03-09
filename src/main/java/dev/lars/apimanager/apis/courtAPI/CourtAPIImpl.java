@@ -26,7 +26,7 @@ public class CourtAPIImpl implements ICourtAPI {
                 uuid CHAR(36) NOT NULL PRIMARY KEY,
                 prosecutor_uuid CHAR(36) DEFAULT NULL,
                 status INT NOT NULL DEFAULT 0,
-                reason VARCHAR(255) NOT NULL DEFAULT "",
+                reason VARCHAR(255) NOT NULL DEFAULT '',
                 time INT NOT NULL DEFAULT 0,
                 cell INT NOT NULL DEFAULT 0,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

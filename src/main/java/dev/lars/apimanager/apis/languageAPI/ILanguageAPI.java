@@ -14,9 +14,9 @@ public interface ILanguageAPI {
 
     CompletableFuture<Instant> getUpdatedAtAsync(OfflinePlayer player);
 
-    void setLanguage(OfflinePlayer player, Integer id);
+    void setLanguage(OfflinePlayer player, int id);
 
-    CompletableFuture<Void> setLanguageAsync(OfflinePlayer player, Integer id);
+    CompletableFuture<Void> setLanguageAsync(OfflinePlayer player, int id);
 
     Integer getLanguage(OfflinePlayer player);
 

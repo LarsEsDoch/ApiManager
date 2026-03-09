@@ -67,12 +67,12 @@ public class LanguageAPIImpl implements ILanguageAPI {
     }
 
     @Override
-    public void setLanguage(OfflinePlayer player, Integer id) {
+    public void setLanguage(OfflinePlayer player, int id) {
         repo().updateColumn(TABLE, "language_id", id, "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
-    public CompletableFuture<Void> setLanguageAsync(OfflinePlayer player, Integer id) {
+    public CompletableFuture<Void> setLanguageAsync(OfflinePlayer player, int id) {
         return repo().updateColumnAsync(TABLE, "language_id", id, "uuid = ?", player.getUniqueId().toString());
     }
 

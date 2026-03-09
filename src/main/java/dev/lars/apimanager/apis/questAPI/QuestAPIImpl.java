@@ -200,14 +200,14 @@ public class QuestAPIImpl implements IQuestAPI {
     public Integer getQuest(OfflinePlayer player) {
         ApiManagerValidateParameter.validatePlayer(player);
         Integer active_quest_id = repo().getInteger(TABLE, "active_quest_id", "uuid = ?", player.getUniqueId().toString());
-        return active_quest_id != null ? active_quest_id : -1;
+        return active_quest_id != null ? active_quest_id : 1;
     }
 
     @Override
     public CompletableFuture<Integer> getQuestAsync(OfflinePlayer player) {
         ApiManagerValidateParameter.validatePlayer(player);
         return repo().getIntegerAsync(TABLE, "active_quest_id", "uuid = ?", player.getUniqueId().toString())
-            .thenApply(active_quest_id -> active_quest_id != null ? active_quest_id : -1);
+            .thenApply(active_quest_id -> active_quest_id != null ? active_quest_id : 1);
     }
 
     @Override
@@ -289,7 +289,7 @@ public class QuestAPIImpl implements IQuestAPI {
         ApiManagerValidateParameter.validatePlayer(player);
         repo().updateColumns(TABLE,
             new String[]{"active_quest_id", "is_quest_complete", "target", "progress", "last_quest_at"},
-            new Object[]{-1, false, null, 0, null},
+            new Object[]{1, false, null, 0, null},
             "uuid = ?", player.getUniqueId().toString());
     }
 
@@ -298,7 +298,7 @@ public class QuestAPIImpl implements IQuestAPI {
         ApiManagerValidateParameter.validatePlayer(player);
         return repo().updateColumnsAsync(TABLE,
             new String[]{"active_quest_id", "is_quest_complete", "target", "progress", "last_quest_at"},
-            new Object[]{-1, false, null, 0, null},
+            new Object[]{1, false, null, 0, null},
             "uuid = ?", player.getUniqueId().toString());
     }
 }

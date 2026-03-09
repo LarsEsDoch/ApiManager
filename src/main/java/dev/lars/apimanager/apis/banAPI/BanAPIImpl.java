@@ -26,7 +26,7 @@ public class BanAPIImpl implements IBanAPI {
             CREATE TABLE IF NOT EXISTS %s (
                 uuid CHAR(36) NOT NULL PRIMARY KEY,
                 is_banned BOOLEAN NOT NULL DEFAULT FALSE,
-                reason VARCHAR(255) NOT NULL DEFAULT "",
+                reason VARCHAR(255) NOT NULL DEFAULT '',
                 banned_at TIMESTAMP DEFAULT NULL,
                 expires_at TIMESTAMP DEFAULT NULL,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
