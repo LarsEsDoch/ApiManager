@@ -64,10 +64,9 @@ public class HomeAPIImpl implements IHomeAPI {
         ApiManagerValidateParameter.validatePlayer(player);
         ApiManagerValidateParameter.validateName(name);
         ApiManagerValidateParameter.validateLocation(location);
-        db().update(String.format("""
-            INSERT INTO %s (uuid, name, location, is_public)
-            VALUES (?, ?, ?, ?)
-        """, TABLE), player.getUniqueId().toString(), name, ApiManagerFormatLocation.serializeLocation(location), isPublic);
+        repo().insert(TABLE,
+            new String[]{"uuid", "name", "location", "is_public"},
+            player.getUniqueId().toString(), name, ApiManagerFormatLocation.serializeLocation(location), isPublic);
     }
 
     @Override
@@ -75,10 +74,9 @@ public class HomeAPIImpl implements IHomeAPI {
         ApiManagerValidateParameter.validatePlayer(player);
         ApiManagerValidateParameter.validateName(name);
         ApiManagerValidateParameter.validateLocation(location);
-        return db().updateAsync(String.format("""
-            INSERT INTO %s (uuid, name, location, is_public)
-            VALUES (?, ?, ?, ?)
-        """, TABLE), player.getUniqueId().toString(), name, ApiManagerFormatLocation.serializeLocation(location), isPublic);
+        return repo().insertAsync(TABLE,
+            new String[]{"uuid", "name", "location", "is_public"},
+            player.getUniqueId().toString(), name, ApiManagerFormatLocation.serializeLocation(location), isPublic);
     }
 
     @Override
