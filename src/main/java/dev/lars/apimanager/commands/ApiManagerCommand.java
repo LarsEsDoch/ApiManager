@@ -11,7 +11,6 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
-import org.bukkit.configuration.InvalidConfigurationException;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Instant;
@@ -25,22 +24,29 @@ public record ApiManagerCommand(ApiManager plugin, ConnectDatabase connectDataba
     public void execute(@NotNull CommandSourceStack stack, @NotNull String @NotNull [] args) {
         var sender = stack.getSender();
 
-        boolean allowed = sender.isOp() || sender.hasPermission("apimanager.reload") || sender instanceof org.bukkit.command.ConsoleCommandSender;
-        if (!allowed) {
-            sender.sendMessage(ApiManagerStatements.getPrefix().append(Component.text("You aren't allowed to execute this command!", NamedTextColor.RED)));
-            return;
-        }
-
         if (args.length == 0) {
+            if (hasNotPermission(sender, "apimanager.status")) {
+                sendNoPermission(sender, "apimanager.status");
+                return;
+            }
             sendUsage(sender);
             return;
         }
 
         String sub = args[0];
         if (sub.equalsIgnoreCase("test") || sub.equalsIgnoreCase("t")) {
+            if (hasNotPermission(sender, "apimanager.test")) {
+                sendNoPermission(sender, "apimanager.test");
+                return;
+            }
             handleTest(sender);
             return;
         } else if (sub.equalsIgnoreCase("reload") || sub.equalsIgnoreCase("rl")) {
+            if (hasNotPermission(sender, "apimanager.reload")) {
+                sendNoPermission(sender, "apimanager.reload");
+                return;
+            }
+
             boolean success;
             try {
                 success = connectDatabase.loadDatabaseConfig();
@@ -72,6 +78,11 @@ public record ApiManagerCommand(ApiManager plugin, ConnectDatabase connectDataba
             }
             return;
         } else if (sub.equalsIgnoreCase("logging") || sub.equalsIgnoreCase("l")) {
+            if (hasNotPermission(sender, "apimanager.log")) {
+                sendNoPermission(sender, "apimanager.log");
+                return;
+            }
+
             if (args.length < 2) {
                 sender.sendMessage(ApiManagerStatements.getPrefix().append(Component.text("Invalid action. Usage: /am logging enable (<duration in ms>), disable, status", NamedTextColor.RED)));
                 return;
@@ -79,6 +90,11 @@ public record ApiManagerCommand(ApiManager plugin, ConnectDatabase connectDataba
             handleLogging(sender, args);
             return;
         } else if (sub.equalsIgnoreCase("version") || sub.equalsIgnoreCase("v")) {
+            if (hasNotPermission(sender, "apimanager.version")) {
+                sendNoPermission(sender, "apimanager.version");
+                return;
+            }
+
             sender.sendMessage(ApiManagerStatements.getPrefix().append(Component.text("=== " + plugin.getName() + " Version ===", NamedTextColor.AQUA)));
             sender.sendMessage(ApiManagerStatements.getPrefix().append(Component.text("Version ", NamedTextColor.GRAY))
                 .append(Component.text("v" + plugin.getVersion(), NamedTextColor.GOLD)));
@@ -92,11 +108,29 @@ public record ApiManagerCommand(ApiManager plugin, ConnectDatabase connectDataba
                 .append(Component.text("/" + plugin.getName() + " /am", NamedTextColor.GOLD)));
             return;
         } else if (sub.equalsIgnoreCase("status") || sub.equalsIgnoreCase("s")) {
+            if (hasNotPermission(sender, "apimanager.status")) {
+                sendNoPermission(sender, "apimanager.status");
+                return;
+            }
             handleStatus(sender);
             return;
         }
+
         sender.sendMessage(ApiManagerStatements.getPrefix().append(Component.text("Unknown command!", NamedTextColor.RED)));
         sendUsage(sender);
+    }
+
+    private boolean hasNotPermission(CommandSender sender, String permission) {
+        return !(sender instanceof org.bukkit.command.ConsoleCommandSender)
+                && !sender.isOp()
+                && !sender.hasPermission(permission)
+                && !sender.hasPermission("apimanager.*");
+    }
+
+    private void sendNoPermission(CommandSender sender, String permission) {
+        sender.sendMessage(ApiManagerStatements.getPrefix().append(
+            Component.text("You aren't allowed to execute this command! Missing permission: " + permission, NamedTextColor.RED)
+        ));
     }
 
     private void handleTest(CommandSender sender) {
@@ -219,9 +253,7 @@ public record ApiManagerCommand(ApiManager plugin, ConnectDatabase connectDataba
                         .append(Component.text("Time remaining: " + seconds + " seconds", NamedTextColor.GRAY)));
                 }
             }
-            default -> {
-                sender.sendMessage(ApiManagerStatements.getPrefix().append(Component.text("Invalid action. Use: enable, disable, or status", NamedTextColor.RED)));
-            }
+            default -> sender.sendMessage(ApiManagerStatements.getPrefix().append(Component.text("Invalid action. Use: enable, disable, or status", NamedTextColor.RED)));
         }
     }
 

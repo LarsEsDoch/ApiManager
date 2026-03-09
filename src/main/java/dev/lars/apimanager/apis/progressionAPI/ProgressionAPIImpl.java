@@ -5,7 +5,6 @@ import dev.lars.apimanager.database.DatabaseRepository;
 import dev.lars.apimanager.database.IDatabaseManager;
 import dev.lars.apimanager.utils.ApiManagerValidateParameter;
 
-import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.concurrent.CompletableFuture;
 
