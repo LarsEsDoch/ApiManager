@@ -1,6 +1,8 @@
+
 package dev.lars.apimanager.database;
 
 import com.zaxxer.hikari.HikariDataSource;
+import org.bukkit.command.CommandSender;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -17,13 +19,15 @@ public interface IDatabaseManager {
 
     void logSqlQuery(String sql, Object... params);
 
-    void setSqlLogging(boolean enabled);
+    void enableSqlLogging(CommandSender sender, long durationMs);
 
-    boolean isSqlLoggingEnabled();
+    void disableSqlLogging(CommandSender sender);
 
-    void setSqlLogging(boolean enabled, long durationMs);
+    boolean isSqlLoggingEnabled(CommandSender sender);
 
-    long getSqlLoggingTimeRemaining();
+    long getSqlLoggingTimeRemaining(CommandSender sender);
+
+    boolean hasAnyLoggingSubscribers();
 
     HikariDataSource getDataSource();
 

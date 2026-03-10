@@ -3,6 +3,7 @@ package dev.lars.apimanager.commands;
 import dev.lars.apimanager.ApiManager;
 import dev.lars.apimanager.database.ConnectDatabase;
 import dev.lars.apimanager.database.DatabaseManager;
+import dev.lars.apimanager.database.DatabaseRepository;
 import dev.lars.apimanager.database.IDatabaseManager;
 import dev.lars.apimanager.utils.ApiManagerStatements;
 import io.papermc.paper.command.brigadier.BasicCommand;
@@ -19,6 +20,12 @@ import java.util.Collections;
 import java.util.List;
 
 public record ApiManagerCommand(ApiManager plugin, ConnectDatabase connectDatabase) implements BasicCommand {
+
+    private static final String TEST_TABLE = "apimanager_test";
+
+    private DatabaseRepository repo() {
+        return new DatabaseRepository();
+    }
 
     @Override
     public void execute(@NotNull CommandSourceStack stack, @NotNull String @NotNull [] args) {
@@ -156,24 +163,17 @@ public record ApiManagerCommand(ApiManager plugin, ConnectDatabase connectDataba
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
             """);
 
+            String testValue = "Test successful at " + Instant.now();
+
             long updateStart = System.currentTimeMillis();
-            dbm.update("""
-                INSERT INTO apimanager_test (id, test_value) VALUES (1, ?)
-                ON DUPLICATE KEY UPDATE test_value = VALUES(test_value)
-            """, "Test successful at " + Instant.now());
+            repo().insertIgnore(TEST_TABLE,
+                new String[]{"id", "test_value"},
+                1, testValue);
+            repo().updateColumn(TEST_TABLE, "test_value", testValue, "id = ?", 1);
             long updateTime = System.currentTimeMillis() - updateStart;
 
             long queryStart = System.currentTimeMillis();
-            String result = dbm.query(conn -> {
-                try (var ps = conn.prepareStatement("SELECT test_value FROM apimanager_test WHERE id = 1")) {
-                    try (var rs = ps.executeQuery()) {
-                        if (rs.next()) {
-                            return rs.getString("test_value");
-                        }
-                        return null;
-                    }
-                }
-            });
+            String result = repo().getString(TEST_TABLE, "test_value", "id = ?", 1);
             long queryTime = System.currentTimeMillis() - queryStart;
 
             long totalTime = System.currentTimeMillis() - startTime;
@@ -226,7 +226,7 @@ public record ApiManagerCommand(ApiManager plugin, ConnectDatabase connectDataba
                         return;
                     }
                 }
-                ApiManager.getInstance().getDatabaseManager().setSqlLogging(true, durationMs);
+                ApiManager.getInstance().getDatabaseManager().enableSqlLogging(sender, durationMs);
                 if (durationMs > 0) {
                     sender.sendMessage(ApiManagerStatements.getPrefix().append(Component.text("SQL logging enabled for " + durationMs + " ms!", NamedTextColor.GREEN)));
                 } else {
@@ -234,12 +234,12 @@ public record ApiManagerCommand(ApiManager plugin, ConnectDatabase connectDataba
                 }
             }
             case "disable" -> {
-                ApiManager.getInstance().getDatabaseManager().setSqlLogging(false);
+                ApiManager.getInstance().getDatabaseManager().disableSqlLogging(sender);
                 sender.sendMessage(ApiManagerStatements.getPrefix().append(Component.text("SQL query logging disabled", NamedTextColor.GRAY)));
             }
             case "status" -> {
-                boolean enabled = ApiManager.getInstance().getDatabaseManager().isSqlLoggingEnabled();
-                long remaining = ApiManager.getInstance().getDatabaseManager().getSqlLoggingTimeRemaining();
+                boolean enabled = ApiManager.getInstance().getDatabaseManager().isSqlLoggingEnabled(sender);
+                long remaining = ApiManager.getInstance().getDatabaseManager().getSqlLoggingTimeRemaining(sender);
 
                 String status = enabled ? "enabled" : "disabled";
                 NamedTextColor color = enabled ? NamedTextColor.GREEN : NamedTextColor.RED;
@@ -275,7 +275,7 @@ public record ApiManagerCommand(ApiManager plugin, ConnectDatabase connectDataba
 
         if (dbm instanceof DatabaseManager real) {
             connected = real.isReady();
-            sqlLogging = real.isSqlLoggingEnabled();
+            sqlLogging = real.isSqlLoggingEnabled(sender);
 
             if (connected) {
                 var ds = real.getDataSource();
@@ -331,7 +331,7 @@ public record ApiManagerCommand(ApiManager plugin, ConnectDatabase connectDataba
 
         sender.sendMessage(ApiManagerStatements.getPrefix()
             .append(Component.text("SQL Logging: ", NamedTextColor.GRAY))
-            .append(Component.text(sqlLogging ? "Enabled" : "Disabled",
+            .append(Component.text(sqlLogging ? "Enabled (for you)" : "Disabled",
                 sqlLogging ? NamedTextColor.GREEN : NamedTextColor.RED)));
     }
 

@@ -3,12 +3,13 @@ package dev.lars.apimanager.database;
 import com.zaxxer.hikari.HikariDataSource;
 import dev.lars.apimanager.utils.ApiManagerStatements;
 import net.kyori.adventure.text.format.NamedTextColor;
+import org.bukkit.command.CommandSender;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.concurrent.CompletableFuture;
 
-public class SafeDatabaseManager implements IDatabaseManager{
+public class SafeDatabaseManager implements IDatabaseManager {
     public void update(String sql, Object... params) {
         logSkip("update", sql);
     }
@@ -29,24 +30,34 @@ public class SafeDatabaseManager implements IDatabaseManager{
     }
 
     public void logSqlQuery(String sql, Object... params) {
-        ApiManagerStatements.logToConsole("[SafeDatabaseManager] logSqlQuery(String sql, Object... params) called - no real database connection present.", NamedTextColor.GOLD);
+        ApiManagerStatements.logToConsole("[SafeDatabaseManager] logSqlQuery called - no real database connection present.", NamedTextColor.GOLD);
     }
 
-    public void setSqlLogging(boolean enabled) {
-        ApiManagerStatements.logToConsole("[SafeDatabaseManager] setSqlLogging(boolean enabled) called - no real database connection present.", NamedTextColor.GOLD);
+    @Override
+    public void enableSqlLogging(CommandSender sender, long durationMs) {
+        ApiManagerStatements.logToConsole("[SafeDatabaseManager] enableSqlLogging called - no real database connection present.", NamedTextColor.GOLD);
     }
 
-    public boolean isSqlLoggingEnabled() {
-        ApiManagerStatements.logToConsole("[SafeDatabaseManager] isSqlLoggingEnabled() called - no real database connection present.", NamedTextColor.GOLD);
+    @Override
+    public void disableSqlLogging(CommandSender sender) {
+        ApiManagerStatements.logToConsole("[SafeDatabaseManager] disableSqlLogging called - no real database connection present.", NamedTextColor.GOLD);
+    }
+
+    @Override
+    public boolean isSqlLoggingEnabled(CommandSender sender) {
+        ApiManagerStatements.logToConsole("[SafeDatabaseManager] isSqlLoggingEnabled called - no real database connection present.", NamedTextColor.GOLD);
         return false;
     }
 
-    public void setSqlLogging(boolean enabled, long durationMs) {
-        ApiManagerStatements.logToConsole("[SafeDatabaseManager] setSqlLogging(boolean enabled, long durationMs) called - no real database connection present.", NamedTextColor.GOLD);
-    }
-    public long getSqlLoggingTimeRemaining() {
-        ApiManagerStatements.logToConsole("[SafeDatabaseManager] getSqlLoggingTimeRemaining() called - no real database connection present.", NamedTextColor.GOLD);
+    @Override
+    public long getSqlLoggingTimeRemaining(CommandSender sender) {
+        ApiManagerStatements.logToConsole("[SafeDatabaseManager] getSqlLoggingTimeRemaining called - no real database connection present.", NamedTextColor.GOLD);
         return 0;
+    }
+
+    @Override
+    public boolean hasAnyLoggingSubscribers() {
+        return false;
     }
 
     public Connection getConnection() throws SQLException {

@@ -316,7 +316,7 @@ public class DatabaseRepository {
 
         String columnList = String.join(", ", safeColumns);
         String placeholders = "?, ".repeat(safeColumns.length);
-        placeholders = placeholders.substring(0, placeholders.length() - 2); // trim trailing ", "
+        placeholders = placeholders.substring(0, placeholders.length() - 2);
 
         String sql = "INSERT INTO " + safeTable + " (" + columnList + ") VALUES (" + placeholders + ")";
         db().update(sql, values);
