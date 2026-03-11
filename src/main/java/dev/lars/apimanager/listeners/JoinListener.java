@@ -23,87 +23,29 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerLoginEvent;
 
 public class JoinListener implements Listener {
+
     @EventHandler(priority = EventPriority.LOWEST)
     public void onLogin(PlayerLoginEvent e) {
         Player player = e.getPlayer();
 
         ApiManager plugin = ApiManager.getInstance();
 
-        PlayerAPIImpl playerAPI = plugin.getPlayerAPI();
-        LanguageAPIImpl languageAPI = plugin.getLanguageAPI();
-        BackpackAPIImpl backpackAPI = plugin.getBackpackAPI();
-        LimitAPIImpl limitAPI = plugin.getLimitAPI();
-        BanAPIImpl banAPI = plugin.getBanAPI();
-        CourtAPIImpl courtAPI = plugin.getCourtAPI();
-        RankAPIImpl rankAPI = plugin.getRankAPI();
-        PrefixAPIImpl prefixAPI = plugin.getPrefixAPI();
-        StatusAPIImpl statusAPI = plugin.getStatusAPI();
-        PlayerIdentityAPIImpl playerIdentityAPI = plugin.getPlayerIdentityAPI();
-        PlayerSettingsAPIImpl playerSettingsAPI = plugin.getPlayerSettingsAPI();
-        ScoreboardSettingsAPIImpl scoreboardSettingsAPI = plugin.getScoreboardSettingsAPI();
-        EconomyAPIImpl economyAPI = plugin.getEconomyAPI();
-        QuestAPIImpl questAPI = plugin.getQuestAPI();
-        TimerAPIImpl timerAPI = plugin.getTimerAPI();
+        plugin.getPlayerAPI().initPlayer(player);
+        plugin.getLanguageAPI().initPlayer(player);
+        plugin.getBackpackAPI().initPlayer(player);
+        plugin.getLimitAPI().initPlayer(player);
+        plugin.getBanAPI().initPlayer(player);
+        plugin.getCourtAPI().initPlayer(player);
+        plugin.getRankAPI().initPlayer(player);
+        plugin.getPrefixAPI().initPlayer(player);
+        plugin.getStatusAPI().initPlayer(player);
+        plugin.getPlayerIdentityAPI().initPlayer(player);
+        plugin.getPlayerSettingsAPI().initPlayer(player);
+        plugin.getScoreboardSettingsAPI().initPlayer(player);
+        plugin.getEconomyAPI().initPlayer(player);
+        plugin.getQuestAPI().initPlayer(player);
+        plugin.getTimerAPI().initPlayer(player);
 
-        if (!playerAPI.doesUserExist(player)) {
-            playerAPI.initPlayer(player);
-        }
-
-        if (!languageAPI.doesUserExist(player)) {
-            languageAPI.initPlayer(player);
-        }
-
-        if (!backpackAPI.doesUserExist(player)) {
-            backpackAPI.initPlayer(player);
-        }
-
-        if (!limitAPI.doesUserExist(player)) {
-            limitAPI.initPlayer(player);
-        }
-
-        if (!banAPI.doesUserExist(player)) {
-            banAPI.initPlayer(player);
-        }
-
-        if (!courtAPI.doesUserExist(player)) {
-            courtAPI.initPlayer(player);
-        }
-
-        if (!rankAPI.doesUserExist(player)) {
-            rankAPI.initPlayer(player);
-        }
-
-        if (!prefixAPI.doesUserExist(player)) {
-            prefixAPI.initPlayer(player);
-        }
-
-        if (!statusAPI.doesUserExist(player)) {
-            statusAPI.initPlayer(player);
-        }
-
-        if (!playerIdentityAPI.doesUserExist(player)) {
-            playerIdentityAPI.initPlayer(player);
-        }
-
-        if (!playerSettingsAPI.doesUserExist(player)) {
-            playerSettingsAPI.initPlayer(player);
-        }
-
-        if (!scoreboardSettingsAPI.doesUserExist(player)) {
-            scoreboardSettingsAPI.initPlayer(player);
-        }
-
-        if (!economyAPI.doesUserExist(player)) {
-            economyAPI.initPlayer(player);
-        }
-
-        if (!questAPI.doesUserExist(player)) {
-            questAPI.initPlayer(player);
-        }
-
-        if (!timerAPI.doesUserExist(player)) {
-            timerAPI.initPlayer(player);
-        }
-        playerAPI.setOnline(player, true);
+        plugin.getPlayerAPI().setOnline(player, true);
     }
 }

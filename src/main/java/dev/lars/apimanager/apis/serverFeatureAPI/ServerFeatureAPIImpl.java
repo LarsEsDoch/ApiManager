@@ -30,9 +30,7 @@ public class ServerFeatureAPIImpl implements IServerFeatureAPI {
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
         """, TABLE, WHERE_ID));
 
-        if (repo().count(TABLE, WHERE_ID) < 1) {
-            repo().insert(TABLE, new String[]{"id"}, 1);
-        }
+        repo().insertIgnore(TABLE, new String[]{"id"}, 1);
     }
 
     @Override

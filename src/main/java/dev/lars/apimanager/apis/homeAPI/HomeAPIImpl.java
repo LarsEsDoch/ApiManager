@@ -64,7 +64,7 @@ public class HomeAPIImpl implements IHomeAPI {
         ApiManagerValidateParameter.validatePlayer(player);
         ApiManagerValidateParameter.validateName(name);
         ApiManagerValidateParameter.validateLocation(location);
-        repo().insert(TABLE,
+        repo().insertIgnore(TABLE,
             new String[]{"uuid", "name", "location", "is_public"},
             player.getUniqueId().toString(), name, ApiManagerFormatLocation.serializeLocation(location), isPublic);
     }
