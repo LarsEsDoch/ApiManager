@@ -8,6 +8,7 @@ import org.bukkit.OfflinePlayer;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 public class BanAPIImpl implements IBanAPI {
@@ -36,8 +37,8 @@ public class BanAPIImpl implements IBanAPI {
         """, TABLE));
     }
 
-    public void initPlayer(OfflinePlayer player) {
-        repo().insertIgnore(TABLE, new String[]{"uuid"}, player.getUniqueId().toString());
+    public void initPlayer(UUID uuid) {
+        repo().insertIgnore(TABLE, new String[]{"uuid"}, uuid.toString());
     }
 
     public boolean doesUserExist(OfflinePlayer player) {

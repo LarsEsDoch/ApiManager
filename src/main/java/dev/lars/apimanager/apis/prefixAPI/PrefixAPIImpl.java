@@ -13,6 +13,7 @@ import java.time.Instant;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 public class PrefixAPIImpl implements IPrefixAPI {
@@ -39,8 +40,8 @@ public class PrefixAPIImpl implements IPrefixAPI {
         """, TABLE));
     }
 
-    public void initPlayer(OfflinePlayer player) {
-        repo().insertIgnore(TABLE, new String[]{"uuid"}, player.getUniqueId().toString());
+    public void initPlayer(UUID uuid) {
+        repo().insertIgnore(TABLE, new String[]{"uuid"}, uuid.toString());
     }
 
     public boolean doesUserExist(OfflinePlayer player) {

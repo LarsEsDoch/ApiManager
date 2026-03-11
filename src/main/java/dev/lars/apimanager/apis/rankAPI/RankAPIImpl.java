@@ -8,6 +8,7 @@ import org.bukkit.OfflinePlayer;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 public class RankAPIImpl implements IRankAPI {
@@ -34,8 +35,8 @@ public class RankAPIImpl implements IRankAPI {
         """, TABLE));
     }
 
-    public void initPlayer(OfflinePlayer player) {
-        repo().insertIgnore(TABLE, new String[]{"uuid"}, player.getUniqueId().toString());
+    public void initPlayer(UUID uuid) {
+        repo().insertIgnore(TABLE, new String[]{"uuid"}, uuid.toString());
     }
 
     public boolean doesUserExist(OfflinePlayer player) {

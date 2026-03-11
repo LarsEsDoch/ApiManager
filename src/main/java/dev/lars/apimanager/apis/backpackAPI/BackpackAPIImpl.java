@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.Base64;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.zip.DeflaterOutputStream;
 import java.util.zip.InflaterInputStream;
@@ -41,8 +42,8 @@ public class BackpackAPIImpl implements IBackpackAPI {
         """, TABLE));
     }
 
-    public void initPlayer(OfflinePlayer player) {
-        repo().insertIgnore(TABLE, new String[]{"uuid"}, player.getUniqueId().toString());
+    public void initPlayer(UUID uuid) {
+        repo().insertIgnore(TABLE, new String[]{"uuid"}, uuid.toString());
     }
 
     public boolean doesUserExist(OfflinePlayer player) {

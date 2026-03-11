@@ -7,6 +7,7 @@ import dev.lars.apimanager.utils.ApiManagerValidateParameter;
 import org.bukkit.OfflinePlayer;
 
 import java.time.Instant;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 public class PlayerAPIImpl implements IPlayerAPI {
@@ -35,10 +36,10 @@ public class PlayerAPIImpl implements IPlayerAPI {
         """, TABLE));
     }
 
-    public void initPlayer(OfflinePlayer player) {
+    public void initPlayer(UUID uuid, String name) {
         repo().insertIgnore(TABLE,
             new String[]{"uuid", "name"},
-            player.getUniqueId().toString(), player.getName());
+            uuid.toString(), name != null ? name : "");
     }
 
     public boolean doesUserExist(OfflinePlayer player) {
