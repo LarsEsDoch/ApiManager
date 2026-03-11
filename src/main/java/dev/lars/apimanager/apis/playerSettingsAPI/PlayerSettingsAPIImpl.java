@@ -36,9 +36,7 @@ public class PlayerSettingsAPIImpl implements IPlayerSettingsAPI {
     }
 
     public void initPlayer(OfflinePlayer player) {
-        repo().insertIgnore(TABLE,
-            new String[]{"uuid", "respawn_target", "respawn_home_name", "join_target", "join_home_name"},
-            player.getUniqueId().toString(), "BED", null, "LAST_LOCATION", null);
+        repo().insertIgnore(TABLE, new String[]{"uuid"}, player.getUniqueId().toString());
     }
 
     public boolean doesUserExist(OfflinePlayer player) {

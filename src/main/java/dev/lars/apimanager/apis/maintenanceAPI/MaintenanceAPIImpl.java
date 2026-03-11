@@ -35,10 +35,7 @@ public class MaintenanceAPIImpl implements IMaintenanceAPI {
         """, TABLE, WHERE_ID));
 
         if (repo().count(TABLE, WHERE_ID) < 1) {
-            repo().insert(TABLE,
-                new String[]{"id", "is_maintenance_enabled", "maintenance_reason",
-                    "maintenance_start", "maintenance_estimated_end", "maintenance_deadline"},
-                1, false, "", null, null, null);
+            repo().insert(TABLE, new String[]{"id"}, 1);
         }
     }
 

@@ -37,9 +37,7 @@ public class TimerAPIImpl implements ITimerAPI {
     }
 
     public void initPlayer(OfflinePlayer player) {
-        repo().insertIgnore(TABLE,
-            new String[]{"uuid", "time", "is_enabled", "is_public", "is_running", "is_timer_mode_enabled"},
-            player.getUniqueId().toString(), 0, false, false, false, false);
+        repo().insertIgnore(TABLE, new String[]{"uuid"}, player.getUniqueId().toString());
     }
 
     public boolean doesUserExist(OfflinePlayer player) {

@@ -35,9 +35,7 @@ public class LimitAPIImpl implements ILimitAPI {
     }
 
     public void initPlayer(OfflinePlayer player) {
-        repo().insertIgnore(TABLE,
-            new String[]{"uuid", "backpack_slots", "max_chunks", "max_homes"},
-            player.getUniqueId().toString(), 9, 32, 32);
+         repo().insertIgnore(TABLE, new String[]{"uuid"}, player.getUniqueId().toString());
     }
 
     public boolean doesUserExist(OfflinePlayer player) {

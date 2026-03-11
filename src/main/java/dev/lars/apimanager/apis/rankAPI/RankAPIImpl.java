@@ -35,9 +35,7 @@ public class RankAPIImpl implements IRankAPI {
     }
 
     public void initPlayer(OfflinePlayer player) {
-        repo().insertIgnore(TABLE,
-            new String[]{"uuid", "rank_id", "expires_at"},
-            player.getUniqueId().toString(), 0, null);
+        repo().insertIgnore(TABLE, new String[]{"uuid"}, player.getUniqueId().toString());
     }
 
     public boolean doesUserExist(OfflinePlayer player) {

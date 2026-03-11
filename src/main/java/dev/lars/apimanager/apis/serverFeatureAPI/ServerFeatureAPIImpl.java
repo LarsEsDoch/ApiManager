@@ -31,9 +31,7 @@ public class ServerFeatureAPIImpl implements IServerFeatureAPI {
         """, TABLE, WHERE_ID));
 
         if (repo().count(TABLE, WHERE_ID) < 1) {
-            repo().insert(TABLE,
-                new String[]{"id", "is_real_time_enabled", "is_real_weather_enabled"},
-                1, false, false);
+            repo().insert(TABLE, new String[]{"id"}, 1);
         }
     }
 

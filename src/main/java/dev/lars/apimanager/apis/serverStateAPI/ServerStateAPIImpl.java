@@ -40,10 +40,7 @@ public class ServerStateAPIImpl implements IServerStateAPI {
         """, TABLE));
 
         if (repo().count(TABLE, WHERE_ID) < 1) {
-            repo().insert(TABLE,
-                new String[]{"id", "is_server_online", "max_players", "server_name",
-                    "server_name_startcolor", "server_name_endcolor", "server_version", "spawn_location"},
-                1, false, 20, "A Minecraft Server", "#ffffff", "#ffffff", "1.21.11", null);
+            repo().insert(TABLE, new String[]{"id"}, 1);
         }
     }
 

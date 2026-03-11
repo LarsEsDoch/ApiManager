@@ -32,9 +32,7 @@ public class ProgressionAPIImpl implements IProgressionAPI {
         """, TABLE, WHERE_ID));
 
         if (repo().count(TABLE, WHERE_ID) < 1) {
-            repo().insert(TABLE,
-                new String[]{"id", "nether_unlock_at", "end_unlock_at"},
-                1, Instant.now(), Instant.now());
+            repo().insert(TABLE, new String[]{"id"}, 1);
         }
     }
 

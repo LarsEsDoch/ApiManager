@@ -33,9 +33,7 @@ public class LanguageAPIImpl implements ILanguageAPI {
     }
 
     public void initPlayer(OfflinePlayer player) {
-        repo().insertIgnore(TABLE,
-            new String[]{"uuid", "language_id"},
-            player.getUniqueId().toString(), 1);
+        repo().insertIgnore(TABLE, new String[]{"uuid"}, player.getUniqueId().toString());
     }
 
     public boolean doesUserExist(OfflinePlayer player) {

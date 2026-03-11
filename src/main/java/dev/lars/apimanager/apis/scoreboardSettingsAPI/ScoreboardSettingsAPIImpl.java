@@ -47,13 +47,7 @@ public class ScoreboardSettingsAPIImpl implements IScoreboardSettingsAPI {
     }
 
     public void initPlayer(OfflinePlayer player) {
-        repo().insertIgnore(TABLE,
-            new String[]{"uuid", "scoreboard_toggle", "show_coins", "show_playtime", "show_deaths",
-                "show_coordinates", "show_quests", "show_online_players", "show_ping", "show_biom",
-                "show_weather", "show_condition", "show_event_countdown", "show_kills",
-                "show_progress", "show_session_time"},
-            player.getUniqueId().toString(),
-            true, false, true, false, true, false, false, false, true, false, false, false, false, true, false);
+        repo().insertIgnore(TABLE, new String[]{"uuid"}, player.getUniqueId().toString());
     }
 
     public boolean doesUserExist(OfflinePlayer player) {
