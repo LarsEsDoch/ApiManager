@@ -15,6 +15,14 @@ public interface IEconomyAPI {
 
     CompletableFuture<Instant> getUpdatedAtAsync(OfflinePlayer player);
 
+    Instant getGiftCreatedAt(int giftId);
+
+    CompletableFuture<Instant> getGiftCreatedAtAsync(int giftId);
+
+    Instant getGiftUpdatedAt(int giftId);
+
+    CompletableFuture<Instant> getGiftUpdatedAtAsync(int giftId);
+
     void setBalance(OfflinePlayer player, int amount);
 
     CompletableFuture<Void> setBalanceAsync(OfflinePlayer player, int amount);
@@ -31,15 +39,35 @@ public interface IEconomyAPI {
 
     CompletableFuture<Integer> getBalanceAsync(OfflinePlayer player);
 
-    void addGift(OfflinePlayer player, int gift);
+    void addGift(OfflinePlayer player, String name, int value);
 
-    CompletableFuture<Void> addGiftAsync(OfflinePlayer player, int gift);
+    CompletableFuture<Void> addGiftAsync(OfflinePlayer player, String name, int value);
 
     void removeGift(OfflinePlayer player, int gift);
 
     CompletableFuture<Void> removeGiftAsync(OfflinePlayer player, int gift);
 
-    List<Integer> getGifts(OfflinePlayer player);
+    List<Gift> getGifts(OfflinePlayer player);
 
-    CompletableFuture<List<Integer>> getGiftsAsync(OfflinePlayer player);
+    CompletableFuture<List<Gift>> getGiftsAsync(OfflinePlayer player);
+
+    Gift getGiftByName(OfflinePlayer player, String name);
+
+    CompletableFuture<Gift> getGiftByNameAsync(OfflinePlayer player, String name);
+
+    boolean hasGift(OfflinePlayer player, int giftId);
+
+    CompletableFuture<Boolean> hasGiftAsync(OfflinePlayer player, int giftId);
+
+    int getGiftCount(OfflinePlayer player);
+
+    CompletableFuture<Integer> getGiftCountAsync(OfflinePlayer player);
+
+    int getTotalGiftValue(OfflinePlayer player);
+
+    CompletableFuture<Integer> getTotalGiftValueAsync(OfflinePlayer player);
+
+    void resetGifts(OfflinePlayer player);
+
+    CompletableFuture<Void> resetGiftsAsync(OfflinePlayer player);
 }
