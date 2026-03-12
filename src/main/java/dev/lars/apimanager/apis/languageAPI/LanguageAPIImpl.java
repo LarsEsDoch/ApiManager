@@ -12,6 +12,7 @@ import java.util.concurrent.CompletableFuture;
 
 public class LanguageAPIImpl implements ILanguageAPI {
     private static final String TABLE = "player_languages";
+    private static final Language DEFAULT_LANGUAGE = Language.ENGLISH;
 
     private DatabaseRepository repo() {
         return new DatabaseRepository();
@@ -25,12 +26,12 @@ public class LanguageAPIImpl implements ILanguageAPI {
         db().update(String.format("""
             CREATE TABLE IF NOT EXISTS %s (
                 uuid CHAR(36) NOT NULL PRIMARY KEY,
-                language_id INT NOT NULL DEFAULT 1,
+                language_id INT NOT NULL DEFAULT %d,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                 FOREIGN KEY (uuid) REFERENCES players(uuid) ON DELETE CASCADE
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-        """, TABLE));
+        """, TABLE, DEFAULT_LANGUAGE.getId()));
     }
 
     public void initPlayer(UUID uuid) {
@@ -66,24 +67,27 @@ public class LanguageAPIImpl implements ILanguageAPI {
     }
 
     @Override
-    public void setLanguage(OfflinePlayer player, int id) {
-        repo().updateColumn(TABLE, "language_id", id, "uuid = ?", player.getUniqueId().toString());
+    public void setLanguage(OfflinePlayer player, Language language) {
+        repo().updateColumn(TABLE, "language_id", language.getId(), "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
-    public CompletableFuture<Void> setLanguageAsync(OfflinePlayer player, int id) {
-        return repo().updateColumnAsync(TABLE, "language_id", id, "uuid = ?", player.getUniqueId().toString());
+    public CompletableFuture<Void> setLanguageAsync(OfflinePlayer player, Language language) {
+        return repo().updateColumnAsync(TABLE, "language_id", language.getId(), "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
-    public Integer getLanguage(OfflinePlayer player) {
+    public Language getLanguage(OfflinePlayer player) {
         ApiManagerValidateParameter.validatePlayer(player);
-        return repo().getInteger(TABLE, "language_id", "uuid = ?", player.getUniqueId().toString());
+        Integer id = repo().getInteger(TABLE, "language_id", "uuid = ?", player.getUniqueId().toString());
+        if (id == null) return DEFAULT_LANGUAGE;
+        return Language.fromId(id).orElse(DEFAULT_LANGUAGE);
     }
 
     @Override
-    public CompletableFuture<Integer> getLanguageAsync(OfflinePlayer player) {
+    public CompletableFuture<Language> getLanguageAsync(OfflinePlayer player) {
         ApiManagerValidateParameter.validatePlayer(player);
-        return repo().getIntegerAsync(TABLE, "language_id", "uuid = ?", player.getUniqueId().toString());
+        return repo().getIntegerAsync(TABLE, "language_id", "uuid = ?", player.getUniqueId().toString())
+                .thenApply(id -> id == null ? DEFAULT_LANGUAGE : Language.fromId(id).orElse(DEFAULT_LANGUAGE));
     }
 }
