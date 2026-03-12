@@ -14,6 +14,14 @@ public interface IScoreboardSettingsAPI {
 
     CompletableFuture<Instant> getUpdatedAtAsync(OfflinePlayer player);
 
+    boolean isScoreboardEnabled(OfflinePlayer player);
+
+    CompletableFuture<Boolean> isScoreboardEnabledAsync(OfflinePlayer player);
+
+    void setScoreboardEnabled(OfflinePlayer player, boolean value);
+
+    CompletableFuture<Void> setScoreboardEnabledAsync(OfflinePlayer player, boolean value);
+
     void setElement(OfflinePlayer player, ScoreboardElement element, boolean value);
 
     CompletableFuture<Void> setElementAsync(OfflinePlayer player, ScoreboardElement element, boolean value);

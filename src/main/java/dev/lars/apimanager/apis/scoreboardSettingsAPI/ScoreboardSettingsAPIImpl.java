@@ -80,6 +80,30 @@ public class ScoreboardSettingsAPIImpl implements IScoreboardSettingsAPI {
     }
 
     @Override
+    public boolean isScoreboardEnabled(OfflinePlayer player) {
+        ApiManagerValidateParameter.validatePlayer(player);
+        return repo().getBoolean(TABLE, "scoreboard_toggle", "uuid = ?", player.getUniqueId().toString());
+    }
+
+    @Override
+    public CompletableFuture<Boolean> isScoreboardEnabledAsync(OfflinePlayer player) {
+        ApiManagerValidateParameter.validatePlayer(player);
+        return repo().getBooleanAsync(TABLE, "scoreboard_toggle", "uuid = ?", player.getUniqueId().toString());
+    }
+
+    @Override
+    public void setScoreboardEnabled(OfflinePlayer player, boolean value) {
+        ApiManagerValidateParameter.validatePlayer(player);
+        repo().updateColumn(TABLE, "scoreboard_toggle", value, "uuid = ?", player.getUniqueId().toString());
+    }
+
+    @Override
+    public CompletableFuture<Void> setScoreboardEnabledAsync(OfflinePlayer player, boolean value) {
+        ApiManagerValidateParameter.validatePlayer(player);
+        return repo().updateColumnAsync(TABLE, "scoreboard_toggle", value, "uuid = ?", player.getUniqueId().toString());
+    }
+
+    @Override
     public void setElement(OfflinePlayer player, ScoreboardElement element, boolean value) {
         ApiManagerValidateParameter.validatePlayer(player);
         repo().updateColumn(TABLE, element.getColumn(), value, "uuid = ?", player.getUniqueId().toString());
