@@ -10,6 +10,8 @@ import java.util.concurrent.CompletableFuture;
 public interface IBanAPI {
     void initPlayer(UUID uuid);
 
+    boolean doesUserExist(OfflinePlayer player);
+
     Instant getCreatedAt(OfflinePlayer player);
 
     CompletableFuture<Instant> getCreatedAtAsync(OfflinePlayer player);

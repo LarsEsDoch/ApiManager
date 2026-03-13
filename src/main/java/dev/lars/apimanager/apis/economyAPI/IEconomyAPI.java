@@ -10,6 +10,8 @@ import java.util.concurrent.CompletableFuture;
 public interface IEconomyAPI {
     void initPlayer(UUID uuid);
 
+    boolean doesUserExist(OfflinePlayer player);
+
     Instant getCreatedAt(OfflinePlayer player);
 
     CompletableFuture<Instant> getCreatedAtAsync(OfflinePlayer player);

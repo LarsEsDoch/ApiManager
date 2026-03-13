@@ -45,6 +45,7 @@ public class PrefixAPIImpl implements IPrefixAPI {
         repo().insertIgnore(TABLE, new String[]{"uuid"}, uuid.toString());
     }
 
+    @Override
     public boolean doesUserExist(OfflinePlayer player) {
         return repo().exists(TABLE, "uuid = ?", player.getUniqueId().toString());
     }

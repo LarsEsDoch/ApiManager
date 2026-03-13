@@ -40,8 +40,14 @@ public class PlayerIdentityAPIImpl implements IPlayerIdentityAPI {
         repo().insertIgnore(TABLE, new String[]{"uuid"}, uuid.toString());
     }
 
+    @Override
     public boolean doesUserExist(OfflinePlayer player) {
         return repo().exists(TABLE, "uuid = ?", player.getUniqueId().toString());
+    }
+
+    @Override
+    public boolean isFullyregisterd(OfflinePlayer player) {
+        
     }
 
     @Override

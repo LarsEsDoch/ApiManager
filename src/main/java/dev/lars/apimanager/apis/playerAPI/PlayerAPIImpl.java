@@ -43,6 +43,7 @@ public class PlayerAPIImpl implements IPlayerAPI {
             uuid.toString(), name != null ? name : "");
     }
 
+    @Override
     public boolean doesUserExist(OfflinePlayer player) {
         return repo().exists(TABLE, "uuid = ?", player.getUniqueId().toString());
     }

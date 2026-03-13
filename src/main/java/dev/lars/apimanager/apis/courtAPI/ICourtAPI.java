@@ -9,6 +9,8 @@ import java.util.concurrent.CompletableFuture;
 public interface ICourtAPI {
     void initPlayer(UUID uuid);
 
+    boolean doesUserExist(OfflinePlayer player);
+
     Instant getCreatedAt(OfflinePlayer player);
 
     CompletableFuture<Instant> getCreatedAtAsync(OfflinePlayer player);
