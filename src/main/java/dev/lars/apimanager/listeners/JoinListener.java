@@ -36,6 +36,6 @@ public class JoinListener implements Listener {
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onJoin(PlayerJoinEvent e) {
-        ApiManager.getInstance().getPlayerAPI().setOnline(e.getPlayer(), true);
+        ApiManager.getInstance().getPlayerAPI().setOnlineAsync(e.getPlayer(), true);
     }
 }
