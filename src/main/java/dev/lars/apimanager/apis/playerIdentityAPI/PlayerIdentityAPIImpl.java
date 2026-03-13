@@ -46,11 +46,6 @@ public class PlayerIdentityAPIImpl implements IPlayerIdentityAPI {
     }
 
     @Override
-    public boolean isFullyregisterd(OfflinePlayer player) {
-        
-    }
-
-    @Override
     public Instant getCreatedAt(OfflinePlayer player) {
         ApiManagerValidateParameter.validatePlayer(player);
         return repo().getInstant(TABLE, "created_at", "uuid = ?", player.getUniqueId().toString());

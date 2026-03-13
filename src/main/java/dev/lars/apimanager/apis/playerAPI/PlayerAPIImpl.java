@@ -49,6 +49,31 @@ public class PlayerAPIImpl implements IPlayerAPI {
     }
 
     @Override
+    public boolean isFullyRegistered(OfflinePlayer player) {
+        ApiManager p = ApiManager.getInstance();
+        return p.getPlayerAPI().doesUserExist(player)
+            && p.getLanguageAPI().doesUserExist(player)
+            && p.getBackpackAPI().doesUserExist(player)
+            && p.getLimitAPI().doesUserExist(player)
+            && p.getBanAPI().doesUserExist(player)
+            && p.getCourtAPI().doesUserExist(player)
+            && p.getRankAPI().doesUserExist(player)
+            && p.getPrefixAPI().doesUserExist(player)
+            && p.getStatusAPI().doesUserExist(player)
+            && p.getPlayerIdentityAPI().doesUserExist(player)
+            && p.getPlayerSettingsAPI().doesUserExist(player)
+            && p.getScoreboardSettingsAPI().doesUserExist(player)
+            && p.getEconomyAPI().doesUserExist(player)
+            && p.getQuestAPI().doesUserExist(player)
+            && p.getTimerAPI().doesUserExist(player);
+    }
+
+    @Override
+    public CompletableFuture<Boolean> isFullyRegisteredAsync(OfflinePlayer player) {
+        return CompletableFuture.supplyAsync(() -> isFullyRegistered(player));
+    }
+
+    @Override
     public Instant getCreatedAt(OfflinePlayer player) {
         ApiManagerValidateParameter.validatePlayer(player);
         return repo().getInstant(TABLE, "created_at", "uuid = ?", player.getUniqueId().toString());

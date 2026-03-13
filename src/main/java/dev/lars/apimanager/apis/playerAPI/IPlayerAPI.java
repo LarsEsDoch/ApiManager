@@ -9,6 +9,12 @@ import java.util.concurrent.CompletableFuture;
 public interface IPlayerAPI {
     void initPlayer(UUID uuid, String name);
 
+    boolean doesUserExist(OfflinePlayer player);
+
+    boolean isFullyRegistered(OfflinePlayer player);
+
+    CompletableFuture<Boolean> isFullyRegisteredAsync(OfflinePlayer player);
+
     Instant getCreatedAt(OfflinePlayer player);
 
     CompletableFuture<Instant> getCreatedAtAsync(OfflinePlayer player);
