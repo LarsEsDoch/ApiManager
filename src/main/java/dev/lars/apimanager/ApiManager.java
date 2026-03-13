@@ -109,6 +109,8 @@ public final class ApiManager extends JavaPlugin {
 
     private final List<Runnable> createTableRunnable = new ArrayList<>();
 
+    private volatile boolean listenersRegistered = false;
+
     @Override
     public void onLoad() {
         instance = this;
@@ -135,10 +137,9 @@ public final class ApiManager extends JavaPlugin {
             }));
         } else {
              ApiManagerStatements.logToConsole("Database not connected. Skipping table creation. APIs will run in safe mode (no DB).", NamedTextColor.GOLD);
+             registerListenersOnce();
         }
 
-        Bukkit.getPluginManager().registerEvents(new JoinListener(), this);
-        Bukkit.getPluginManager().registerEvents(new QuitListener(), this);
 
         this.getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, event -> {
             final Commands commands = event.registrar();
@@ -253,7 +254,15 @@ public final class ApiManager extends JavaPlugin {
 
     public void onApisReady() {
         serverStateAPI.setServerOnline(true);
+        registerListenersOnce();
         ApiManagerStatements.logToConsole("All APIs are ready!", NamedTextColor.DARK_GREEN);
+    }
+
+    public void registerListenersOnce() {
+        if (listenersRegistered) return;
+        listenersRegistered = true;
+        Bukkit.getPluginManager().registerEvents(new JoinListener(), this);
+        Bukkit.getPluginManager().registerEvents(new QuitListener(), this);
     }
 
     @Override
@@ -268,6 +277,7 @@ public final class ApiManager extends JavaPlugin {
             ApiManagerStatements.logToConsole("Database successfully disconnected!", NamedTextColor.GREEN);
         }
 
+        instance = null;
         ApiManagerStatements.logToConsole("ApiManager successfully disabled!", NamedTextColor.DARK_GREEN);
     }
 
