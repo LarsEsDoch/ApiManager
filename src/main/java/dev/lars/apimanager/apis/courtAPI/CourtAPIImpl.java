@@ -37,6 +37,7 @@ public class CourtAPIImpl implements ICourtAPI {
         """, TABLE));
     }
 
+    @Override
     public void initPlayer(UUID uuid) {
         repo().insertIgnore(TABLE, new String[]{"uuid"}, uuid.toString());
     }

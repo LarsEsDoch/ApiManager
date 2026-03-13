@@ -3,9 +3,12 @@ package dev.lars.apimanager.apis.backpackAPI;
 import org.bukkit.OfflinePlayer;
 
 import java.time.Instant;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 public interface IBackpackAPI {
+    void initPlayer(UUID uuid);
+
     Instant getCreatedAt(OfflinePlayer player);
 
     CompletableFuture<Instant> getCreatedAtAsync(OfflinePlayer player);

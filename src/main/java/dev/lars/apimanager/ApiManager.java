@@ -2,44 +2,65 @@ package dev.lars.apimanager;
 
 import dev.lars.apimanager.apis.backpackAPI.BackpackAPI;
 import dev.lars.apimanager.apis.backpackAPI.BackpackAPIImpl;
+import dev.lars.apimanager.apis.backpackAPI.IBackpackAPI;
 import dev.lars.apimanager.apis.banAPI.BanAPI;
 import dev.lars.apimanager.apis.banAPI.BanAPIImpl;
+import dev.lars.apimanager.apis.banAPI.IBanAPI;
 import dev.lars.apimanager.apis.chunkAPI.ChunkAPI;
 import dev.lars.apimanager.apis.chunkAPI.ChunkAPIImpl;
+import dev.lars.apimanager.apis.chunkAPI.IChunkAPI;
 import dev.lars.apimanager.apis.courtAPI.CourtAPI;
 import dev.lars.apimanager.apis.courtAPI.CourtAPIImpl;
+import dev.lars.apimanager.apis.courtAPI.ICourtAPI;
 import dev.lars.apimanager.apis.economyAPI.EconomyAPI;
 import dev.lars.apimanager.apis.economyAPI.EconomyAPIImpl;
+import dev.lars.apimanager.apis.economyAPI.IEconomyAPI;
 import dev.lars.apimanager.apis.homeAPI.HomeAPI;
 import dev.lars.apimanager.apis.homeAPI.HomeAPIImpl;
+import dev.lars.apimanager.apis.homeAPI.IHomeAPI;
+import dev.lars.apimanager.apis.languageAPI.ILanguageAPI;
 import dev.lars.apimanager.apis.languageAPI.LanguageAPI;
 import dev.lars.apimanager.apis.languageAPI.LanguageAPIImpl;
+import dev.lars.apimanager.apis.limitAPI.ILimitAPI;
 import dev.lars.apimanager.apis.limitAPI.LimitAPI;
 import dev.lars.apimanager.apis.limitAPI.LimitAPIImpl;
+import dev.lars.apimanager.apis.maintenanceAPI.IMaintenanceAPI;
 import dev.lars.apimanager.apis.maintenanceAPI.MaintenanceAPI;
 import dev.lars.apimanager.apis.maintenanceAPI.MaintenanceAPIImpl;
+import dev.lars.apimanager.apis.playerAPI.IPlayerAPI;
 import dev.lars.apimanager.apis.playerAPI.PlayerAPI;
 import dev.lars.apimanager.apis.playerAPI.PlayerAPIImpl;
+import dev.lars.apimanager.apis.playerIdentityAPI.IPlayerIdentityAPI;
 import dev.lars.apimanager.apis.playerIdentityAPI.PlayerIdentityAPI;
 import dev.lars.apimanager.apis.playerIdentityAPI.PlayerIdentityAPIImpl;
+import dev.lars.apimanager.apis.playerSettingsAPI.IPlayerSettingsAPI;
 import dev.lars.apimanager.apis.playerSettingsAPI.PlayerSettingsAPI;
 import dev.lars.apimanager.apis.playerSettingsAPI.PlayerSettingsAPIImpl;
+import dev.lars.apimanager.apis.prefixAPI.IPrefixAPI;
 import dev.lars.apimanager.apis.prefixAPI.PrefixAPI;
 import dev.lars.apimanager.apis.prefixAPI.PrefixAPIImpl;
+import dev.lars.apimanager.apis.progressionAPI.IProgressionAPI;
 import dev.lars.apimanager.apis.progressionAPI.ProgressionAPI;
 import dev.lars.apimanager.apis.progressionAPI.ProgressionAPIImpl;
+import dev.lars.apimanager.apis.questAPI.IQuestAPI;
 import dev.lars.apimanager.apis.questAPI.QuestAPI;
 import dev.lars.apimanager.apis.questAPI.QuestAPIImpl;
+import dev.lars.apimanager.apis.rankAPI.IRankAPI;
 import dev.lars.apimanager.apis.rankAPI.RankAPI;
 import dev.lars.apimanager.apis.rankAPI.RankAPIImpl;
+import dev.lars.apimanager.apis.scoreboardSettingsAPI.IScoreboardSettingsAPI;
 import dev.lars.apimanager.apis.scoreboardSettingsAPI.ScoreboardSettingsAPI;
 import dev.lars.apimanager.apis.scoreboardSettingsAPI.ScoreboardSettingsAPIImpl;
+import dev.lars.apimanager.apis.serverFeatureAPI.IServerFeatureAPI;
 import dev.lars.apimanager.apis.serverFeatureAPI.ServerFeatureAPI;
 import dev.lars.apimanager.apis.serverFeatureAPI.ServerFeatureAPIImpl;
+import dev.lars.apimanager.apis.serverStateAPI.IServerStateAPI;
 import dev.lars.apimanager.apis.serverStateAPI.ServerStateAPI;
 import dev.lars.apimanager.apis.serverStateAPI.ServerStateAPIImpl;
+import dev.lars.apimanager.apis.statusAPI.IStatusAPI;
 import dev.lars.apimanager.apis.statusAPI.StatusAPI;
 import dev.lars.apimanager.apis.statusAPI.StatusAPIImpl;
+import dev.lars.apimanager.apis.timerAPI.ITimerAPI;
 import dev.lars.apimanager.apis.timerAPI.TimerAPI;
 import dev.lars.apimanager.apis.timerAPI.TimerAPIImpl;
 import dev.lars.apimanager.commands.ApiManagerCommand;
@@ -257,15 +278,12 @@ public final class ApiManager extends JavaPlugin {
     public String getVersion() {
         return getPluginMeta().getVersion();
     }
-
     public String getApiVersion() {
         return getPluginMeta().getAPIVersion();
     }
-
     public List<String> getDevelopers() {
         return getPluginMeta().getAuthors();
     }
-
     public String getWebsite() {
         return getPluginMeta().getWebsite();
     }
@@ -273,92 +291,29 @@ public final class ApiManager extends JavaPlugin {
     public IDatabaseManager getDatabaseManager() {
         return databaseManager;
     }
-
-    public ServerStateAPIImpl getServerStateAPI() {
-        return serverStateAPI;
-    }
-
-    public ServerFeatureAPIImpl getServerFeatureAPI() {
-        return serverFeatureAPI;
-    }
-
-    public MaintenanceAPIImpl getMaintenanceAPI() {
-        return maintenanceAPI;
-    }
-
-    public ProgressionAPIImpl getProgressionAPI() {
-        return progressionAPI;
-    }
-
-    public PlayerAPIImpl getPlayerAPI() {
-        return playerAPI;
-    }
-
-    public ChunkAPIImpl getChunkAPI() {
-        return chunkAPI;
-    }
-
-    public HomeAPIImpl getHomeAPI() {
-        return homeAPI;
-    }
-
-    public LanguageAPIImpl getLanguageAPI() {
-        return languageAPI;
-    }
-
-    public BackpackAPIImpl getBackpackAPI() {
-        return backpackAPI;
-    }
-
-    public LimitAPIImpl getLimitAPI() {
-        return limitAPI;
-    }
-
-    public BanAPIImpl getBanAPI() {
-        return banAPI;
-    }
-
-    public CourtAPIImpl getCourtAPI() {
-        return courtAPI;
-    }
-
-    public RankAPIImpl getRankAPI() {
-        return rankAPI;
-    }
-
-    public PrefixAPIImpl getPrefixAPI() {
-        return prefixAPI;
-    }
-
-    public StatusAPIImpl getStatusAPI() {
-        return statusAPI;
-    }
-
-    public PlayerIdentityAPIImpl getPlayerIdentityAPI() {
-        return playerIdentityAPI;
-    }
-
-    public PlayerSettingsAPIImpl getPlayerSettingsAPI() {
-        return playerSettingsAPI;
-    }
-
-    public ScoreboardSettingsAPIImpl getScoreboardSettingsAPI() {
-        return  scoreboardSettingsAPI;
-    }
-
-    public EconomyAPIImpl getEconomyAPI() {
-        return economyAPI;
-    }
-
-    public QuestAPIImpl getQuestAPI() {
-        return questAPI;
-    }
-
-    public TimerAPIImpl getTimerAPI() {
-        return timerAPI;
-    }
-
     public void setDatabaseManager(IDatabaseManager dbm) {
         this.databaseManager = dbm;
     }
+
+    public IServerStateAPI getServerStateAPI() { return serverStateAPI; }
+    public IServerFeatureAPI getServerFeatureAPI() { return serverFeatureAPI; }
+    public IMaintenanceAPI getMaintenanceAPI() { return maintenanceAPI; }
+    public IProgressionAPI getProgressionAPI() { return progressionAPI; }
+    public IPlayerAPI getPlayerAPI() { return playerAPI; }
+    public IChunkAPI getChunkAPI() { return chunkAPI; }
+    public IHomeAPI getHomeAPI() { return homeAPI; }
+    public ILanguageAPI getLanguageAPI() { return languageAPI; }
+    public IBackpackAPI getBackpackAPI() { return backpackAPI; }
+    public ILimitAPI getLimitAPI() { return limitAPI; }
+    public IBanAPI getBanAPI() { return banAPI; }
+    public ICourtAPI getCourtAPI() { return courtAPI; }
+    public IRankAPI getRankAPI() { return rankAPI; }
+    public IPrefixAPI getPrefixAPI() { return prefixAPI; }
+    public IStatusAPI getStatusAPI() { return statusAPI; }
+    public IPlayerIdentityAPI getPlayerIdentityAPI() { return playerIdentityAPI; }
+    public IPlayerSettingsAPI getPlayerSettingsAPI() { return playerSettingsAPI; }
+    public IScoreboardSettingsAPI getScoreboardSettingsAPI() { return scoreboardSettingsAPI; }
+    public IEconomyAPI getEconomyAPI() { return economyAPI; }
+    public IQuestAPI getQuestAPI() { return questAPI; }
+    public ITimerAPI getTimerAPI() { return timerAPI; }
 }

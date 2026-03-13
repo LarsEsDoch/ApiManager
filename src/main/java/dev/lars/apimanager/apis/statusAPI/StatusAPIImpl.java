@@ -36,6 +36,7 @@ public class StatusAPIImpl implements IStatusAPI {
         """, TABLE));
     }
 
+    @Override
     public void initPlayer(UUID uuid) {
         repo().insertIgnore(TABLE, new String[]{"uuid"}, uuid.toString());
     }

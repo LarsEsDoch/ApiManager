@@ -6,9 +6,12 @@ import org.bukkit.OfflinePlayer;
 
 import java.time.Instant;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 public interface IPrefixAPI {
+    void initPlayer(UUID uuid);
+
     Instant getCreatedAt(OfflinePlayer player);
 
     CompletableFuture<Instant> getCreatedAtAsync(OfflinePlayer player);

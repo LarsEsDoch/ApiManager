@@ -47,6 +47,7 @@ public class ScoreboardSettingsAPIImpl implements IScoreboardSettingsAPI {
         """, TABLE));
     }
 
+    @Override
     public void initPlayer(UUID uuid) {
         repo().insertIgnore(TABLE, new String[]{"uuid"}, uuid.toString());
     }

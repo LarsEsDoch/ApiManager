@@ -3,9 +3,12 @@ package dev.lars.apimanager.apis.playerAPI;
 import org.bukkit.OfflinePlayer;
 
 import java.time.Instant;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 public interface IPlayerAPI {
+    void initPlayer(UUID uuid, String name);
+
     Instant getCreatedAt(OfflinePlayer player);
 
     CompletableFuture<Instant> getCreatedAtAsync(OfflinePlayer player);

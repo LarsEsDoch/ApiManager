@@ -36,6 +36,7 @@ public class PlayerAPIImpl implements IPlayerAPI {
         """, TABLE));
     }
 
+    @Override
     public void initPlayer(UUID uuid, String name) {
         repo().insertIgnore(TABLE,
             new String[]{"uuid", "name"},

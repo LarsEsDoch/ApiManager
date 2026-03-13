@@ -50,6 +50,7 @@ public class EconomyAPIImpl implements IEconomyAPI {
         """, GIFT_TABLE));
     }
 
+    @Override
     public void initPlayer(UUID uuid) {
         repo().insertIgnore(TABLE, new String[]{"uuid"}, uuid.toString());
     }

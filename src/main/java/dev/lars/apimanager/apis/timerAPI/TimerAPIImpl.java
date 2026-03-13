@@ -37,6 +37,7 @@ public class TimerAPIImpl implements ITimerAPI {
         """, TABLE));
     }
 
+    @Override
     public void initPlayer(UUID uuid) {
         repo().insertIgnore(TABLE, new String[]{"uuid"}, uuid.toString());
     }

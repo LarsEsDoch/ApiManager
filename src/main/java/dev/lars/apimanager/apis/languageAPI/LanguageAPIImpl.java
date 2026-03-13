@@ -34,6 +34,7 @@ public class LanguageAPIImpl implements ILanguageAPI {
         """, TABLE, DEFAULT_LANGUAGE.getId()));
     }
 
+    @Override
     public void initPlayer(UUID uuid) {
         repo().insertIgnore(TABLE, new String[]{"uuid"}, uuid.toString());
     }
