@@ -1,6 +1,7 @@
 package dev.lars.apimanager.commands;
 
 import dev.lars.apimanager.ApiManager;
+import dev.lars.apimanager.apis.playerAPI.IPlayerAPI;
 import dev.lars.apimanager.database.ConnectDatabase;
 import dev.lars.apimanager.database.DatabaseManager;
 import dev.lars.apimanager.database.DatabaseRepository;
@@ -11,6 +12,7 @@ import io.papermc.paper.command.brigadier.CommandSourceStack;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -20,6 +22,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 public record ApiManagerCommand(ApiManager plugin, ConnectDatabase connectDatabase) implements BasicCommand {
 
@@ -141,6 +144,18 @@ public record ApiManagerCommand(ApiManager plugin, ConnectDatabase connectDataba
                 return;
             }
             handleStatus(sender);
+            return;
+        } else if (sub.equalsIgnoreCase("playerinfo") || sub.equalsIgnoreCase("pi")) {
+            if (hasNotPermission(sender, "apimanager.playerinfo")) {
+                sendNoPermission(sender, "apimanager.playerinfo");
+                return;
+            }
+            if (args.length < 2) {
+                sender.sendMessage(ApiManagerStatements.getPrefix()
+                        .append(Component.text("Usage: /apimanager playerinfo <name>", NamedTextColor.RED)));
+                return;
+            }
+            handlePlayerInfo(sender, args[1]);
             return;
         }
 
@@ -356,6 +371,85 @@ public record ApiManagerCommand(ApiManager plugin, ConnectDatabase connectDataba
                 sqlLogging ? NamedTextColor.GREEN : NamedTextColor.RED)));
     }
 
+    private void handlePlayerInfo(CommandSender sender, String name) {
+        CompletableFuture.runAsync(() -> {
+            OfflinePlayer player = Bukkit.getOfflinePlayer(name);
+
+            if (!player.hasPlayedBefore() && !player.isOnline()) {
+                sender.sendMessage(ApiManagerStatements.getPrefix()
+                    .append(Component.text("Player '" + name + "' has never joined this server.", NamedTextColor.RED)));
+                return;
+            }
+
+            ApiManager p = ApiManager.getInstance();
+            IPlayerAPI playerAPI = p.getPlayerAPI();
+
+            boolean online = player.isOnline();
+            String uuid = player.getUniqueId().toString();
+            String displayName = playerAPI.getName(player);
+            Integer playtime = playerAPI.getPlaytime(player);
+            Instant firstJoin = playerAPI.getCreatedAt(player);
+            Instant lastSeen = playerAPI.getLastSeen(player);
+
+            boolean[] checks = {
+                p.getPlayerAPI().doesUserExist(player),
+                p.getLanguageAPI().doesUserExist(player),
+                p.getBackpackAPI().doesUserExist(player),
+                p.getLimitAPI().doesUserExist(player),
+                p.getBanAPI().doesUserExist(player),
+                p.getCourtAPI().doesUserExist(player),
+                p.getRankAPI().doesUserExist(player),
+                p.getPrefixAPI().doesUserExist(player),
+                p.getStatusAPI().doesUserExist(player),
+                p.getPlayerIdentityAPI().doesUserExist(player),
+                p.getPlayerSettingsAPI().doesUserExist(player),
+                p.getScoreboardSettingsAPI().doesUserExist(player),
+                p.getEconomyAPI().doesUserExist(player),
+                p.getQuestAPI().doesUserExist(player),
+                p.getTimerAPI().doesUserExist(player)
+            };
+            String[] tableNames = {
+                "players", "language", "backpack", "limits", "ban",
+                "court", "rank", "prefix", "status", "identity",
+                "settings", "scoreboard", "economy", "quest", "timer"
+            };
+            boolean fullyRegistered = true;
+            for (boolean check : checks) if (!check) { fullyRegistered = false; break; }
+
+            sender.sendMessage(ApiManagerStatements.getPrefix()
+                .append(Component.text("=== Player Info: " + displayName + " ===", NamedTextColor.AQUA)));
+            sender.sendMessage(ApiManagerStatements.getPrefix()
+                .append(Component.text("UUID: ", NamedTextColor.GRAY))
+                .append(Component.text(uuid, NamedTextColor.GOLD)));
+            sender.sendMessage(ApiManagerStatements.getPrefix()
+                .append(Component.text("Status: ", NamedTextColor.GRAY))
+                .append(Component.text(online ? "Online" : "Offline",
+                    online ? NamedTextColor.GREEN : NamedTextColor.RED)));
+            sender.sendMessage(ApiManagerStatements.getPrefix()
+                .append(Component.text("Playtime: ", NamedTextColor.GRAY))
+                .append(Component.text(playtime != null ? playtime + "s" : "N/A", NamedTextColor.GOLD)));
+            sender.sendMessage(ApiManagerStatements.getPrefix()
+                .append(Component.text("First join: ", NamedTextColor.GRAY))
+                .append(Component.text(firstJoin != null ? firstJoin.toString() : "N/A", NamedTextColor.GOLD)));
+            sender.sendMessage(ApiManagerStatements.getPrefix()
+                .append(Component.text("Last seen: ", NamedTextColor.GRAY))
+                .append(Component.text(lastSeen != null ? lastSeen.toString() : "N/A", NamedTextColor.GOLD)));
+            sender.sendMessage(ApiManagerStatements.getPrefix()
+                .append(Component.text("Fully registered: ", NamedTextColor.GRAY))
+                .append(Component.text(fullyRegistered ? "Yes" : "No",
+                    fullyRegistered ? NamedTextColor.GREEN : NamedTextColor.RED)));
+
+            if (!fullyRegistered) {
+                for (int i = 0; i < checks.length; i++) {
+                    if (!checks[i]) {
+                        sender.sendMessage(ApiManagerStatements.getPrefix()
+                            .append(Component.text("  Missing: " + tableNames[i], NamedTextColor.RED)));
+                    }
+                }
+            }
+        });
+    }
+
     private void sendUsage(CommandSender sender) {
         sender.sendMessage(ApiManagerStatements.getPrefix().append(Component.text("=== " + plugin.getName() + " Commands ===", NamedTextColor.AQUA)));
         sender.sendMessage(ApiManagerStatements.getPrefix().append(Component.text("/apimanager test", NamedTextColor.GOLD))
@@ -372,16 +466,24 @@ public record ApiManagerCommand(ApiManager plugin, ConnectDatabase connectDataba
             .append(Component.text(" - Check logging status", NamedTextColor.GRAY)));
         sender.sendMessage(ApiManagerStatements.getPrefix().append(Component.text("/apimanager version", NamedTextColor.GOLD))
             .append(Component.text(" - Shows plugin version and development info", NamedTextColor.GRAY)));
+        sender.sendMessage(ApiManagerStatements.getPrefix().append(Component.text("/apimanager playerinfo <name>", NamedTextColor.GOLD))
+            .append(Component.text(" - Shows player data and registration status", NamedTextColor.GRAY)));
     }
 
     @Override
     public @NotNull Collection<String> suggest(final @NotNull CommandSourceStack commandSourceStack, final String[] args) {
         if (args.length <= 1) {
-            return List.of("test", "t", "reload", "rl", "logging", "l", "version", "v", "status", "s");
+            return List.of("test", "t", "reload", "rl", "logging", "l", "version", "v", "status", "s", "playerinfo", "pi");
         }
         if (args.length == 2 && args[0].equalsIgnoreCase("logging")
         || args.length == 2 && args[0].equalsIgnoreCase("l")) {
             return List.of("enable", "disable", "status");
+        }
+        if (args.length == 2 && args[0].equalsIgnoreCase("playerinfo")
+        || args.length == 2 && args[0].equalsIgnoreCase("pi")) {
+            return Bukkit.getOnlinePlayers().stream()
+            .map(Player::getName)
+            .toList();
         }
         return Collections.emptyList();
     }

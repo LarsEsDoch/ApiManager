@@ -104,29 +104,31 @@ ApiManager instantiates and manages the lifecycle of 21 domain APIs. Each API cr
 
 All commands are registered under `/apimanager` and the alias `/am`.
 
-| Command | Permission | Description |
-|---|---|---|
-| `/am` | `apimanager.status` | Shows command usage and current status |
-| `/am test` / `/am t` | `apimanager.test` | Runs a live query and update against a test table to verify the connection |
+| Command | Permission | Description                                                                         |
+|---|---|-------------------------------------------------------------------------------------|
+| `/am` | `apimanager.status` | Shows command usage and current status                                              |
+| `/am test` / `/am t` | `apimanager.test` | Runs a live query and update against a test table to verify the connection          |
 | `/am reload` / `/am rl` | `apimanager.reload` | Reloads `config.yml`, reconnects to the database, and re-initialises all API tables |
-| `/am status` / `/am s` | `apimanager.status` | Shows connection state, JDBC URL, pool stats (active/idle/waiting), and QPS |
-| `/am logging enable <ms>` | `apimanager.log` | Enables SQL query logging for the given duration in milliseconds |
-| `/am logging disable` | `apimanager.log` | Disables SQL query logging |
-| `/am logging status` | `apimanager.log` | Shows whether logging is active and the time remaining |
-| `/am version` / `/am v` | `apimanager.version` | Displays plugin version, author, and website |
+| `/am status` / `/am s` | `apimanager.status` | Shows connection state, JDBC URL, pool stats (active/idle/waiting), and QPS         |
+| `/am logging enable <ms>` | `apimanager.log` | Enables SQL query logging for the given duration in milliseconds                    |
+| `/am logging disable` | `apimanager.log` | Disables SQL query logging                                                          |
+| `/am logging status` | `apimanager.log` | Shows whether logging is active and the time remaining                              |
+| `/am version` / `/am v` | `apimanager.version` | Displays plugin version, author, and website                                        |
+| `/am playerinfo` / `/am pi` | `apimanager.playerinfo` | Shows player data and registration status                                           |
 
 ---
 
 ## Permissions
 
-| Permission | Default | Description |
-|---|---|---|
-| `apimanager.*` | OP | Grants all ApiManager permissions |
-| `apimanager.reload` | OP | Reload configuration and reconnect to DB |
-| `apimanager.test` | OP | Run the database connection test |
-| `apimanager.log` | OP | Enable/disable/check SQL logging |
-| `apimanager.status` | OP | View database connection status |
-| `apimanager.version` | true | View version information |
+| Permission               | Default | Description                              |
+|--------------------------|---------|------------------------------------------|
+| `apimanager.*`           | OP      | Grants all ApiManager permissions        |
+| `apimanager.reload`      | OP      | Reload configuration and reconnect to DB |
+| `apimanager.test`        | OP      | Run the database connection test         |
+| `apimanager.log`         | OP      | Enable/disable/check SQL logging         |
+| `apimanager.status`      | OP      | View database connection status          |
+| `apimanager.version`     | OP      | View version information                 |
+| `apimanager.playerinfo`  | OP      | View player information                  |
 
 ---
 

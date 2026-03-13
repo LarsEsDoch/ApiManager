@@ -16,6 +16,7 @@ permissions:
       apimanager.log: true
       apimanager.version: true
       apimanager.status: true
+      apimanager.playerinfo: true
 
   apimanager.reload:
     description: Allows reloading ApiManager configuration
@@ -31,8 +32,12 @@ permissions:
 
   apimanager.version:
     description: Allows viewing plugin version information
-    default: true
+    default: op
 
   apimanager.status:
     description: Allows viewing database status information
+    default: op
+
+  apimanager.playerinfo:
+    description: Allows viewing player status information
     default: op
