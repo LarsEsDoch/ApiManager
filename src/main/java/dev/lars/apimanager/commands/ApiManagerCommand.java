@@ -12,12 +12,14 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Instant;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 public record ApiManagerCommand(ApiManager plugin, ConnectDatabase connectDatabase) implements BasicCommand {
 
@@ -75,6 +77,25 @@ public record ApiManagerCommand(ApiManager plugin, ConnectDatabase connectDataba
                     try {
                         ApiManager.getInstance().createAllTables();
                         ApiManager.getInstance().onApisReady();
+                        for (Player player : Bukkit.getOnlinePlayers()) {
+                            ApiManager plugin = ApiManager.getInstance();
+                            UUID uuid = player.getUniqueId();
+                            plugin.getPlayerAPI().initPlayer(uuid, player.getName());
+                            plugin.getLanguageAPI().initPlayer(uuid);
+                            plugin.getBackpackAPI().initPlayer(uuid);
+                            plugin.getLimitAPI().initPlayer(uuid);
+                            plugin.getBanAPI().initPlayer(uuid);
+                            plugin.getCourtAPI().initPlayer(uuid);
+                            plugin.getRankAPI().initPlayer(uuid);
+                            plugin.getPrefixAPI().initPlayer(uuid);
+                            plugin.getStatusAPI().initPlayer(uuid);
+                            plugin.getPlayerIdentityAPI().initPlayer(uuid);
+                            plugin.getPlayerSettingsAPI().initPlayer(uuid);
+                            plugin.getScoreboardSettingsAPI().initPlayer(uuid);
+                            plugin.getEconomyAPI().initPlayer(uuid);
+                            plugin.getQuestAPI().initPlayer(uuid);
+                            plugin.getTimerAPI().initPlayer(uuid);
+                        }
                         sender.sendMessage(ApiManagerStatements.getPrefix().append(Component.text("Database configuration successfully reloaded!", NamedTextColor.GREEN)));
                     } catch (Exception e) {
                         sender.sendMessage(ApiManagerStatements.getPrefix().append(Component.text("Failed to reinitialize APIs: " + e.getMessage(), NamedTextColor.RED)));
