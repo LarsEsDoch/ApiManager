@@ -8,8 +8,10 @@ import org.bukkit.Bukkit;
 public class ApiManagerStatements {
 
     public static Component getPrefix() {
+        ApiManager inst = ApiManager.getInstance();
+        String name = (inst != null) ? inst.getName() : "ApiManager";
         return Component.text("[", NamedTextColor.DARK_GRAY)
-                .append(Component.text(ApiManager.getInstance().getName(), NamedTextColor.AQUA))
+                .append(Component.text(name, NamedTextColor.AQUA))
                 .append(Component.text("]", NamedTextColor.DARK_GRAY))
                 .append(Component.text(" ", NamedTextColor.GRAY));
     }
