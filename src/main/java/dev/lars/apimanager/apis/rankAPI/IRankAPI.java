@@ -50,4 +50,8 @@ public interface IRankAPI {
     Instant getExpiresAt(OfflinePlayer player);
 
     CompletableFuture<Instant> getExpiresAtAsync(OfflinePlayer player);
+
+    long getDaysRemaining(OfflinePlayer player);
+
+    CompletableFuture<Long> getDaysRemainingAsync(OfflinePlayer player);
 }
