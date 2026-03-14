@@ -40,6 +40,8 @@ public final class DatabaseManager implements IDatabaseManager {
     private BukkitTask qpsUpdateTask;
     private BukkitTask loggingCheckTask;
 
+    private volatile boolean stopped = false;
+
     public void incrementQueryCount() {
         queryCount.incrementAndGet();
     }
@@ -51,8 +53,8 @@ public final class DatabaseManager implements IDatabaseManager {
     public DatabaseManager(String host, int port, String database, String username, String password) {
         this.asyncExecutor = Executors.newFixedThreadPool(32);
 
-        CompletableFuture.runAsync(() -> {
-            while (true) {
+        asyncExecutor.submit(() -> {
+            while (!stopped) {
                 try {
                     HikariConfig config = new HikariConfig();
                     config.setDriverClassName("org.mariadb.jdbc.Driver");
@@ -82,21 +84,27 @@ public final class DatabaseManager implements IDatabaseManager {
                     config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
 
                     HikariDataSource ds = new HikariDataSource(config);
-
                     try (Connection ignored = ds.getConnection()) {
                         ApiManagerStatements.logToConsole("Connected to MariaDB via HikariCP", NamedTextColor.GREEN);
                     }
 
                     this.dataSource = ds;
                     ready.complete(null);
-
                     startQpsUpdateTask();
                     break;
+
                 } catch (Exception e) {
-                    ApiManagerStatements.logToConsole("Database connection failed, retrying in 5s... " + e.getMessage(), NamedTextColor.GOLD);
+                    if (stopped) break;
+                    ApiManagerStatements.logToConsole(
+                        "Database connection failed, retrying in 5s... " + e.getMessage(),
+                        NamedTextColor.GOLD
+                    );
                     try {
                         Thread.sleep(5000);
-                    } catch (InterruptedException ignored) {}
+                    } catch (InterruptedException ie) {
+                        Thread.currentThread().interrupt();
+                        break;
+                    }
                 }
             }
         });
@@ -292,6 +300,12 @@ public final class DatabaseManager implements IDatabaseManager {
 
     @Override
     public void close() {
+        stopped = true;
+
+        if (!ready.isDone()) {
+            ready.completeExceptionally(new IllegalStateException("DatabaseManager closed before connection was ready."));
+        }
+
         if (qpsUpdateTask != null && !qpsUpdateTask.isCancelled()) {
             qpsUpdateTask.cancel();
             ApiManagerStatements.logToConsole("QPS update task cancelled.", NamedTextColor.GRAY);

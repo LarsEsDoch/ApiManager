@@ -210,7 +210,7 @@ public class DatabaseRepository {
 
     public boolean exists(String table, String whereClause, Object... params) {
         String safeTable = SqlIdentifierValidator.validate(table);
-        return db().query(conn -> {
+        Boolean result = db().query(conn -> {
             String sql = "SELECT 1 FROM " + safeTable + " WHERE " + whereClause + " LIMIT 1";
             db().logSqlQuery(sql, params);
             try (PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -220,6 +220,7 @@ public class DatabaseRepository {
                 }
             }
         });
+        return result != null && result;
     }
 
     public CompletableFuture<Boolean> existsAsync(String table, String whereClause, Object... params) {
@@ -233,7 +234,7 @@ public class DatabaseRepository {
                     return rs.next();
                 }
             }
-        });
+        }).thenApply(result -> result != null && result);
     }
 
     public void updateColumn(String table, String column, Object value, String whereClause, Object... whereParams) {
@@ -372,7 +373,7 @@ public class DatabaseRepository {
 
     public int count(String table, String whereClause, Object... params) {
         String safeTable = SqlIdentifierValidator.validate(table);
-        return db().query(conn -> {
+        Integer result = db().query(conn -> {
             String sql = "SELECT COUNT(*) AS row_count FROM " + safeTable;
             if (whereClause != null && !whereClause.isEmpty()) {
                 sql += " WHERE " + whereClause;
@@ -386,6 +387,7 @@ public class DatabaseRepository {
             }
             return 0;
         });
+        return result != null ? result : 0;
     }
 
     public CompletableFuture<Integer> countAsync(String table, String whereClause, Object... params) {
@@ -403,7 +405,7 @@ public class DatabaseRepository {
                 }
             }
             return 0;
-        });
+        }).thenApply(result -> result != null ? result : 0);
     }
 
     private void setParameters(PreparedStatement ps, Object... params) throws SQLException {
