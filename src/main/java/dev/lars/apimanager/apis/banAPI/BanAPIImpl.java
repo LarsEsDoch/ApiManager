@@ -6,6 +6,9 @@ import dev.lars.apimanager.database.IDatabaseManager;
 import dev.lars.apimanager.utils.ApiManagerValidateParameter;
 import org.bukkit.OfflinePlayer;
 
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
@@ -142,6 +145,18 @@ public class BanAPIImpl implements IBanAPI {
     }
 
     @Override
+    public Instant getBannedAt(OfflinePlayer player) {
+        ApiManagerValidateParameter.validatePlayer(player);
+        return repo().getInstant(TABLE, "banned_at", "uuid = ?", player.getUniqueId().toString());
+    }
+
+    @Override
+    public CompletableFuture<Instant> getBannedAtAsync(OfflinePlayer player) {
+        ApiManagerValidateParameter.validatePlayer(player);
+        return repo().getInstantAsync(TABLE, "banned_at", "uuid = ?", player.getUniqueId().toString());
+    }
+
+    @Override
     public void setExpiresAt(OfflinePlayer player, Instant expiresAt) {
         ApiManagerValidateParameter.validatePlayer(player);
         ApiManagerValidateParameter.validateExpiresAt(expiresAt);
@@ -170,24 +185,69 @@ public class BanAPIImpl implements IBanAPI {
     @Override
     public boolean isBanned(OfflinePlayer player) {
         ApiManagerValidateParameter.validatePlayer(player);
-        Boolean result = repo().getBoolean(TABLE, "is_banned", "uuid = ?", player.getUniqueId().toString());
-        return result != null && result;
+        String uuid = player.getUniqueId().toString();
+
+        return Boolean.TRUE.equals(db().query(conn -> {
+            String sql = "SELECT is_banned, expires_at FROM " + TABLE + " WHERE uuid = ? LIMIT 1";
+            try (PreparedStatement ps = conn.prepareStatement(sql)) {
+                ps.setString(1, uuid);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (!rs.next()) return false;
+
+                    boolean banned = rs.getBoolean("is_banned");
+                    if (!banned) return false;
+
+                    Timestamp expiresAt = rs.getTimestamp("expires_at");
+
+                    if (expiresAt == null) return true;
+
+                    if (expiresAt.toInstant().isAfter(Instant.now())) return true;
+
+                    setUnBannedAsync(player);
+                    return false;
+                }
+            }
+        }));
     }
 
     @Override
     public CompletableFuture<Boolean> isBannedAsync(OfflinePlayer player) {
         ApiManagerValidateParameter.validatePlayer(player);
-        return repo().getBooleanAsync(TABLE, "is_banned", "uuid = ?", player.getUniqueId().toString())
-            .thenApply(result -> result != null && result);
+        String uuid = player.getUniqueId().toString();
+
+        return db().queryAsync(conn -> {
+            String sql = "SELECT is_banned, expires_at FROM " + TABLE + " WHERE uuid = ? LIMIT 1";
+            try (PreparedStatement ps = conn.prepareStatement(sql)) {
+                ps.setString(1, uuid);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (!rs.next()) return "NOT_BANNED";
+
+                    boolean banned = rs.getBoolean("is_banned");
+                    if (!banned) return "NOT_BANNED";
+
+                    Timestamp expiresAt = rs.getTimestamp("expires_at");
+                    if (expiresAt == null) return "ACTIVE";
+                    if (expiresAt.toInstant().isAfter(Instant.now())) return "ACTIVE";
+
+                    return "EXPIRED";
+                }
+            }
+        }).thenCompose(status -> switch (status) {
+            case "ACTIVE"   -> CompletableFuture.completedFuture(true);
+            case "EXPIRED"  -> setUnBannedAsync(player).thenApply(v -> false);
+            default         -> CompletableFuture.completedFuture(false);
+        });
     }
 
     @Override
     public List<String> getBannedPlayers() {
-        return repo().getStringList(TABLE, "uuid", "is_banned = TRUE");
+        return repo().getStringList(TABLE, "uuid",
+            "is_banned = TRUE AND (expires_at IS NULL OR expires_at > NOW())");
     }
 
     @Override
     public CompletableFuture<List<String>> getBannedPlayersAsync() {
-        return repo().getStringListAsync(TABLE, "uuid", "is_banned = TRUE");
+        return repo().getStringListAsync(TABLE, "uuid",
+            "is_banned = TRUE AND (expires_at IS NULL OR expires_at > NOW())");
     }
 }

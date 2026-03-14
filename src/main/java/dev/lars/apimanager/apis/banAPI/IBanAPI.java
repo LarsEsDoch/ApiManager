@@ -40,6 +40,10 @@ public interface IBanAPI {
 
     CompletableFuture<String> getReasonAsync(OfflinePlayer player);
 
+    Instant getBannedAt(OfflinePlayer player);
+
+    CompletableFuture<Instant> getBannedAtAsync(OfflinePlayer player);
+
     void setExpiresAt(OfflinePlayer player, Instant expiresAt);
 
     CompletableFuture<Void> setExpiresAtAsync(OfflinePlayer player, Instant expiresAt);
