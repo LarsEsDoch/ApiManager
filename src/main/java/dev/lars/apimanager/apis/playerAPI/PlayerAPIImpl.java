@@ -138,8 +138,8 @@ public class PlayerAPIImpl implements IPlayerAPI {
         ApiManagerValidateParameter.validatePlayer(player);
         if (!online) {
             repo().updateColumns(TABLE,
-                new String[]{"is_online", "name", "last_seen"},
-                new Object[]{false, player.getName(), Instant.now()},
+                new String[]{"is_online", "last_seen"},
+                new Object[]{false, Instant.now()},
                 "uuid = ?", player.getUniqueId().toString());
         } else {
             repo().updateColumns(TABLE,
@@ -154,8 +154,8 @@ public class PlayerAPIImpl implements IPlayerAPI {
         ApiManagerValidateParameter.validatePlayer(player);
         if (!online) {
             return repo().updateColumnsAsync(TABLE,
-                new String[]{"is_online", "name", "last_seen"},
-                new Object[]{false, player.getName(), Instant.now()},
+                new String[]{"is_online", "last_seen"},
+                new Object[]{false, Instant.now()},
                 "uuid = ?", player.getUniqueId().toString());
         } else {
             return repo().updateColumnsAsync(TABLE,
