@@ -64,6 +64,12 @@ public class ApiManagerValidateParameter {
         if (nickName == null) {
             throw new IllegalArgumentException("Nickname cannot be null");
         }
+        if (nickName.isBlank()) {
+            throw new IllegalArgumentException("Nickname cannot be blank");
+        }
+        if (nickName.length() > 32) {
+            throw new IllegalArgumentException("Nickname cannot exceed 32 characters, got: " + nickName.length());
+        }
     }
 
     public static void validateServerName(String serverName) {
