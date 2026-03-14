@@ -88,6 +88,50 @@ public class DatabaseRepository {
         });
     }
 
+    public Long getLong(String table, String column, String whereClause, Object... params) {
+        String safeTable = SqlIdentifierValidator.validate(table);
+        String safeColumn = SqlIdentifierValidator.validate(column);
+
+        return db().query(conn -> {
+            String sql = "SELECT " + safeColumn + " FROM " + safeTable + " WHERE " + whereClause + " LIMIT 1";
+            db().logSqlQuery(sql, params);
+
+            try (PreparedStatement ps = conn.prepareStatement(sql)) {
+                setParameters(ps, params);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        long value = rs.getLong(safeColumn);
+                        if (rs.wasNull()) return null;
+                        return value;
+                    }
+                    return null;
+                }
+            }
+        });
+    }
+
+    public CompletableFuture<Long> getLongAsync(String table, String column, String whereClause, Object... params) {
+        String safeTable = SqlIdentifierValidator.validate(table);
+        String safeColumn = SqlIdentifierValidator.validate(column);
+
+        return db().queryAsync(conn -> {
+            String sql = "SELECT " + safeColumn + " FROM " + safeTable + " WHERE " + whereClause + " LIMIT 1";
+            db().logSqlQuery(sql, params);
+
+            try (PreparedStatement ps = conn.prepareStatement(sql)) {
+                setParameters(ps, params);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        long value = rs.getLong(safeColumn);
+                        if (rs.wasNull()) return null;
+                        return value;
+                    }
+                    return null;
+                }
+            }
+        });
+    }
+
     public Boolean getBoolean(String table, String column, String whereClause, Object... params) {
         String safeTable = SqlIdentifierValidator.validate(table);
         String safeColumn = SqlIdentifierValidator.validate(column);

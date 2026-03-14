@@ -30,7 +30,6 @@ public class SafeDatabaseManager implements IDatabaseManager {
     }
 
     public void logSqlQuery(String sql, Object... params) {
-        ApiManagerStatements.logToConsole("[SafeDatabaseManager] logSqlQuery called - no real database connection present.", NamedTextColor.GOLD);
     }
 
     @Override
