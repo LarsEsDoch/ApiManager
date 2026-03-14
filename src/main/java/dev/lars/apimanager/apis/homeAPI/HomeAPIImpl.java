@@ -29,6 +29,7 @@ public class HomeAPIImpl implements IHomeAPI {
                 id INT AUTO_INCREMENT PRIMARY KEY,
                 uuid CHAR(36) NOT NULL,
                 name VARCHAR(255) NOT NULL,
+                server_id VARCHAR(64) NOT NULL,
                 location VARCHAR(255) NOT NULL,
                 is_public BOOLEAN NOT NULL DEFAULT FALSE,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -65,8 +66,8 @@ public class HomeAPIImpl implements IHomeAPI {
         ApiManagerValidateParameter.validateName(name);
         ApiManagerValidateParameter.validateLocation(location);
         repo().insertIgnore(TABLE,
-            new String[]{"uuid", "name", "location", "is_public"},
-            player.getUniqueId().toString(), name, ApiManagerFormatLocation.serializeLocation(location), isPublic);
+            new String[]{"uuid", "name", "server_id", "location", "is_public"},
+            player.getUniqueId().toString(), name, ApiManager.getServerId(), ApiManagerFormatLocation.serializeLocation(location), isPublic);
     }
 
     @Override
@@ -75,8 +76,8 @@ public class HomeAPIImpl implements IHomeAPI {
         ApiManagerValidateParameter.validateName(name);
         ApiManagerValidateParameter.validateLocation(location);
         return repo().insertAsync(TABLE,
-            new String[]{"uuid", "name", "location", "is_public"},
-            player.getUniqueId().toString(), name, ApiManagerFormatLocation.serializeLocation(location), isPublic);
+            new String[]{"uuid", "name", "server_id", "location", "is_public"},
+            player.getUniqueId().toString(), name, ApiManager.getServerId(), ApiManagerFormatLocation.serializeLocation(location), isPublic);
     }
 
     @Override

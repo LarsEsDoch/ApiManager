@@ -9,7 +9,14 @@ import java.util.concurrent.CompletableFuture;
 
 public class ServerFeatureAPIImpl implements IServerFeatureAPI {
     private static final String TABLE = "server_feature";
-    private static final String WHERE_ID = "id = 1";
+
+    private String serverId() {
+        return ApiManager.getServerId();
+    }
+
+    private String where() {
+        return "server_id = '" + serverId() + "'";
+    }
 
     private DatabaseRepository repo() {
         return new DatabaseRepository();
@@ -22,78 +29,78 @@ public class ServerFeatureAPIImpl implements IServerFeatureAPI {
     public void createTables() {
         db().update(String.format("""
             CREATE TABLE IF NOT EXISTS %s (
-                id INT PRIMARY KEY CHECK (%s),
+                server_id VARCHAR(64) NOT NULL PRIMARY KEY,
                 is_real_time_enabled BOOLEAN NOT NULL DEFAULT FALSE,
                 is_real_weather_enabled BOOLEAN NOT NULL DEFAULT FALSE,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-        """, TABLE, WHERE_ID));
+        """, TABLE));
 
-        repo().insertIgnore(TABLE, new String[]{"id"}, 1);
+        repo().insertIgnore(TABLE, new String[]{"server_id"}, serverId());
     }
 
     @Override
     public Instant getCreatedAt() {
-        return repo().getInstant(TABLE, "created_at", WHERE_ID);
+        return repo().getInstant(TABLE, "created_at", where());
     }
 
     @Override
     public CompletableFuture<Instant> getCreatedAtAsync() {
-        return repo().getInstantAsync(TABLE, "created_at", WHERE_ID);
+        return repo().getInstantAsync(TABLE, "created_at", where());
     }
 
     @Override
     public Instant getUpdatedAt() {
-        return repo().getInstant(TABLE, "updated_at", WHERE_ID);
+        return repo().getInstant(TABLE, "updated_at", where());
     }
 
     @Override
     public CompletableFuture<Instant> getUpdatedAtAsync() {
-        return repo().getInstantAsync(TABLE, "updated_at", WHERE_ID);
+        return repo().getInstantAsync(TABLE, "updated_at", where());
     }
 
     @Override
     public void setRealTimeEnabled(boolean enabled) {
-        repo().updateColumn(TABLE, "is_real_time_enabled", enabled, WHERE_ID);
+        repo().updateColumn(TABLE, "is_real_time_enabled", enabled, where());
     }
 
     @Override
     public CompletableFuture<Void> setRealTimeEnabledAsync(boolean enabled) {
-        return repo().updateColumnAsync(TABLE, "is_real_time_enabled", enabled, WHERE_ID);
+        return repo().updateColumnAsync(TABLE, "is_real_time_enabled", enabled, where());
     }
 
     @Override
     public boolean isRealTimeEnabled() {
-        Boolean result = repo().getBoolean(TABLE, "is_real_time_enabled", WHERE_ID);
+        Boolean result = repo().getBoolean(TABLE, "is_real_time_enabled", where());
         return result != null && result;
     }
 
     @Override
     public CompletableFuture<Boolean> isRealTimeEnabledAsync() {
-        return repo().getBooleanAsync(TABLE, "is_real_time_enabled", WHERE_ID)
+        return repo().getBooleanAsync(TABLE, "is_real_time_enabled", where())
             .thenApply(result -> result != null && result);
     }
 
     @Override
     public void setRealWeatherEnabled(boolean enabled) {
-        repo().updateColumn(TABLE, "is_real_weather_enabled", enabled, WHERE_ID);
+        repo().updateColumn(TABLE, "is_real_weather_enabled", enabled, where());
     }
 
     @Override
     public CompletableFuture<Void> setRealWeatherEnabledAsync(boolean enabled) {
-        return repo().updateColumnAsync(TABLE, "is_real_weather_enabled", enabled, WHERE_ID);
+        return repo().updateColumnAsync(TABLE, "is_real_weather_enabled", enabled, where());
     }
 
     @Override
     public boolean isRealWeatherEnabled() {
-        Boolean result = repo().getBoolean(TABLE, "is_real_weather_enabled", WHERE_ID);
+        Boolean result = repo().getBoolean(TABLE, "is_real_weather_enabled", where());
         return result != null && result;
     }
 
     @Override
     public CompletableFuture<Boolean> isRealWeatherEnabledAsync() {
-        return repo().getBooleanAsync(TABLE, "is_real_weather_enabled", WHERE_ID)
+        return repo().getBooleanAsync(TABLE, "is_real_weather_enabled", where())
             .thenApply(result -> result != null && result);
     }
 }

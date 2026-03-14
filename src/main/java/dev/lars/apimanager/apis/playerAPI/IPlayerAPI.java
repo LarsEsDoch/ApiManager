@@ -43,6 +43,10 @@ public interface IPlayerAPI {
 
     CompletableFuture<Boolean> isOnlineAsync(OfflinePlayer player);
 
+    String getCurrentServer(OfflinePlayer player);
+
+    CompletableFuture<String> getCurrentServerAsync(OfflinePlayer player);
+
     Instant getLastSeen(OfflinePlayer player);
 
     CompletableFuture<Instant> getLastSeenAsync(OfflinePlayer player);

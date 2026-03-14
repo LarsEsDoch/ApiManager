@@ -28,6 +28,7 @@ public class PlayerAPIImpl implements IPlayerAPI {
                 name VARCHAR(16) NOT NULL DEFAULT '',
                 playtime BIGINT NOT NULL DEFAULT 0,
                 is_online BOOLEAN NOT NULL DEFAULT FALSE,
+                current_server VARCHAR(64) NOT NULL DEFAULT '',
                 first_join TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 last_seen TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -138,13 +139,13 @@ public class PlayerAPIImpl implements IPlayerAPI {
         ApiManagerValidateParameter.validatePlayer(player);
         if (!online) {
             repo().updateColumns(TABLE,
-                new String[]{"is_online", "last_seen"},
-                new Object[]{false, Instant.now()},
+                new String[]{"is_online", "current_server", "last_seen"},
+                new Object[]{false, ApiManager.getServerId(), Instant.now()},
                 "uuid = ?", player.getUniqueId().toString());
         } else {
             repo().updateColumns(TABLE,
-                new String[]{"is_online", "name"},
-                new Object[]{true, player.getName()},
+                new String[]{"is_online", "current_server", "name"},
+                new Object[]{true, "", player.getName()},
                 "uuid = ?", player.getUniqueId().toString());
         }
     }
@@ -154,13 +155,13 @@ public class PlayerAPIImpl implements IPlayerAPI {
         ApiManagerValidateParameter.validatePlayer(player);
         if (!online) {
             return repo().updateColumnsAsync(TABLE,
-                new String[]{"is_online", "last_seen"},
-                new Object[]{false, Instant.now()},
+                new String[]{"is_online", "current_server", "last_seen"},
+                new Object[]{false, ApiManager.getServerId(), Instant.now()},
                 "uuid = ?", player.getUniqueId().toString());
         } else {
             return repo().updateColumnsAsync(TABLE,
-                new String[]{"is_online", "name"},
-                new Object[]{true, player.getName()},
+                new String[]{"is_online", "current_server", "name"},
+                new Object[]{true, "", player.getName()},
                 "uuid = ?", player.getUniqueId().toString());
         }
     }
@@ -177,6 +178,18 @@ public class PlayerAPIImpl implements IPlayerAPI {
         ApiManagerValidateParameter.validatePlayer(player);
         return repo().getBooleanAsync(TABLE, "is_online", "uuid = ?", player.getUniqueId().toString())
             .thenApply(result -> result != null && result);
+    }
+
+    @Override
+    public String getCurrentServer(OfflinePlayer player) {
+        ApiManagerValidateParameter.validatePlayer(player);
+        return repo().getString(TABLE, "current_server", "uuid = ?", player.getUniqueId().toString());
+    }
+
+    @Override
+    public CompletableFuture<String> getCurrentServerAsync(OfflinePlayer player) {
+        ApiManagerValidateParameter.validatePlayer(player);
+        return repo().getStringAsync(TABLE, "current_server", "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override

@@ -71,11 +71,13 @@ public class PlayerIdentityAPIImpl implements IPlayerIdentityAPI {
 
     @Override
     public void setVanished(OfflinePlayer player, boolean vanished) {
+        ApiManagerValidateParameter.validatePlayer(player);
         repo().updateColumn(TABLE, "vanished", vanished, "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public CompletableFuture<Void> setVanishedAsync(OfflinePlayer player, boolean vanished) {
+        ApiManagerValidateParameter.validatePlayer(player);
         return repo().updateColumnAsync(TABLE, "vanished", vanished, "uuid = ?", player.getUniqueId().toString());
     }
 
@@ -137,11 +139,13 @@ public class PlayerIdentityAPIImpl implements IPlayerIdentityAPI {
 
     @Override
     public void setDisguiseRank(OfflinePlayer player, Integer rankId) {
+        ApiManagerValidateParameter.validatePlayer(player);
         repo().updateColumn(TABLE, "disguise_rank_id", rankId, "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public CompletableFuture<Void> setDisguiseRankAsync(OfflinePlayer player, Integer rankId) {
+        ApiManagerValidateParameter.validatePlayer(player);
         return repo().updateColumnAsync(TABLE, "disguise_rank_id", rankId, "uuid = ?", player.getUniqueId().toString());
     }
 

@@ -87,14 +87,15 @@ public class PlayerSettingsAPIImpl implements IPlayerSettingsAPI {
     @Override
     public RespawnTarget getRespawnTarget(OfflinePlayer player) {
         ApiManagerValidateParameter.validatePlayer(player);
-        return RespawnTarget.valueOf(repo().getString(TABLE, "respawn_target", "uuid = ?", player.getUniqueId().toString()));
+        String raw = repo().getString(TABLE, "respawn_target", "uuid = ?", player.getUniqueId().toString());
+        return raw != null ? RespawnTarget.valueOf(raw) : RespawnTarget.BED;
     }
 
     @Override
     public CompletableFuture<RespawnTarget> getRespawnTargetAsync(OfflinePlayer player) {
         ApiManagerValidateParameter.validatePlayer(player);
         return repo().getStringAsync(TABLE, "respawn_target", "uuid = ?", player.getUniqueId().toString())
-            .thenApply(RespawnTarget::valueOf);
+            .thenApply(raw -> raw != null ? RespawnTarget.valueOf(raw) : RespawnTarget.BED);
     }
 
     @Override
@@ -138,14 +139,15 @@ public class PlayerSettingsAPIImpl implements IPlayerSettingsAPI {
     @Override
     public JoinTarget getJoinTarget(OfflinePlayer player) {
         ApiManagerValidateParameter.validatePlayer(player);
-        return JoinTarget.valueOf(repo().getString(TABLE, "join_target", "uuid = ?", player.getUniqueId().toString()));
+        String raw = repo().getString(TABLE, "join_target", "uuid = ?", player.getUniqueId().toString());
+        return raw != null ? JoinTarget.valueOf(raw) : JoinTarget.LAST_LOCATION;
     }
 
     @Override
     public CompletableFuture<JoinTarget> getJoinTargetAsync(OfflinePlayer player) {
         ApiManagerValidateParameter.validatePlayer(player);
         return repo().getStringAsync(TABLE, "join_target", "uuid = ?", player.getUniqueId().toString())
-            .thenApply(JoinTarget::valueOf);
+            .thenApply(raw -> raw != null ? JoinTarget.valueOf(raw) : JoinTarget.LAST_LOCATION);
     }
 
     @Override
