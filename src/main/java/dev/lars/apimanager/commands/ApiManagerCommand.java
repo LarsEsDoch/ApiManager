@@ -387,7 +387,7 @@ public record ApiManagerCommand(ApiManager plugin, ConnectDatabase connectDataba
             boolean online = player.isOnline();
             String uuid = player.getUniqueId().toString();
             String displayName = playerAPI.getName(player);
-            Integer playtime = playerAPI.getPlaytime(player);
+            Long playtime = playerAPI.getPlaytime(player);
             Instant firstJoin = playerAPI.getCreatedAt(player);
             Instant lastSeen = playerAPI.getLastSeen(player);
 

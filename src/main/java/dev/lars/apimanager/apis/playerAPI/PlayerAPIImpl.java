@@ -110,27 +110,27 @@ public class PlayerAPIImpl implements IPlayerAPI {
     }
 
     @Override
-    public void setPlaytime(OfflinePlayer player, int playtime) {
+    public void setPlaytime(OfflinePlayer player, long playtime) {
         ApiManagerValidateParameter.validatePlayer(player);
         repo().updateColumn(TABLE, "playtime", playtime, "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
-    public CompletableFuture<Void> setPlaytimeAsync(OfflinePlayer player, int playtime) {
+    public CompletableFuture<Void> setPlaytimeAsync(OfflinePlayer player, long playtime) {
         ApiManagerValidateParameter.validatePlayer(player);
         return repo().updateColumnAsync(TABLE, "playtime", playtime, "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
-    public Integer getPlaytime(OfflinePlayer player) {
+    public Long getPlaytime(OfflinePlayer player) {
         ApiManagerValidateParameter.validatePlayer(player);
-        return repo().getInteger(TABLE, "playtime", "uuid = ?", player.getUniqueId().toString());
+        return repo().getLong(TABLE, "playtime", "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
-    public CompletableFuture<Integer> getPlaytimeAsync(OfflinePlayer player) {
+    public CompletableFuture<Long> getPlaytimeAsync(OfflinePlayer player) {
         ApiManagerValidateParameter.validatePlayer(player);
-        return repo().getIntegerAsync(TABLE, "playtime", "uuid = ?", player.getUniqueId().toString());
+        return repo().getLongAsync(TABLE, "playtime", "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
