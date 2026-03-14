@@ -12,6 +12,7 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 
 public record ConnectDatabase(ApiManager plugin) {
+
     public boolean loadDatabaseConfig() {
         File configFile = new File(plugin.getDataFolder(), "config.yml");
         YamlConfiguration config = new YamlConfiguration();
@@ -40,12 +41,6 @@ public record ConnectDatabase(ApiManager plugin) {
             return false;
         }
 
-        if (!isHostReachable(host, port, 1000)) {
-            ApiManagerStatements.logToConsole("Couldn't connect to " + host + " on port " + port + " with user " + user, NamedTextColor.RED);
-            plugin.setDatabaseManager(new SafeDatabaseManager());
-            return false;
-        }
-
         try {
             IDatabaseManager previous = plugin.getDatabaseManager();
             if (previous != null) {
@@ -63,15 +58,6 @@ public record ConnectDatabase(ApiManager plugin) {
         } catch (Exception e) {
             ApiManagerStatements.logToConsole("Couldn't instantiate DatabaseManager for " + host + ":" + port + " with user " + user + " " + e.getMessage(), NamedTextColor.GOLD);
             plugin.setDatabaseManager(new SafeDatabaseManager());
-            return false;
-        }
-    }
-
-    private boolean isHostReachable(String host, int port, int timeoutMs) {
-        try (Socket socket = new Socket()) {
-            socket.connect(new InetSocketAddress(host, port), timeoutMs);
-            return true;
-        } catch (Exception e) {
             return false;
         }
     }
