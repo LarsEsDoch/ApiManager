@@ -145,7 +145,7 @@ public class LimitAPIImpl implements ILimitAPI {
     public void increaseMaxChunks(OfflinePlayer player, int amount) {
         ApiManagerValidateParameter.validatePlayer(player);
         Integer current = getMaxChunks(player);
-        if (current == null) current = 0;
+        if (current == null) return;
         setMaxChunks(player, current + amount);
     }
 
@@ -153,7 +153,7 @@ public class LimitAPIImpl implements ILimitAPI {
     public CompletableFuture<Void> increaseMaxChunksAsync(OfflinePlayer player, int amount) {
         ApiManagerValidateParameter.validatePlayer(player);
         return getMaxChunksAsync(player).thenCompose(current -> {
-            if (current == null) current = 0;
+            if (current == null) return CompletableFuture.completedFuture(null);
             return setMaxChunksAsync(player, current + amount);
         });
     }
@@ -162,7 +162,7 @@ public class LimitAPIImpl implements ILimitAPI {
     public void decreaseMaxChunks(OfflinePlayer player, int amount) {
         ApiManagerValidateParameter.validatePlayer(player);
         Integer current = getMaxChunks(player);
-        if (current == null) current = 0;
+        if (current == null) return;
         setMaxChunks(player, Math.max(0, current - amount));
     }
 
@@ -170,7 +170,7 @@ public class LimitAPIImpl implements ILimitAPI {
     public CompletableFuture<Void> decreaseMaxChunksAsync(OfflinePlayer player, int amount) {
         ApiManagerValidateParameter.validatePlayer(player);
         return getMaxChunksAsync(player).thenCompose(current -> {
-            if (current == null) current = 0;
+            if (current == null) return CompletableFuture.completedFuture(null);
             return setMaxChunksAsync(player, Math.max(0, current - amount));
         });
     }
