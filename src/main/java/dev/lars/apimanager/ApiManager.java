@@ -78,6 +78,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public final class ApiManager extends JavaPlugin {
     private static ApiManager instance;
@@ -109,7 +110,7 @@ public final class ApiManager extends JavaPlugin {
 
     private final List<Runnable> createTableRunnable = new ArrayList<>();
 
-    private volatile boolean listenersRegistered = false;
+    private final AtomicBoolean listenersRegistered = new AtomicBoolean(false);
 
     @Override
     public void onLoad() {
@@ -259,8 +260,7 @@ public final class ApiManager extends JavaPlugin {
     }
 
     public void registerListenersOnce() {
-        if (listenersRegistered) return;
-        listenersRegistered = true;
+        if (!listenersRegistered.compareAndSet(false, true)) return;
         Bukkit.getPluginManager().registerEvents(new JoinListener(), this);
         Bukkit.getPluginManager().registerEvents(new QuitListener(), this);
     }
