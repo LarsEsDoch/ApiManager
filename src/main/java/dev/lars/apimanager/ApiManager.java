@@ -83,6 +83,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public final class ApiManager extends JavaPlugin {
     private static ApiManager instance;
 
+    private String serverId;
+
     private volatile IDatabaseManager databaseManager;
     private ConnectDatabase connectDatabase;
 
@@ -277,12 +279,18 @@ public final class ApiManager extends JavaPlugin {
             ApiManagerStatements.logToConsole("Database successfully disconnected!", NamedTextColor.GREEN);
         }
 
-        instance = null;
         ApiManagerStatements.logToConsole("ApiManager successfully disabled!", NamedTextColor.DARK_GREEN);
     }
 
     public static ApiManager getInstance() {
         return instance;
+    }
+
+    public static String getServerId() {
+        return instance.serverId;
+    }
+    public void setServerId(String serverId) {
+        this.serverId = serverId;
     }
 
     public String getVersion() {

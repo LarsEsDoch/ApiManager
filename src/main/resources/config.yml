@@ -11,3 +11,6 @@ database:
   database: "Enter the name of the database"        # Name of the database (schema)
   username: "Enter the database user"           # Database user
   password: "Enter the password of the user"    # User password
+
+server:
+  id: "Enter the server ID"   # unique per server, e.g. "lobby", "survival"

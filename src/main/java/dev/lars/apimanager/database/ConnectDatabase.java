@@ -31,6 +31,8 @@ public record ConnectDatabase(ApiManager plugin) {
         String user = config.getString("database.username");
         String password = config.getString("database.password");
 
+        String serverId = config.getString("server.id");
+
         if (host == null || host.isEmpty() || host.equalsIgnoreCase("Enter the IP of your database") ||
                 database == null || database.isEmpty() || database.equalsIgnoreCase("Enter the name of the database") ||
                 user == null || user.isEmpty() || user.equalsIgnoreCase("Enter the database user") ||
@@ -40,6 +42,14 @@ public record ConnectDatabase(ApiManager plugin) {
             plugin.setDatabaseManager(new SafeDatabaseManager());
             return false;
         }
+
+        if (serverId == null || serverId.isEmpty() || serverId.equalsIgnoreCase("Enter the server ID")) {
+            ApiManagerStatements.logToConsole("Server ID is not configured. Connection skipped!", NamedTextColor.GOLD);
+            plugin.setDatabaseManager(new SafeDatabaseManager());
+            return false;
+        }
+
+        plugin.setServerId(serverId);
 
         try {
             IDatabaseManager previous = plugin.getDatabaseManager();
