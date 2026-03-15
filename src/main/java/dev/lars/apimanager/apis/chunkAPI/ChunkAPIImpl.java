@@ -405,7 +405,7 @@ public class ChunkAPIImpl implements IChunkAPI {
         ApiManagerValidateParameter.validateChunk(chunk);
         return db().query(conn -> {
             try (PreparedStatement ps = conn.prepareStatement(
-                    String.format("SELECT friend_uuids FROM %s WHERE server_id = ? AND world = ? AND x = ? AND z = ?", TABLE))) {
+                    String.format("SELECT owner_uuid FROM %s WHERE server_id = ? AND world = ? AND x = ? AND z = ?", TABLE))) {
                 ps.setString(1, ApiManager.getServerId());
                 ps.setString(2, chunk.getWorld().getName());
                 ps.setInt(3, chunk.getX());
@@ -427,7 +427,7 @@ public class ChunkAPIImpl implements IChunkAPI {
         ApiManagerValidateParameter.validateChunk(chunk);
         return db().queryAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement(
-                    String.format("SELECT friend_uuids FROM %s WHERE server_id = ? AND world = ? AND x = ? AND z = ?", TABLE))) {
+                    String.format("SELECT owner_uuid FROM %s WHERE server_id = ? AND world = ? AND x = ? AND z = ?", TABLE))) {
                 ps.setString(1, ApiManager.getServerId());
                 ps.setString(2, chunk.getWorld().getName());
                 ps.setInt(3, chunk.getX());

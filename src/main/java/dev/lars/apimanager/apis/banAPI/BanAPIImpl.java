@@ -203,7 +203,7 @@ public class BanAPIImpl implements IBanAPI {
 
                     if (expiresAt.toInstant().isAfter(Instant.now())) return true;
 
-                    setUnBannedAsync(player);
+                    setUnBanned(player);
                     return false;
                 }
             }
