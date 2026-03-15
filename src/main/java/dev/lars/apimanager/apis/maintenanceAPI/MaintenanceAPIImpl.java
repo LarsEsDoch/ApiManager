@@ -15,10 +15,6 @@ public class MaintenanceAPIImpl implements IMaintenanceAPI {
         return ApiManager.getServerId();
     }
 
-    private String where() {
-        return "server_id = '" + serverId() + "'";
-    }
-
     private DatabaseRepository repo() {
         return new DatabaseRepository();
     }
@@ -46,22 +42,22 @@ public class MaintenanceAPIImpl implements IMaintenanceAPI {
 
     @Override
     public Instant getCreatedAt() {
-        return repo().getInstant(TABLE, "created_at", where());
+        return repo().getInstant(TABLE, "created_at", "server_id = ?", serverId());
     }
 
     @Override
     public CompletableFuture<Instant> getCreatedAtAsync() {
-        return repo().getInstantAsync(TABLE, "created_at", where());
+        return repo().getInstantAsync(TABLE, "created_at", "server_id = ?", serverId());
     }
 
     @Override
     public Instant getUpdatedAt() {
-        return repo().getInstant(TABLE, "updated_at", where());
+        return repo().getInstant(TABLE, "updated_at", "server_id = ?", serverId());
     }
 
     @Override
     public CompletableFuture<Instant> getUpdatedAtAsync() {
-        return repo().getInstantAsync(TABLE, "updated_at", where());
+        return repo().getInstantAsync(TABLE, "updated_at", "server_id = ?", serverId());
     }
 
     @Override
@@ -116,99 +112,99 @@ public class MaintenanceAPIImpl implements IMaintenanceAPI {
 
     @Override
     public boolean isMaintenanceEnabled() {
-        return repo().getBoolean(TABLE, "is_maintenance_enabled", where());
+        return repo().getBoolean(TABLE, "is_maintenance_enabled", "server_id = ?", serverId());
     }
 
     @Override
     public CompletableFuture<Boolean> isMaintenanceEnabledAsync() {
-        return repo().getBooleanAsync(TABLE, "is_maintenance_enabled", where());
+        return repo().getBooleanAsync(TABLE, "is_maintenance_enabled", "server_id = ?", serverId());
     }
 
     @Override
     public void setMaintenanceReason(String reason) {
         ApiManagerValidateParameter.validateReason(reason);
-        repo().updateColumn(TABLE, "maintenance_reason", reason, where());
+        repo().updateColumn(TABLE, "maintenance_reason", reason, "server_id = ?", serverId());
     }
 
     @Override
     public CompletableFuture<Void> setMaintenanceReasonAsync(String reason) {
         ApiManagerValidateParameter.validateReason(reason);
-        return repo().updateColumnAsync(TABLE, "maintenance_reason", reason, where());
+        return repo().updateColumnAsync(TABLE, "maintenance_reason", reason, "server_id = ?", serverId());
     }
 
     @Override
     public String getMaintenanceReason() {
-        return repo().getString(TABLE, "maintenance_reason", where());
+        return repo().getString(TABLE, "maintenance_reason", "server_id = ?", serverId());
     }
 
     @Override
     public CompletableFuture<String> getMaintenanceReasonAsync() {
-        return repo().getStringAsync(TABLE, "maintenance_reason", where());
+        return repo().getStringAsync(TABLE, "maintenance_reason", "server_id = ?", serverId());
     }
 
     @Override
     public void setMaintenanceStart(Instant start) {
         ApiManagerValidateParameter.validateInstant(start);
-        repo().updateColumn(TABLE, "maintenance_start", start, where());
+        repo().updateColumn(TABLE, "maintenance_start", start, "server_id = ?", serverId());
     }
 
     @Override
     public CompletableFuture<Void> setMaintenanceStartAsync(Instant start) {
         ApiManagerValidateParameter.validateInstant(start);
-        return repo().updateColumnAsync(TABLE, "maintenance_start", start, where());
+        return repo().updateColumnAsync(TABLE, "maintenance_start", start, "server_id = ?", serverId());
     }
 
     @Override
     public Instant getMaintenanceStart() {
-        return repo().getInstant(TABLE, "maintenance_start", where());
+        return repo().getInstant(TABLE, "maintenance_start", "server_id = ?", serverId());
     }
 
     @Override
     public CompletableFuture<Instant> getMaintenanceStartAsync() {
-        return repo().getInstantAsync(TABLE, "maintenance_start", where());
+        return repo().getInstantAsync(TABLE, "maintenance_start", "server_id = ?", serverId());
     }
 
     @Override
     public void setMaintenanceEstimatedEnd(Instant estimatedEnd) {
         ApiManagerValidateParameter.validateInstant(estimatedEnd);
-        repo().updateColumn(TABLE, "maintenance_estimated_end", estimatedEnd, where());
+        repo().updateColumn(TABLE, "maintenance_estimated_end", estimatedEnd, "server_id = ?", serverId());
     }
 
     @Override
     public CompletableFuture<Void> setMaintenanceEstimatedEndAsync(Instant estimatedEnd) {
         ApiManagerValidateParameter.validateInstant(estimatedEnd);
-        return repo().updateColumnAsync(TABLE, "maintenance_estimated_end", estimatedEnd, where());
+        return repo().updateColumnAsync(TABLE, "maintenance_estimated_end", estimatedEnd, "server_id = ?", serverId());
     }
 
     @Override
     public Instant getMaintenanceEstimatedEnd() {
-        return repo().getInstant(TABLE, "maintenance_estimated_end", where());
+        return repo().getInstant(TABLE, "maintenance_estimated_end", "server_id = ?", serverId());
     }
 
     @Override
     public CompletableFuture<Instant> getMaintenanceEstimatedEndAsync() {
-        return repo().getInstantAsync(TABLE, "maintenance_estimated_end", where());
+        return repo().getInstantAsync(TABLE, "maintenance_estimated_end", "server_id = ?", serverId());
     }
 
     @Override
     public void setMaintenanceDeadline(Instant deadline) {
         ApiManagerValidateParameter.validateInstant(deadline);
-        repo().updateColumn(TABLE, "maintenance_deadline", deadline, where());
+        repo().updateColumn(TABLE, "maintenance_deadline", deadline, "server_id = ?", serverId());
     }
 
     @Override
     public CompletableFuture<Void> setMaintenanceDeadlineAsync(Instant deadline) {
         ApiManagerValidateParameter.validateInstant(deadline);
-        return repo().updateColumnAsync(TABLE, "maintenance_deadline", deadline, where());
+        return repo().updateColumnAsync(TABLE, "maintenance_deadline", deadline, "server_id = ?", serverId());
     }
 
     @Override
     public Instant getMaintenanceDeadline() {
-        return repo().getInstant(TABLE, "maintenance_deadline", where());
+        return repo().getInstant(TABLE, "maintenance_deadline", "server_id = ?", serverId());
     }
 
     @Override
     public CompletableFuture<Instant> getMaintenanceDeadlineAsync() {
-        return repo().getInstantAsync(TABLE, "maintenance_deadline", where());
+        return repo().getInstantAsync(TABLE, "maintenance_deadline", "server_id = ?", serverId());
     }
 }

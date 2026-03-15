@@ -15,10 +15,6 @@ public class ProgressionAPIImpl implements IProgressionAPI {
         return ApiManager.getServerId();
     }
 
-    private String where() {
-        return "server_id = '" + serverId() + "'";
-    }
-
     private DatabaseRepository repo() {
         return new DatabaseRepository();
     }
@@ -43,65 +39,65 @@ public class ProgressionAPIImpl implements IProgressionAPI {
 
     @Override
     public Instant getCreatedAt() {
-        return repo().getInstant(TABLE, "created_at", where());
+        return repo().getInstant(TABLE, "created_at", "server_id = ?", serverId());
     }
 
     @Override
     public CompletableFuture<Instant> getCreatedAtAsync() {
-        return repo().getInstantAsync(TABLE, "created_at", where());
+        return repo().getInstantAsync(TABLE, "created_at", "server_id = ?", serverId());
     }
 
     @Override
     public Instant getUpdatedAt() {
-        return repo().getInstant(TABLE, "updated_at", where());
+        return repo().getInstant(TABLE, "updated_at", "server_id = ?", serverId());
     }
 
     @Override
     public CompletableFuture<Instant> getUpdatedAtAsync() {
-        return repo().getInstantAsync(TABLE, "updated_at", where());
+        return repo().getInstantAsync(TABLE, "updated_at", "server_id = ?", serverId());
     }
 
     @Override
     public void setNetherUnlockAt(Instant unlockAt) {
         ApiManagerValidateParameter.validateInstant(unlockAt);
-        repo().updateColumn(TABLE, "nether_unlock_at", unlockAt, where());
+        repo().updateColumn(TABLE, "nether_unlock_at", unlockAt, "server_id = ?", serverId());
     }
 
     @Override
     public CompletableFuture<Void> setNetherUnlockAtAsync(Instant unlockAt) {
         ApiManagerValidateParameter.validateInstant(unlockAt);
-        return repo().updateColumnAsync(TABLE, "nether_unlock_at", unlockAt, where());
+        return repo().updateColumnAsync(TABLE, "nether_unlock_at", unlockAt, "server_id = ?", serverId());
     }
 
     @Override
     public Instant getNetherUnlockAt() {
-        return repo().getInstant(TABLE, "nether_unlock_at", where());
+        return repo().getInstant(TABLE, "nether_unlock_at", "server_id = ?", serverId());
     }
 
     @Override
     public CompletableFuture<Instant> getNetherUnlockAtAsync() {
-        return repo().getInstantAsync(TABLE, "nether_unlock_at", where());
+        return repo().getInstantAsync(TABLE, "nether_unlock_at", "server_id = ?", serverId());
     }
 
     @Override
     public void setEndUnlockAt(Instant unlockAt) {
         ApiManagerValidateParameter.validateInstant(unlockAt);
-        repo().updateColumn(TABLE, "end_unlock_at", unlockAt, where());
+        repo().updateColumn(TABLE, "end_unlock_at", unlockAt, "server_id = ?", serverId());
     }
 
     @Override
     public CompletableFuture<Void> setEndUnlockAtAsync(Instant unlockAt) {
         ApiManagerValidateParameter.validateInstant(unlockAt);
-        return repo().updateColumnAsync(TABLE, "end_unlock_at", unlockAt, where());
+        return repo().updateColumnAsync(TABLE, "end_unlock_at", unlockAt, "server_id = ?", serverId());
     }
 
     @Override
     public Instant getEndUnlockAt() {
-        return repo().getInstant(TABLE, "end_unlock_at", where());
+        return repo().getInstant(TABLE, "end_unlock_at", "server_id = ?", serverId());
     }
 
     @Override
     public CompletableFuture<Instant> getEndUnlockAtAsync() {
-        return repo().getInstantAsync(TABLE, "end_unlock_at", where());
+        return repo().getInstantAsync(TABLE, "end_unlock_at", "server_id = ?", serverId());
     }
 }
