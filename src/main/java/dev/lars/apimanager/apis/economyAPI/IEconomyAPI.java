@@ -28,21 +28,21 @@ public interface IEconomyAPI {
 
     CompletableFuture<Instant> getGiftUpdatedAtAsync(int giftId);
 
-    void setBalance(OfflinePlayer player, int amount);
+    void setBalance(OfflinePlayer player, long amount);
 
-    CompletableFuture<Void> setBalanceAsync(OfflinePlayer player, int amount);
+    CompletableFuture<Void> setBalanceAsync(OfflinePlayer player, long amount);
 
-    void increaseBalance(OfflinePlayer player, int amount);
+    void increaseBalance(OfflinePlayer player, long amount);
 
-    CompletableFuture<Void> increaseBalanceAsync(OfflinePlayer player, int amount);
+    CompletableFuture<Void> increaseBalanceAsync(OfflinePlayer player, long amount);
 
-    void decreaseBalance(OfflinePlayer player, int amount);
+    void decreaseBalance(OfflinePlayer player, long amount);
 
-    CompletableFuture<Void> decreaseBalanceAsync(OfflinePlayer player, int amount);
+    CompletableFuture<Void> decreaseBalanceAsync(OfflinePlayer player, long amount);
 
-    Integer getBalance(OfflinePlayer player);
+    Long getBalance(OfflinePlayer player);
 
-    CompletableFuture<Integer> getBalanceAsync(OfflinePlayer player);
+    CompletableFuture<Long> getBalanceAsync(OfflinePlayer player);
 
     void addGift(OfflinePlayer player, String name, int value);
 

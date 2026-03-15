@@ -30,7 +30,7 @@ public class EconomyAPIImpl implements IEconomyAPI {
         db().update(String.format("""
             CREATE TABLE IF NOT EXISTS %s (
                 uuid CHAR(36) NOT NULL PRIMARY KEY,
-                balance INT NOT NULL DEFAULT 0,
+                balance BIGINT NOT NULL DEFAULT 0,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                 FOREIGN KEY (uuid) REFERENCES players(uuid) ON DELETE CASCADE
@@ -105,52 +105,52 @@ public class EconomyAPIImpl implements IEconomyAPI {
     }
 
     @Override
-    public void setBalance(OfflinePlayer player, int amount) {
+    public void setBalance(OfflinePlayer player, long amount) {
         ApiManagerValidateParameter.validatePlayer(player);
         repo().updateColumn(TABLE, "balance", amount, "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
-    public CompletableFuture<Void> setBalanceAsync(OfflinePlayer player, int amount) {
+    public CompletableFuture<Void> setBalanceAsync(OfflinePlayer player, long amount) {
         ApiManagerValidateParameter.validatePlayer(player);
         return repo().updateColumnAsync(TABLE, "balance", amount, "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
-    public void increaseBalance(OfflinePlayer player, int amount) {
+    public void increaseBalance(OfflinePlayer player, long amount) {
         ApiManagerValidateParameter.validatePlayer(player);
         repo().increaseColumn(TABLE, "balance", amount, "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
-    public CompletableFuture<Void> increaseBalanceAsync(OfflinePlayer player, int amount) {
+    public CompletableFuture<Void> increaseBalanceAsync(OfflinePlayer player, long amount) {
         ApiManagerValidateParameter.validatePlayer(player);
         return repo().increaseColumnAsync(TABLE, "balance", amount, "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
-    public void decreaseBalance(OfflinePlayer player, int amount) {
+    public void decreaseBalance(OfflinePlayer player, long amount) {
         ApiManagerValidateParameter.validatePlayer(player);
         repo().decreaseColumn(TABLE, "balance", amount, "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
-    public CompletableFuture<Void> decreaseBalanceAsync(OfflinePlayer player, int amount) {
+    public CompletableFuture<Void> decreaseBalanceAsync(OfflinePlayer player, long amount) {
         ApiManagerValidateParameter.validatePlayer(player);
         return repo().decreaseColumnAsync(TABLE, "balance", amount, "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
-    public Integer getBalance(OfflinePlayer player) {
+    public Long getBalance(OfflinePlayer player) {
         ApiManagerValidateParameter.validatePlayer(player);
-        Integer balance = repo().getInteger(TABLE, "balance", "uuid = ?", player.getUniqueId().toString());
+        Long balance = repo().getLong(TABLE, "balance", "uuid = ?", player.getUniqueId().toString());
         return balance != null ? balance : 0;
     }
 
     @Override
-    public CompletableFuture<Integer> getBalanceAsync(OfflinePlayer player) {
+    public CompletableFuture<Long> getBalanceAsync(OfflinePlayer player) {
         ApiManagerValidateParameter.validatePlayer(player);
-        return repo().getIntegerAsync(TABLE, "balance", "uuid = ?", player.getUniqueId().toString())
+        return repo().getLongAsync(TABLE, "balance", "uuid = ?", player.getUniqueId().toString())
                 .thenApply(balance -> balance != null ? balance : 0);
     }
 

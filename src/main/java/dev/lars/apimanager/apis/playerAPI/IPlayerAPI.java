@@ -47,6 +47,10 @@ public interface IPlayerAPI {
 
     CompletableFuture<String> getCurrentServerAsync(OfflinePlayer player);
 
+    Instant getFirstJoin(OfflinePlayer player);
+
+    CompletableFuture<Instant> getFirstJoinAsync(OfflinePlayer player);
+
     Instant getLastSeen(OfflinePlayer player);
 
     CompletableFuture<Instant> getLastSeenAsync(OfflinePlayer player);

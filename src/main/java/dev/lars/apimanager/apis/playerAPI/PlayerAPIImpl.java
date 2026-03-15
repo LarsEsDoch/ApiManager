@@ -140,12 +140,12 @@ public class PlayerAPIImpl implements IPlayerAPI {
         if (!online) {
             repo().updateColumns(TABLE,
                 new String[]{"is_online", "current_server", "last_seen"},
-                new Object[]{false, ApiManager.getServerId(), Instant.now()},
+                new Object[]{false, "", Instant.now()},
                 "uuid = ?", player.getUniqueId().toString());
         } else {
             repo().updateColumns(TABLE,
                 new String[]{"is_online", "current_server", "name"},
-                new Object[]{true, "", player.getName()},
+                new Object[]{true, ApiManager.getServerId(), player.getName()},
                 "uuid = ?", player.getUniqueId().toString());
         }
     }
@@ -156,12 +156,12 @@ public class PlayerAPIImpl implements IPlayerAPI {
         if (!online) {
             return repo().updateColumnsAsync(TABLE,
                 new String[]{"is_online", "current_server", "last_seen"},
-                new Object[]{false, ApiManager.getServerId(), Instant.now()},
+                new Object[]{false, "", Instant.now()},
                 "uuid = ?", player.getUniqueId().toString());
         } else {
             return repo().updateColumnsAsync(TABLE,
                 new String[]{"is_online", "current_server", "name"},
-                new Object[]{true, "", player.getName()},
+                new Object[]{true, ApiManager.getServerId(), player.getName()},
                 "uuid = ?", player.getUniqueId().toString());
         }
     }
@@ -190,6 +190,18 @@ public class PlayerAPIImpl implements IPlayerAPI {
     public CompletableFuture<String> getCurrentServerAsync(OfflinePlayer player) {
         ApiManagerValidateParameter.validatePlayer(player);
         return repo().getStringAsync(TABLE, "current_server", "uuid = ?", player.getUniqueId().toString());
+    }
+
+    @Override
+    public Instant getFirstJoin(OfflinePlayer player) {
+        ApiManagerValidateParameter.validatePlayer(player);
+        return repo().getInstant(TABLE, "first_join", "uuid = ?", player.getUniqueId().toString());
+    }
+
+    @Override
+    public CompletableFuture<Instant> getFirstJoinAsync(OfflinePlayer player) {
+        ApiManagerValidateParameter.validatePlayer(player);
+        return repo().getInstantAsync(TABLE, "first_join", "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
