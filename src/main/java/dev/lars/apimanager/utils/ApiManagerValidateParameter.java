@@ -97,7 +97,8 @@ public class ApiManagerValidateParameter {
     }
 
     public static void validateServerNameColors(List<String> serverNameColors) {
-        if (serverNameColors == null || serverNameColors.getFirst() == null || serverNameColors.getLast() == null) {
+        if (serverNameColors == null || serverNameColors.size() < 2
+                || serverNameColors.getFirst() == null || serverNameColors.getLast() == null) {
             throw new IllegalArgumentException("Server name colors cannot be null");
         }
     }
