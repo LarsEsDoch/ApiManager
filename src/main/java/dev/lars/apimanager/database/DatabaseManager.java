@@ -260,7 +260,10 @@ public final class DatabaseManager implements IDatabaseManager {
 
     private void broadcastToSubscribers(Component message) {
         Component full = ApiManagerStatements.getPrefix().append(message);
-        for (String key : loggingSubscribers.keySet()) {
+        Iterator<Map.Entry<String, Long>> it = loggingSubscribers.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry<String, Long> entry = it.next();
+            String key = entry.getKey();
             if (CONSOLE_KEY.equals(key)) {
                 Bukkit.getConsoleSender().sendMessage(full);
             } else {
@@ -268,7 +271,7 @@ public final class DatabaseManager implements IDatabaseManager {
                 if (player != null && player.isOnline()) {
                     player.sendMessage(full);
                 } else {
-                    loggingSubscribers.remove(key);
+                    it.remove();
                 }
             }
         }
@@ -439,5 +442,9 @@ public final class DatabaseManager implements IDatabaseManager {
     @FunctionalInterface
     public interface SQLFunction<T, R> {
         R apply(T t) throws SQLException;
+    }
+
+    public ExecutorService getAsyncExecutor() {
+        return asyncExecutor;
     }
 }
