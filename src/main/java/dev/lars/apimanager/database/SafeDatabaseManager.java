@@ -44,13 +44,11 @@ public class SafeDatabaseManager implements IDatabaseManager {
 
     @Override
     public boolean isSqlLoggingEnabled(CommandSender sender) {
-        ApiManagerStatements.logToConsole("[SafeDatabaseManager] isSqlLoggingEnabled called - no real database connection present.", NamedTextColor.GOLD);
         return false;
     }
 
     @Override
     public long getSqlLoggingTimeRemaining(CommandSender sender) {
-        ApiManagerStatements.logToConsole("[SafeDatabaseManager] getSqlLoggingTimeRemaining called - no real database connection present.", NamedTextColor.GOLD);
         return 0;
     }
 

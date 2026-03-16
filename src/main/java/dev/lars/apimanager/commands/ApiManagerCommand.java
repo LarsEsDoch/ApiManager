@@ -80,8 +80,8 @@ public record ApiManagerCommand(ApiManager plugin, ConnectDatabase connectDataba
                     try {
                         ApiManager.getInstance().createAllTables();
                         ApiManager.getInstance().onApisReady();
+                        ApiManager plugin = ApiManager.getInstance();
                         for (Player player : Bukkit.getOnlinePlayers()) {
-                            ApiManager plugin = ApiManager.getInstance();
                             UUID uuid = player.getUniqueId();
                             plugin.getPlayerAPI().initPlayer(uuid, player.getName());
                             plugin.getLanguageAPI().initPlayer(uuid);

@@ -37,8 +37,8 @@ public final class DatabaseManager implements IDatabaseManager {
     private final AtomicLong lastQueryTotal = new AtomicLong(0);
     private final AtomicLong lastUpdateTotal = new AtomicLong(0);
     private final AtomicLong lastCheckTime = new AtomicLong(System.currentTimeMillis());
-    private BukkitTask qpsUpdateTask;
-    private BukkitTask loggingCheckTask;
+    private volatile BukkitTask qpsUpdateTask;
+    private volatile BukkitTask loggingCheckTask;
 
     private volatile boolean stopped = false;
 
@@ -201,7 +201,10 @@ public final class DatabaseManager implements IDatabaseManager {
 
     @Override
     public boolean isSqlLoggingEnabled(CommandSender sender) {
-        return loggingSubscribers.containsKey(senderKey(sender));
+        Long expiry = loggingSubscribers.get(senderKey(sender));
+        if (expiry == null) return false;
+        if (expiry == 0L) return true;
+        return System.currentTimeMillis() < expiry;
     }
 
     @Override
