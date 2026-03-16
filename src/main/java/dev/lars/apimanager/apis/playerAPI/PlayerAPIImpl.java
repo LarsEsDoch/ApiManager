@@ -1,6 +1,7 @@
 package dev.lars.apimanager.apis.playerAPI;
 
 import dev.lars.apimanager.ApiManager;
+import dev.lars.apimanager.database.DatabaseManager;
 import dev.lars.apimanager.database.DatabaseRepository;
 import dev.lars.apimanager.database.IDatabaseManager;
 import dev.lars.apimanager.utils.ApiManagerValidateParameter;
@@ -9,6 +10,7 @@ import org.bukkit.OfflinePlayer;
 import java.time.Instant;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
 
 public class PlayerAPIImpl implements IPlayerAPI {
     private static final String TABLE = "players";
@@ -71,7 +73,8 @@ public class PlayerAPIImpl implements IPlayerAPI {
 
     @Override
     public CompletableFuture<Boolean> isFullyRegisteredAsync(OfflinePlayer player) {
-        return CompletableFuture.supplyAsync(() -> isFullyRegistered(player));
+        ExecutorService exec = ((DatabaseManager) ApiManager.getInstance().getDatabaseManager()).getAsyncExecutor();
+        return CompletableFuture.supplyAsync(() -> isFullyRegistered(player), exec);
     }
 
     @Override
