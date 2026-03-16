@@ -135,7 +135,7 @@ public class ServerStateAPIImpl implements IServerStateAPI {
         repo().updateColumns(TABLE,
             new String[]{"server_name_startcolor", "server_name_endcolor"},
             new Object[]{serverNameColors.getFirst(), serverNameColors.getLast()},
-            where());
+            "server_id = ?", serverId());
     }
 
     @Override
@@ -144,12 +144,12 @@ public class ServerStateAPIImpl implements IServerStateAPI {
         return repo().updateColumnsAsync(TABLE,
             new String[]{"server_name_startcolor", "server_name_endcolor"},
             new Object[]{serverNameColors.getFirst(), serverNameColors.getLast()},
-            where());
+            "server_id = ?", serverId());
     }
 
     @Override
     public List<String> getServerNameGradient() {
-        return List.of(repo().getString(TABLE, "server_name_startcolor", "server_id = ?", serverId()), repo().getString(TABLE, "server_name_endcolor", where()));
+        return List.of(repo().getString(TABLE, "server_name_startcolor", "server_id = ?", serverId()), repo().getString(TABLE, "server_name_endcolor", "server_id = ?", serverId()));
     }
 
     @Override

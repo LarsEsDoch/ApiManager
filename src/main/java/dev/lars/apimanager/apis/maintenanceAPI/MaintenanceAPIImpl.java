@@ -65,7 +65,7 @@ public class MaintenanceAPIImpl implements IMaintenanceAPI {
         repo().updateColumn(TABLE,
                 "is_maintenance_enabled",
                 enabled,
-                where());
+                "server_id = ?", serverId());
     }
 
     @Override
@@ -73,7 +73,7 @@ public class MaintenanceAPIImpl implements IMaintenanceAPI {
         return repo().updateColumnAsync(TABLE,
                 "is_maintenance_enabled",
                 enabled,
-                where());
+                "server_id = ?", serverId());
     }
 
     @Override
@@ -82,7 +82,7 @@ public class MaintenanceAPIImpl implements IMaintenanceAPI {
         repo().updateColumns(TABLE,
                 new String[]{"is_maintenance_enabled", "maintenance_reason", "maintenance_start", "maintenance_estimated_end", "maintenance_deadline"},
                 new Object[]{true, reason, start, estimatedEnd, deadline},
-                where());
+                "server_id = ?", serverId());
     }
 
     @Override
@@ -91,7 +91,7 @@ public class MaintenanceAPIImpl implements IMaintenanceAPI {
         return repo().updateColumnsAsync(TABLE,
                 new String[]{"is_maintenance_enabled", "maintenance_reason", "maintenance_start", "maintenance_estimated_end", "maintenance_deadline"},
                 new Object[]{true, reason, start, estimatedEnd, deadline},
-                where());
+                "server_id = ?", serverId());
     }
 
     @Override
@@ -99,7 +99,7 @@ public class MaintenanceAPIImpl implements IMaintenanceAPI {
         repo().updateColumns(TABLE,
                 new String[]{"is_maintenance_enabled", "maintenance_reason", "maintenance_start", "maintenance_estimated_end", "maintenance_deadline"},
                 new Object[]{false, "", null, null, null},
-                where());
+                "server_id = ?", serverId());
     }
 
     @Override
@@ -107,7 +107,7 @@ public class MaintenanceAPIImpl implements IMaintenanceAPI {
         return repo().updateColumnsAsync(TABLE,
                 new String[]{"is_maintenance_enabled", "maintenance_reason", "maintenance_start", "maintenance_estimated_end", "maintenance_deadline"},
                 new Object[]{false, "", null, null, null},
-                where());
+                "server_id = ?", serverId());
     }
 
     @Override
