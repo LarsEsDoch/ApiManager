@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
 
 public record ApiManagerCommand(ApiManager plugin, ConnectDatabase connectDatabase) implements BasicCommand {
 
@@ -188,60 +189,64 @@ public record ApiManagerCommand(ApiManager plugin, ConnectDatabase connectDataba
         sender.sendMessage(ApiManagerStatements.getPrefix()
             .append(Component.text("Running database test...", NamedTextColor.GRAY)));
 
-        long startTime = System.currentTimeMillis();
+        ExecutorService exec = ((DatabaseManager) ApiManager.getInstance()
+            .getDatabaseManager()).getAsyncExecutor();
+        CompletableFuture.runAsync(() -> {
+            long startTime = System.currentTimeMillis();
 
-        try {
-            dbm.update("""
-                CREATE TABLE IF NOT EXISTS apimanager_test (
-                    id INT PRIMARY KEY,
-                    test_value VARCHAR(255),
-                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-            """);
+            try {
+                dbm.update("""
+                    CREATE TABLE IF NOT EXISTS apimanager_test (
+                        id INT PRIMARY KEY,
+                        test_value VARCHAR(255),
+                        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+                """);
 
-            String testValue = "Test successful at " + Instant.now();
+                String testValue = "Test successful at " + Instant.now();
 
-            long updateStart = System.currentTimeMillis();
-            repo().insertIgnore(TEST_TABLE,
-                new String[]{"id", "test_value"},
-                1, testValue);
-            repo().updateColumn(TEST_TABLE, "test_value", testValue, "id = ?", 1);
-            long updateTime = System.currentTimeMillis() - updateStart;
+                long updateStart = System.currentTimeMillis();
+                repo().insertIgnore(TEST_TABLE,
+                    new String[]{"id", "test_value"},
+                    1, testValue);
+                repo().updateColumn(TEST_TABLE, "test_value", testValue, "id = ?", 1);
+                long updateTime = System.currentTimeMillis() - updateStart;
 
-            long queryStart = System.currentTimeMillis();
-            String result = repo().getString(TEST_TABLE, "test_value", "id = ?", 1);
-            long queryTime = System.currentTimeMillis() - queryStart;
+                long queryStart = System.currentTimeMillis();
+                String result = repo().getString(TEST_TABLE, "test_value", "id = ?", 1);
+                long queryTime = System.currentTimeMillis() - queryStart;
 
-            long totalTime = System.currentTimeMillis() - startTime;
+                long totalTime = System.currentTimeMillis() - startTime;
 
-            sender.sendMessage(ApiManagerStatements.getPrefix()
-                .append(Component.text("=== Database Test Results ===", NamedTextColor.AQUA)));
-            sender.sendMessage(ApiManagerStatements.getPrefix()
-                .append(Component.text("Status: ", NamedTextColor.GRAY))
-                .append(Component.text("PASSED", NamedTextColor.GREEN)));
-            sender.sendMessage(ApiManagerStatements.getPrefix()
-                .append(Component.text("Update time: ", NamedTextColor.GRAY))
-                .append(Component.text(updateTime + "ms", NamedTextColor.GOLD)));
-            sender.sendMessage(ApiManagerStatements.getPrefix()
-                .append(Component.text("Query time: ", NamedTextColor.GRAY))
-                .append(Component.text(queryTime + "ms", NamedTextColor.GOLD)));
-            sender.sendMessage(ApiManagerStatements.getPrefix()
-                .append(Component.text("Total time: ", NamedTextColor.GRAY))
-                .append(Component.text(totalTime + "ms", NamedTextColor.GOLD)));
-
-            if (result != null) {
                 sender.sendMessage(ApiManagerStatements.getPrefix()
-                    .append(Component.text("Retrieved value: ", NamedTextColor.GRAY))
-                    .append(Component.text(result, NamedTextColor.YELLOW)));
-            }
+                    .append(Component.text("=== Database Test Results ===", NamedTextColor.AQUA)));
+                sender.sendMessage(ApiManagerStatements.getPrefix()
+                    .append(Component.text("Status: ", NamedTextColor.GRAY))
+                    .append(Component.text("PASSED", NamedTextColor.GREEN)));
+                sender.sendMessage(ApiManagerStatements.getPrefix()
+                    .append(Component.text("Update time: ", NamedTextColor.GRAY))
+                    .append(Component.text(updateTime + "ms", NamedTextColor.GOLD)));
+                sender.sendMessage(ApiManagerStatements.getPrefix()
+                    .append(Component.text("Query time: ", NamedTextColor.GRAY))
+                    .append(Component.text(queryTime + "ms", NamedTextColor.GOLD)));
+                sender.sendMessage(ApiManagerStatements.getPrefix()
+                    .append(Component.text("Total time: ", NamedTextColor.GRAY))
+                    .append(Component.text(totalTime + "ms", NamedTextColor.GOLD)));
 
-        } catch (Exception e) {
-            sender.sendMessage(ApiManagerStatements.getPrefix()
-                .append(Component.text("Database test FAILED!", NamedTextColor.RED)));
-            sender.sendMessage(ApiManagerStatements.getPrefix()
-                .append(Component.text("Error: " + e.getMessage(), NamedTextColor.RED)));
-            ApiManagerStatements.logToConsole("Database test failed: " + e.getMessage(), NamedTextColor.RED);
-        }
+                if (result != null) {
+                    sender.sendMessage(ApiManagerStatements.getPrefix()
+                        .append(Component.text("Retrieved value: ", NamedTextColor.GRAY))
+                        .append(Component.text(result, NamedTextColor.YELLOW)));
+                }
+
+            } catch (Exception e) {
+                sender.sendMessage(ApiManagerStatements.getPrefix()
+                    .append(Component.text("Database test FAILED!", NamedTextColor.RED)));
+                sender.sendMessage(ApiManagerStatements.getPrefix()
+                    .append(Component.text("Error: " + e.getMessage(), NamedTextColor.RED)));
+                ApiManagerStatements.logToConsole("Database test failed: " + e.getMessage(), NamedTextColor.RED);
+            }
+        });
     }
 
     private void handleLogging(CommandSender sender, String[] args) {
@@ -372,6 +377,8 @@ public record ApiManagerCommand(ApiManager plugin, ConnectDatabase connectDataba
     }
 
     private void handlePlayerInfo(CommandSender sender, String name) {
+        ExecutorService exec = ((DatabaseManager) ApiManager.getInstance()
+            .getDatabaseManager()).getAsyncExecutor();
         CompletableFuture.runAsync(() -> {
             OfflinePlayer player = Bukkit.getOfflinePlayer(name);
 
