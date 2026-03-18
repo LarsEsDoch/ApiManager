@@ -63,12 +63,12 @@ public class SafeDatabaseManager implements IDatabaseManager {
     }
 
     public HikariDataSource getDataSource() {
-        ApiManagerStatements.logToConsole("[SafeDatabaseManager] getDataSource() called - no real database connection present.", NamedTextColor.RED);
+        ApiManagerStatements.logToConsole("[SafeDatabaseManager] getDataSource() called - no real database connection present.", NamedTextColor.GOLD);
         return null;
     }
 
     public double[] getSmoothedQps() {
-        ApiManagerStatements.logToConsole("[SafeDatabaseManager] getSmoothedQps() called - no real database connection present.", NamedTextColor.RED);
+        ApiManagerStatements.logToConsole("[SafeDatabaseManager] getSmoothedQps() called - no real database connection present.", NamedTextColor.GOLD);
         return new double[] {0, 0};
     }
 

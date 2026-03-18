@@ -361,13 +361,13 @@ public class ChunkAPIImpl implements IChunkAPI {
     @Override
     public void setAllFriends(Chunk chunk) {
         ApiManagerValidateParameter.validateChunk(chunk);
-        repo().updateColumn(TABLE, "friend_uuids", null, chunkWhere(), chunkParams(chunk));
+        repo().updateColumn(TABLE, "friend_uuids", "*", chunkWhere(), chunkParams(chunk));
     }
 
     @Override
     public CompletableFuture<Void> setAllFriendsAsync(Chunk chunk) {
         ApiManagerValidateParameter.validateChunk(chunk);
-        return repo().updateColumnAsync(TABLE, "friend_uuids", null, chunkWhere(), chunkParams(chunk));
+        return repo().updateColumnAsync(TABLE, "friend_uuids", "*", chunkWhere(), chunkParams(chunk));
     }
 
     @Override

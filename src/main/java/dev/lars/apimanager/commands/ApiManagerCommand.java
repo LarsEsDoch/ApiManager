@@ -246,7 +246,7 @@ public record ApiManagerCommand(ApiManager plugin, ConnectDatabase connectDataba
                     .append(Component.text("Error: " + e.getMessage(), NamedTextColor.RED)));
                 ApiManagerStatements.logToConsole("Database test failed: " + e.getMessage(), NamedTextColor.RED);
             }
-        });
+        }, exec);
     }
 
     private void handleLogging(CommandSender sender, String[] args) {
@@ -400,7 +400,7 @@ public record ApiManagerCommand(ApiManager plugin, ConnectDatabase connectDataba
             String uuid = player.getUniqueId().toString();
             String displayName = playerAPI.getName(player);
             Long playtime = playerAPI.getPlaytime(player);
-            Instant firstJoin = playerAPI.getCreatedAt(player);
+            Instant firstJoin = playerAPI.getFirstJoin(player);
             Instant lastSeen = playerAPI.getLastSeen(player);
 
             boolean[] checks = {
@@ -459,7 +459,7 @@ public record ApiManagerCommand(ApiManager plugin, ConnectDatabase connectDataba
                     }
                 }
             }
-        });
+        }, exec);
     }
 
     private void sendUsage(CommandSender sender) {
