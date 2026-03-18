@@ -149,7 +149,12 @@ public class ServerStateAPIImpl implements IServerStateAPI {
 
     @Override
     public List<String> getServerNameGradient() {
-        return List.of(repo().getString(TABLE, "server_name_startcolor", "server_id = ?", serverId()), repo().getString(TABLE, "server_name_endcolor", "server_id = ?", serverId()));
+        String start = repo().getString(TABLE, "server_name_startcolor", "server_id = ?", serverId());
+        String end   = repo().getString(TABLE, "server_name_endcolor",   "server_id = ?", serverId());
+        return List.of(
+            start != null ? start : "#ffffff",
+            end   != null ? end   : "#ffffff"
+        );
     }
 
     @Override
@@ -160,8 +165,8 @@ public class ServerStateAPIImpl implements IServerStateAPI {
         CompletableFuture<String> endColor =
                 repo().getStringAsync(TABLE, "server_name_endcolor", "server_id = ?", serverId());
 
-        return startColor.thenCombine(endColor, List::of
-        );
+        return startColor.thenCombine(endColor, (s, e) ->
+            List.of(s != null ? s : "#ffffff", e != null ? e : "#ffffff"));
     }
 
     @Override

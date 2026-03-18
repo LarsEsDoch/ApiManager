@@ -51,7 +51,7 @@ public final class DatabaseManager implements IDatabaseManager {
     }
 
     public DatabaseManager(String host, int port, String database, String username, String password) {
-        this.asyncExecutor = Executors.newFixedThreadPool(32);
+        this.asyncExecutor = Executors.newFixedThreadPool(30);
 
         asyncExecutor.submit(() -> {
             while (!stopped) {

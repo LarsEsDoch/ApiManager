@@ -105,7 +105,11 @@ public record ApiManagerCommand(ApiManager plugin, ConnectDatabase connectDataba
                     } catch (Exception e) {
                         sender.sendMessage(ApiManagerStatements.getPrefix().append(Component.text("Failed to reinitialize APIs: " + e.getMessage(), NamedTextColor.RED)));
                     }
-                }));
+                }))
+                .exceptionally(ex -> {
+                    ApiManagerStatements.logToConsole("Database ready-future failed: " + ex.getMessage(), NamedTextColor.RED);
+                    return null;
+                });
             } else {
                 sender.sendMessage(ApiManagerStatements.getPrefix().append(Component.text("No real database connected; running in safe mode.", NamedTextColor.GOLD)));
             }
@@ -491,11 +495,11 @@ public record ApiManagerCommand(ApiManager plugin, ConnectDatabase connectDataba
             return List.of("test", "t", "reload", "rl", "logging", "l", "version", "v", "status", "s", "playerinfo", "pi");
         }
         if ((args.length == 2 && args[0].equalsIgnoreCase("logging"))
-        || (args.length == 2 && args[0].equalsIgnoreCase("l"))) {
+            || (args.length == 2 && args[0].equalsIgnoreCase("l"))) {
             return List.of("enable", "disable", "status");
         }
-        if (args.length == 2 && args[0].equalsIgnoreCase("playerinfo")
-        || args.length == 2 && args[0].equalsIgnoreCase("pi")) {
+        if ((args.length == 2 && args[0].equalsIgnoreCase("playerinfo"))
+            || (args.length == 2 && args[0].equalsIgnoreCase("pi"))) {
             return Bukkit.getOnlinePlayers().stream()
             .map(Player::getName)
             .toList();
