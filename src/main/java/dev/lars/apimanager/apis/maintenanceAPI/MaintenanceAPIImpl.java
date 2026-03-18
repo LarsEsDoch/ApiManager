@@ -112,7 +112,7 @@ public class MaintenanceAPIImpl implements IMaintenanceAPI {
 
     @Override
     public boolean isMaintenanceEnabled() {
-        Boolean result = repo().getBoolean(TABLE, "is_enabled", "uuid = ?", "server_id = ?", serverId());
+        Boolean result = repo().getBoolean(TABLE, "is_maintenance_enabled", "server_id = ?", serverId());
         return result != null && result;
     }
 

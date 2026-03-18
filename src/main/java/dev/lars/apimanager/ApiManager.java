@@ -141,7 +141,7 @@ public final class ApiManager extends JavaPlugin {
             .exceptionally(ex -> {
                 ApiManagerStatements.logToConsole("Database ready-future failed: " + ex.getMessage(), NamedTextColor.RED);
                 return null;
-            });;
+            });
         } else {
              ApiManagerStatements.logToConsole("Database not connected. Skipping table creation. APIs will run in safe mode (no DB).", NamedTextColor.GOLD);
              registerListenersOnce();

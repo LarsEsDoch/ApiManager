@@ -74,29 +74,29 @@ If any value is left as a placeholder (or the host is unreachable), the plugin w
 
 ApiManager instantiates and manages the lifecycle of 21 domain APIs. Each API creates its own table(s) on startup and exposes sync + async methods. All APIs are accessible statically after `onApisReady()` fires.
 
-| API | Static Access | Description |
-|---|---|---|
-| `ServerStateAPI` | `ServerStateAPI.getApi()` | Tracks whether the server is currently online |
-| `ServerFeatureAPI` | `ServerFeatureAPI.getApi()` | Feature flag management per server |
-| `MaintenanceAPI` | `MaintenanceAPI.getApi()` | Maintenance mode state |
-| `ProgressionAPI` | `ProgressionAPI.getApi()` | Player progression tracking |
-| `PlayerAPI` | `PlayerAPI.getApi()` | Core player registry (UUID-based) |
-| `ChunkAPI` | `ChunkAPI.getApi()` | Chunk claim / ownership data |
-| `HomeAPI` | `HomeAPI.getApi()` | Player home locations |
-| `LanguageAPI` | `LanguageAPI.getApi()` | Per-player language preferences |
-| `BackpackAPI` | `BackpackAPI.getApi()` | Persistent backpack storage |
-| `LimitAPI` | `LimitAPI.getApi()` | Per-player configurable limits |
-| `BanAPI` | `BanAPI.getApi()` | Ban records (reason, expiry, timestamp) |
-| `CourtAPI` | `CourtAPI.getApi()` | Court / moderation case management |
-| `RankAPI` | `RankAPI.getApi()` | Player rank assignment |
-| `PrefixAPI` | `PrefixAPI.getApi()` | Player chat prefix storage |
-| `StatusAPI` | `StatusAPI.getApi()` | Custom player status messages |
-| `PlayerIdentityAPI` | `PlayerIdentityAPI.getApi()` | Player identity / display name data |
-| `PlayerSettingsAPI` | `PlayerSettingsAPI.getApi()` | Persistent per-player settings |
-| `ScoreboardSettingsAPI` | `ScoreboardSettingsAPI.getApi()` | Scoreboard visibility preferences |
-| `EconomyAPI` | `EconomyAPI.getApi()` | Player balance and economy operations |
-| `QuestAPI` | `QuestAPI.getApi()` | Quest progress and completion tracking |
-| `TimerAPI` | `TimerAPI.getApi()` | Server-side timer persistence |
+| API                     | Static Access                    | Description                                   |
+|-------------------------|----------------------------------|-----------------------------------------------|
+| `ServerStateAPI`        | `ServerStateAPI.getApi()`        | Tracks whether the server is currently online |
+| `ServerFeatureAPI`      | `ServerFeatureAPI.getApi()`      | Feature flag management per server            |
+| `MaintenanceAPI`        | `MaintenanceAPI.getApi()`        | Maintenance mode state                        |
+| `ProgressionAPI`        | `ProgressionAPI.getApi()`        | Player progression tracking                   |
+| `PlayerAPI`             | `PlayerAPI.getApi()`             | Core player registry (UUID-based)             |
+| `ChunkAPI`              | `ChunkAPI.getApi()`              | Chunk claim / ownership data                  |
+| `HomeAPI`               | `HomeAPI.getApi()`               | Player home locations                         |
+| `LanguageAPI`           | `LanguageAPI.getApi()`           | Per-player language preferences               |
+| `BackpackAPI`           | `BackpackAPI.getApi()`           | Persistent backpack storage                   |
+| `LimitAPI`              | `LimitAPI.getApi()`              | Per-player configurable limits                |
+| `BanAPI`                | `BanAPI.getApi()`                | Ban records (reason, expiry, timestamp)       |
+| `CourtAPI`              | `CourtAPI.getApi()`              | Court / moderation case management            |
+| `RankAPI`               | `RankAPI.getApi()`               | Player rank assignment                        |
+| `PrefixAPI`             | `PrefixAPI.getApi()`             | Player chat prefix storage                    |
+| `StatusAPI`             | `StatusAPI.getApi()`             | Custom player status messages                 |
+| `PlayerIdentityAPI`     | `PlayerIdentityAPI.getApi()`     | Player identity / display name data           |
+| `PlayerSettingsAPI`     | `PlayerSettingsAPI.getApi()`     | Persistent per-player settings                |
+| `ScoreboardSettingsAPI` | `ScoreboardSettingsAPI.getApi()` | Scoreboard visibility preferences             |
+| `EconomyAPI`            | `EconomyAPI.getApi()`            | Player balance and economy operations         |
+| `QuestAPI`              | `QuestAPI.getApi()`              | Quest progress and completion tracking        |
+| `TimerAPI`              | `TimerAPI.getApi()`              | Server-side timer persistence                 |
 
 ---
 
@@ -104,16 +104,16 @@ ApiManager instantiates and manages the lifecycle of 21 domain APIs. Each API cr
 
 All commands are registered under `/apimanager` and the alias `/am`.
 
-| Command | Permission | Description                                                                         |
-|---|---|-------------------------------------------------------------------------------------|
-| `/am` | `apimanager.status` | Shows command usage and current status                                              |
-| `/am test` / `/am t` | `apimanager.test` | Runs a live query and update against a test table to verify the connection          |
-| `/am reload` / `/am rl` | `apimanager.reload` | Reloads `config.yml`, reconnects to the database, and re-initialises all API tables |
-| `/am status` / `/am s` | `apimanager.status` | Shows connection state, JDBC URL, pool stats (active/idle/waiting), and QPS         |
-| `/am logging enable <ms>` | `apimanager.log` | Enables SQL query logging for the given duration in milliseconds                    |
-| `/am logging disable` | `apimanager.log` | Disables SQL query logging                                                          |
-| `/am logging status` | `apimanager.log` | Shows whether logging is active and the time remaining                              |
-| `/am version` / `/am v` | `apimanager.version` | Displays plugin version, author, and website                                        |
+| Command                     | Permission              | Description                                                                         |
+|-----------------------------|-------------------------|-------------------------------------------------------------------------------------|
+| `/am`                       | `apimanager.status`     | Shows command usage and current status                                              |
+| `/am test` / `/am t`        | `apimanager.test`       | Runs a live query and update against a test table to verify the connection          |
+| `/am reload` / `/am rl`     | `apimanager.reload`     | Reloads `config.yml`, reconnects to the database, and re-initialises all API tables |
+| `/am status` / `/am s`      | `apimanager.status`     | Shows connection state, JDBC URL, pool stats (active/idle/waiting), and QPS         |
+| `/am logging enable <ms>`   | `apimanager.log`        | Enables SQL query logging for the given duration in milliseconds                    |
+| `/am logging disable`       | `apimanager.log`        | Disables SQL query logging                                                          |
+| `/am logging status`        | `apimanager.log`        | Shows whether logging is active and the time remaining                              |
+| `/am version` / `/am v`     | `apimanager.version`    | Displays plugin version, author, and website                                        |
 | `/am playerinfo` / `/am pi` | `apimanager.playerinfo` | Shows player data and registration status                                           |
 
 ---
@@ -154,11 +154,11 @@ The project uses **Gradle** with the **Shadow** plugin to produce a fat JAR with
 
 The output JAR is placed in `build/libs/`. It already includes and relocates:
 
-| Dependency | Relocated to |
-|---|---|
-| `com.zaxxer:HikariCP:5.1.0` | `de.lars.shadow.hikaricp` |
-| `org.mariadb.jdbc:mariadb-java-client:3.4.0` | `de.lars.shadow.mariadb` |
-| `org.slf4j` (transitive) | `de.lars.shadow.slf4j` |
+| Dependency                                   | Relocated to              |
+|----------------------------------------------|---------------------------|
+| `com.zaxxer:HikariCP:5.1.0`                  | `de.lars.shadow.hikaricp` |
+| `org.mariadb.jdbc:mariadb-java-client:3.4.0` | `de.lars.shadow.mariadb`  |
+| `org.slf4j` (transitive)                     | `de.lars.shadow.slf4j`    |
 
 To run a local Paper test server directly:
 
