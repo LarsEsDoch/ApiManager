@@ -288,10 +288,15 @@ public record ApiManagerCommand(ApiManager plugin, ConnectDatabase connectDataba
                 sender.sendMessage(ApiManagerStatements.getPrefix()
                     .append(Component.text("SQL query logging is currently " + status, color)));
 
-                if (enabled && remaining > 0) {
-                    long seconds = remaining / 1000;
-                    sender.sendMessage(ApiManagerStatements.getPrefix()
-                        .append(Component.text("Time remaining: " + seconds + " seconds", NamedTextColor.GRAY)));
+                if (enabled) {
+                    if (remaining == -1L) {
+                        sender.sendMessage(ApiManagerStatements.getPrefix()
+                            .append(Component.text("Duration: indefinite (no timeout set)", NamedTextColor.GRAY)));
+                    } else if (remaining > 0) {
+                        long seconds = remaining / 1000;
+                        sender.sendMessage(ApiManagerStatements.getPrefix()
+                            .append(Component.text("Time remaining: " + seconds + " seconds", NamedTextColor.GRAY)));
+                    }
                 }
             }
             default -> sender.sendMessage(ApiManagerStatements.getPrefix().append(Component.text("Invalid action. Use: enable, disable, or status", NamedTextColor.RED)));

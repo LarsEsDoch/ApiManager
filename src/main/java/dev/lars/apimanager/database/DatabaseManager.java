@@ -211,7 +211,7 @@ public final class DatabaseManager implements IDatabaseManager {
     public long getSqlLoggingTimeRemaining(CommandSender sender) {
         Long expiry = loggingSubscribers.get(senderKey(sender));
         if (expiry == null) return 0;
-        if (expiry == 0) return 0;
+        if (expiry == 0L) return -1L; // ← -1 means "active, no expiry"
         long remaining = expiry - System.currentTimeMillis();
         return Math.max(0, remaining);
     }
