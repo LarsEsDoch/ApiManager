@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ForkJoinPool;
 
 public record ApiManagerCommand(ApiManager plugin, ConnectDatabase connectDatabase) implements BasicCommand {
 
@@ -382,8 +383,10 @@ public record ApiManagerCommand(ApiManager plugin, ConnectDatabase connectDataba
     }
 
     private void handlePlayerInfo(CommandSender sender, String name) {
-        ExecutorService exec = ((DatabaseManager) ApiManager.getInstance()
-            .getDatabaseManager()).getAsyncExecutor();
+        IDatabaseManager dbm = ApiManager.getInstance().getDatabaseManager();
+        ExecutorService exec = dbm instanceof DatabaseManager real
+            ? real.getAsyncExecutor()
+            : ForkJoinPool.commonPool();
         CompletableFuture.runAsync(() -> {
             OfflinePlayer player = Bukkit.getOfflinePlayer(name);
 
@@ -487,8 +490,8 @@ public record ApiManagerCommand(ApiManager plugin, ConnectDatabase connectDataba
         if (args.length <= 1) {
             return List.of("test", "t", "reload", "rl", "logging", "l", "version", "v", "status", "s", "playerinfo", "pi");
         }
-        if (args.length == 2 && args[0].equalsIgnoreCase("logging")
-        || args.length == 2 && args[0].equalsIgnoreCase("l")) {
+        if ((args.length == 2 && args[0].equalsIgnoreCase("logging"))
+        || (args.length == 2 && args[0].equalsIgnoreCase("l"))) {
             return List.of("enable", "disable", "status");
         }
         if (args.length == 2 && args[0].equalsIgnoreCase("playerinfo")

@@ -11,6 +11,7 @@ import java.time.Instant;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ForkJoinPool;
 
 public class PlayerAPIImpl implements IPlayerAPI {
     private static final String TABLE = "players";
@@ -73,7 +74,10 @@ public class PlayerAPIImpl implements IPlayerAPI {
 
     @Override
     public CompletableFuture<Boolean> isFullyRegisteredAsync(OfflinePlayer player) {
-        ExecutorService exec = ((DatabaseManager) ApiManager.getInstance().getDatabaseManager()).getAsyncExecutor();
+        IDatabaseManager dbm = ApiManager.getInstance().getDatabaseManager();
+        ExecutorService exec = dbm instanceof DatabaseManager real
+            ? real.getAsyncExecutor()
+            : ForkJoinPool.commonPool();
         return CompletableFuture.supplyAsync(() -> isFullyRegistered(player), exec);
     }
 
