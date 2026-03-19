@@ -14,6 +14,8 @@ import org.bukkit.scheduler.BukkitTask;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.UUID;
@@ -438,7 +440,12 @@ public final class DatabaseManager implements IDatabaseManager {
     private void setParams(PreparedStatement ps, Object... params) throws SQLException {
         if (params == null) return;
         for (int i = 0; i < params.length; i++) {
-            ps.setObject(i + 1, params[i]);
+            Object param = params[i];
+            if (param instanceof Instant instant) {
+                ps.setTimestamp(i + 1, Timestamp.from(instant));
+            } else {
+                ps.setObject(i + 1, param);
+            }
         }
     }
 
