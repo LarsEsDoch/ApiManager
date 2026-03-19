@@ -201,9 +201,9 @@ public class RankAPIImpl implements IRankAPI {
     public long getDaysRemaining(OfflinePlayer player) {
         ApiManagerValidateParameter.validatePlayer(player);
         Instant expiresAt = getExpiresAt(player);
-        if (expiresAt == null) return -1L; // -1 = permanent / no expiry
+        if (expiresAt == null) return -1L;
         long days = ChronoUnit.DAYS.between(Instant.now(), expiresAt);
-        return Math.max(0, days); // 0 means expired but flag not cleared yet
+        return Math.max(0, days);
     }
 
     @Override

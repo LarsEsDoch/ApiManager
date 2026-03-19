@@ -11,6 +11,7 @@ import org.bukkit.World;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -18,6 +19,7 @@ import java.util.stream.Collectors;
 
 public class ChunkAPIImpl implements IChunkAPI {
     private static final String TABLE = "claimed_chunks";
+    private static final String PERMISSION_TABLE = "chunk_permissions";
 
     private DatabaseRepository repo() {
         return new DatabaseRepository();
@@ -35,7 +37,7 @@ public class ChunkAPIImpl implements IChunkAPI {
                 world VARCHAR(64) NOT NULL,
                 x INT NOT NULL,
                 z INT NOT NULL,
-                friend_uuids VARCHAR(1024) NOT NULL DEFAULT '',
+                trust_all BOOLEAN NOT NULL DEFAULT FALSE,
                 flags JSON NOT NULL DEFAULT (JSON_OBJECT()),
                 claimed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -45,6 +47,20 @@ public class ChunkAPIImpl implements IChunkAPI {
                 FOREIGN KEY (owner_uuid) REFERENCES players(uuid) ON DELETE CASCADE
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
         """, TABLE));
+
+        db().update(String.format("""
+            CREATE TABLE IF NOT EXISTS %s (
+                server_id VARCHAR(64) NOT NULL,
+                world VARCHAR(64) NOT NULL,
+                x INT NOT NULL,
+                z INT NOT NULL,
+                player_uuid CHAR(36) NOT NULL,
+                permission_type ENUM('ALLOW', 'DENY') NOT NULL,
+                PRIMARY KEY (server_id, world, x, z, player_uuid),
+                FOREIGN KEY (server_id, world, x, z)
+                    REFERENCES claimed_chunks(server_id, world, x, z) ON DELETE CASCADE
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+        """, PERMISSION_TABLE));
     }
 
     private String chunkWhere() {
@@ -53,6 +69,28 @@ public class ChunkAPIImpl implements IChunkAPI {
 
     private Object[] chunkParams(Chunk chunk) {
         return new Object[]{ApiManager.getServerId(), chunk.getWorld().getName(), chunk.getX(), chunk.getZ()};
+    }
+
+    private Object[] append(Object[] base, Object extra) {
+        Object[] result = Arrays.copyOf(base, base.length + 1);
+        result[base.length] = extra;
+        return result;
+    }
+
+    private void setParameters(PreparedStatement ps, Object[] params) throws SQLException {
+        for (int i = 0; i < params.length; i++) {
+            ps.setObject(i + 1, params[i]);
+        }
+    }
+
+    private boolean isTrustAllActive(Chunk chunk) {
+        Boolean val = repo().getBoolean(TABLE, "trust_all", chunkWhere(), chunkParams(chunk));
+        return val != null && val;
+    }
+
+    private CompletableFuture<Boolean> isTrustAllActiveAsync(Chunk chunk) {
+        return repo().getBooleanAsync(TABLE, "trust_all", chunkWhere(), chunkParams(chunk))
+                .thenApply(val -> val != null && val);
     }
 
     @Override
@@ -91,45 +129,42 @@ public class ChunkAPIImpl implements IChunkAPI {
         return repo().getInstantAsync(TABLE, "claimed_at", chunkWhere(), chunkParams(chunk));
     }
 
+    private static final String CLAIM_SQL_TEMPLATE = """
+            INSERT INTO %s (owner_uuid, server_id, world, x, z, claimed_at)
+            VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+            ON DUPLICATE KEY UPDATE
+                owner_uuid = VALUES(owner_uuid),
+                claimed_at = CURRENT_TIMESTAMP,
+                updated_at = CURRENT_TIMESTAMP
+            """;
+
     @Override
     public void claimChunk(OfflinePlayer player, Chunk chunk) {
         ApiManagerValidateParameter.validatePlayer(player);
         ApiManagerValidateParameter.validateChunk(chunk);
 
-        String world = chunk.getWorld().getName();
-        int x = chunk.getX();
-        int z = chunk.getZ();
-        String uuid = player.getUniqueId().toString();
-
-        IDatabaseManager dbm = ApiManager.getInstance().getDatabaseManager();
-
-        dbm.query(conn -> {
-            String sql = String.format("""
-                INSERT INTO %s (owner_uuid, server_id, world, x, z, claimed_at)
-                VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
-                ON DUPLICATE KEY UPDATE
-                    owner_uuid = VALUES(owner_uuid),
-                    claimed_at = CURRENT_TIMESTAMP,
-                    updated_at = CURRENT_TIMESTAMP
-            """, TABLE);
-
-            try (PreparedStatement psChunk = conn.prepareStatement(sql)) {
-                psChunk.setString(1, uuid);
-                psChunk.setString(2, ApiManager.getServerId());
-                psChunk.setString(3, world);
-                psChunk.setInt(4, x);
-                psChunk.setInt(5, z);
-                psChunk.executeUpdate();
-            }
-            return null;
-        });
+        db().update(String.format(CLAIM_SQL_TEMPLATE, TABLE),
+                player.getUniqueId().toString(),
+                ApiManager.getServerId(),
+                chunk.getWorld().getName(),
+                chunk.getX(),
+                chunk.getZ());
 
         ApiManager.getInstance().getLimitAPI().decreaseMaxChunks(player, 1);
     }
 
     @Override
     public CompletableFuture<Void> claimChunkAsync(OfflinePlayer player, Chunk chunk) {
-        return CompletableFuture.runAsync(() -> claimChunk(player, chunk));
+        ApiManagerValidateParameter.validatePlayer(player);
+        ApiManagerValidateParameter.validateChunk(chunk);
+
+        return db().updateAsync(String.format(CLAIM_SQL_TEMPLATE, TABLE),
+                        player.getUniqueId().toString(),
+                        ApiManager.getServerId(),
+                        chunk.getWorld().getName(),
+                        chunk.getX(),
+                        chunk.getZ())
+                .thenCompose(v -> ApiManager.getInstance().getLimitAPI().decreaseMaxChunksAsync(player, 1));
     }
 
     @Override
@@ -147,27 +182,27 @@ public class ChunkAPIImpl implements IChunkAPI {
         ApiManagerValidateParameter.validateChunk(chunk);
 
         return repo().deleteAsync(TABLE, chunkWhere(), chunkParams(chunk))
-            .thenCompose(v -> {
-                try {
-                    return ApiManager.getInstance().getLimitAPI().increaseMaxChunksAsync(player, 1);
-                } catch (Exception ex) {
-                    return CompletableFuture.completedFuture(null);
-                }
-            });
+                .thenCompose(v -> {
+                    try {
+                        return ApiManager.getInstance().getLimitAPI().increaseMaxChunksAsync(player, 1);
+                    } catch (Exception ex) {
+                        return CompletableFuture.completedFuture(null);
+                    }
+                });
     }
 
     @Override
     public void setFlags(Chunk chunk, String flagsJson) {
         ApiManagerValidateParameter.validateChunk(chunk);
         repo().updateColumn(TABLE, "flags", flagsJson == null ? "{}" : flagsJson,
-            chunkWhere(), chunkParams(chunk));
+                chunkWhere(), chunkParams(chunk));
     }
 
     @Override
     public CompletableFuture<Void> setFlagsAsync(Chunk chunk, String flagsJson) {
         ApiManagerValidateParameter.validateChunk(chunk);
         return repo().updateColumnAsync(TABLE, "flags", flagsJson == null ? "{}" : flagsJson,
-            chunkWhere(), chunkParams(chunk));
+                chunkWhere(), chunkParams(chunk));
     }
 
     @Override
@@ -181,34 +216,59 @@ public class ChunkAPIImpl implements IChunkAPI {
     public CompletableFuture<String> getFlagsAsync(Chunk chunk) {
         ApiManagerValidateParameter.validateChunk(chunk);
         return repo().getStringAsync(TABLE, "flags", chunkWhere(), chunkParams(chunk))
-            .thenApply(flags -> flags != null ? flags : "{}");
+                .thenApply(flags -> flags != null ? flags : "{}");
     }
 
+    /**
+     * Returns the effective list of trusted player UUIDs for this chunk.
+     * <p>
+     * When trust_all is active with no DENY exceptions, returns ["*"] as a sentinel
+     * meaning "everyone is trusted". When trust_all is active but DENY records exist,
+     * the sentinel is dropped and the full expanded list (all offline players minus
+     * denied) is returned instead, so callers always get a concrete picture.
+     * When trust_all is inactive, returns the explicitly ALLOW'd UUIDs.
+     */
     @Override
     public List<String> getFriends(Chunk chunk) {
         ApiManagerValidateParameter.validateChunk(chunk);
         return db().query(conn -> {
+            boolean trustAll = false;
             try (PreparedStatement ps = conn.prepareStatement(
-                    String.format("SELECT friend_uuids FROM %s WHERE server_id = ? AND world = ? AND x = ? AND z = ?", TABLE))) {
-                ps.setString(1, ApiManager.getServerId());
-                ps.setString(2, chunk.getWorld().getName());
-                ps.setInt(3, chunk.getX());
-                ps.setInt(4, chunk.getZ());
+                    "SELECT trust_all FROM " + TABLE + " WHERE " + chunkWhere())) {
+                setParameters(ps, chunkParams(chunk));
                 try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) {
-                        String s = rs.getString("friend_uuids");
-                        if (s == null) {
-                            return Collections.singletonList("*");
-                        }
-                        if (s.isEmpty()) return new ArrayList<>();
-                        return Arrays.stream(s.split(","))
-                                .map(String::trim)
-                                .filter(tok -> !tok.isBlank())
-                                .collect(Collectors.toList());
-                    }
-                    return new ArrayList<>();
+                    if (!rs.next()) return new ArrayList<>();
+                    trustAll = rs.getBoolean("trust_all");
                 }
             }
+
+            if (trustAll) {
+                Set<String> denied = new HashSet<>();
+                try (PreparedStatement ps = conn.prepareStatement(
+                        "SELECT player_uuid FROM " + PERMISSION_TABLE
+                                + " WHERE " + chunkWhere() + " AND permission_type = 'DENY'")) {
+                    setParameters(ps, chunkParams(chunk));
+                    try (ResultSet rs = ps.executeQuery()) {
+                        while (rs.next()) denied.add(rs.getString("player_uuid"));
+                    }
+                }
+                if (denied.isEmpty()) return Collections.singletonList("*");
+                return Arrays.stream(Bukkit.getOfflinePlayers())
+                        .map(p -> p.getUniqueId().toString())
+                        .filter(id -> !denied.contains(id))
+                        .collect(Collectors.toList());
+            }
+
+            List<String> allowed = new ArrayList<>();
+            try (PreparedStatement ps = conn.prepareStatement(
+                    "SELECT player_uuid FROM " + PERMISSION_TABLE
+                            + " WHERE " + chunkWhere() + " AND permission_type = 'ALLOW'")) {
+                setParameters(ps, chunkParams(chunk));
+                try (ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) allowed.add(rs.getString("player_uuid"));
+                }
+            }
+            return allowed;
         });
     }
 
@@ -216,44 +276,57 @@ public class ChunkAPIImpl implements IChunkAPI {
     public CompletableFuture<List<String>> getFriendsAsync(Chunk chunk) {
         ApiManagerValidateParameter.validateChunk(chunk);
         return db().queryAsync(conn -> {
+            boolean trustAll = false;
             try (PreparedStatement ps = conn.prepareStatement(
-                    String.format("SELECT friend_uuids FROM %s WHERE server_id = ? AND world = ? AND x = ? AND z = ?", TABLE))) {
-                ps.setString(1, ApiManager.getServerId());
-                ps.setString(2, chunk.getWorld().getName());
-                ps.setInt(3, chunk.getX());
-                ps.setInt(4, chunk.getZ());
+                    "SELECT trust_all FROM " + TABLE + " WHERE " + chunkWhere())) {
+                setParameters(ps, chunkParams(chunk));
                 try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) {
-                        String s = rs.getString("friend_uuids");
-                        if (s == null) {
-                            return Collections.singletonList("*");
-                        }
-                        if (s.isEmpty()) return new ArrayList<>();
-                        return Arrays.stream(s.split(","))
-                                .map(String::trim)
-                                .filter(tok -> !tok.isBlank())
-                                .collect(Collectors.toList());
-                    }
-                    return new ArrayList<>();
+                    if (!rs.next()) return new ArrayList<>();
+                    trustAll = rs.getBoolean("trust_all");
                 }
             }
+
+            if (trustAll) {
+                Set<String> denied = new HashSet<>();
+                try (PreparedStatement ps = conn.prepareStatement(
+                        "SELECT player_uuid FROM " + PERMISSION_TABLE
+                                + " WHERE " + chunkWhere() + " AND permission_type = 'DENY'")) {
+                    setParameters(ps, chunkParams(chunk));
+                    try (ResultSet rs = ps.executeQuery()) {
+                        while (rs.next()) denied.add(rs.getString("player_uuid"));
+                    }
+                }
+                if (denied.isEmpty()) return Collections.singletonList("*");
+                return Arrays.stream(Bukkit.getOfflinePlayers())
+                        .map(p -> p.getUniqueId().toString())
+                        .filter(id -> !denied.contains(id))
+                        .collect(Collectors.toList());
+            }
+
+            List<String> allowed = new ArrayList<>();
+            try (PreparedStatement ps = conn.prepareStatement(
+                    "SELECT player_uuid FROM " + PERMISSION_TABLE
+                            + " WHERE " + chunkWhere() + " AND permission_type = 'ALLOW'")) {
+                setParameters(ps, chunkParams(chunk));
+                try (ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) allowed.add(rs.getString("player_uuid"));
+                }
+            }
+            return allowed;
         });
     }
 
     @Override
     public List<OfflinePlayer> getFriendPlayers(Chunk chunk) {
         ApiManagerValidateParameter.validateChunk(chunk);
-        List<String> friend_uuids = getFriends(chunk);
-        if (friend_uuids.contains("*")) {
+        List<String> uuids = getFriends(chunk);
+        if (uuids.contains("*")) {
             return Arrays.asList(Bukkit.getOfflinePlayers());
         }
-        return friend_uuids.stream()
-                .map(owner_uuid -> {
-                    try {
-                        return Bukkit.getOfflinePlayer(UUID.fromString(owner_uuid));
-                    } catch (IllegalArgumentException e) {
-                        return null;
-                    }
+        return uuids.stream()
+                .map(id -> {
+                    try { return (OfflinePlayer) Bukkit.getOfflinePlayer(UUID.fromString(id)); }
+                    catch (IllegalArgumentException e) { return null; }
                 })
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
@@ -262,17 +335,14 @@ public class ChunkAPIImpl implements IChunkAPI {
     @Override
     public CompletableFuture<List<OfflinePlayer>> getFriendPlayersAsync(Chunk chunk) {
         ApiManagerValidateParameter.validateChunk(chunk);
-        return getFriendsAsync(chunk).thenApply(owner_uuids -> {
-            if (owner_uuids.contains("*")) {
+        return getFriendsAsync(chunk).thenApply(uuids -> {
+            if (uuids.contains("*")) {
                 return Arrays.asList(Bukkit.getOfflinePlayers());
             }
-            return owner_uuids.stream()
+            return uuids.stream()
                     .map(id -> {
-                        try {
-                            return Bukkit.getOfflinePlayer(UUID.fromString(id));
-                        } catch (IllegalArgumentException e) {
-                            return null;
-                        }
+                        try { return (OfflinePlayer) Bukkit.getOfflinePlayer(UUID.fromString(id)); }
+                        catch (IllegalArgumentException e) { return null; }
                     })
                     .filter(Objects::nonNull)
                     .collect(Collectors.toList());
@@ -285,14 +355,16 @@ public class ChunkAPIImpl implements IChunkAPI {
         ApiManagerValidateParameter.validatePlayer(friend);
         String friendUuid = friend.getUniqueId().toString();
 
-        List<String> friend_uuids = new ArrayList<>(getFriends(chunk));
-        if (friend_uuids.contains("*")) {
-            return;
-        }
-        if (!friend_uuids.contains(friendUuid)) {
-            friend_uuids.add(friendUuid);
-            String joined = String.join(",", friend_uuids);
-            repo().updateColumn(TABLE, "friend_uuids", joined, chunkWhere(), chunkParams(chunk));
+        if (isTrustAllActive(chunk)) {
+            db().update("DELETE FROM " + PERMISSION_TABLE
+                            + " WHERE " + chunkWhere() + " AND player_uuid = ?",
+                    append(chunkParams(chunk), friendUuid));
+        } else {
+            db().update("INSERT INTO " + PERMISSION_TABLE
+                            + " (server_id, world, x, z, player_uuid, permission_type)"
+                            + " VALUES (?, ?, ?, ?, ?, 'ALLOW')"
+                            + " ON DUPLICATE KEY UPDATE permission_type = 'ALLOW'",
+                    append(chunkParams(chunk), friendUuid));
         }
     }
 
@@ -302,14 +374,18 @@ public class ChunkAPIImpl implements IChunkAPI {
         ApiManagerValidateParameter.validatePlayer(friend);
         String friendUuid = friend.getUniqueId().toString();
 
-        return getFriendsAsync(chunk).thenCompose(list -> {
-            List<String> newList = new ArrayList<>(list);
-            if (newList.contains("*")) {
-                return CompletableFuture.completedFuture(null);
+        return isTrustAllActiveAsync(chunk).thenCompose(trustAll -> {
+            if (trustAll) {
+                return db().updateAsync("DELETE FROM " + PERMISSION_TABLE
+                                + " WHERE " + chunkWhere() + " AND player_uuid = ?",
+                        append(chunkParams(chunk), friendUuid));
+            } else {
+                return db().updateAsync("INSERT INTO " + PERMISSION_TABLE
+                                + " (server_id, world, x, z, player_uuid, permission_type)"
+                                + " VALUES (?, ?, ?, ?, ?, 'ALLOW')"
+                                + " ON DUPLICATE KEY UPDATE permission_type = 'ALLOW'",
+                        append(chunkParams(chunk), friendUuid));
             }
-            if (!newList.contains(friendUuid)) newList.add(friendUuid);
-            String joined = String.join(",", newList);
-            return repo().updateColumnAsync(TABLE, "friend_uuids", joined, chunkWhere(), chunkParams(chunk));
         });
     }
 
@@ -319,20 +395,16 @@ public class ChunkAPIImpl implements IChunkAPI {
         ApiManagerValidateParameter.validatePlayer(friend);
         String friendUuid = friend.getUniqueId().toString();
 
-        List<String> friend_uuids = new ArrayList<>(getFriends(chunk));
-        if (friend_uuids.contains("*")) {
-            List<String> explicit = Arrays.stream(Bukkit.getOfflinePlayers())
-                    .map(p -> p.getUniqueId().toString())
-                    .filter(id -> !id.equals(friendUuid))
-                    .collect(Collectors.toList());
-            String joined = String.join(",", explicit);
-            repo().updateColumn(TABLE, "friend_uuids", joined, chunkWhere(), chunkParams(chunk));
-            return;
-        }
-
-        if (friend_uuids.remove(friendUuid)) {
-            String joined = String.join(",", friend_uuids);
-            repo().updateColumn(TABLE, "friend_uuids", joined, chunkWhere(), chunkParams(chunk));
+        if (isTrustAllActive(chunk)) {
+            db().update("INSERT INTO " + PERMISSION_TABLE
+                            + " (server_id, world, x, z, player_uuid, permission_type)"
+                            + " VALUES (?, ?, ?, ?, ?, 'DENY')"
+                            + " ON DUPLICATE KEY UPDATE permission_type = 'DENY'",
+                    append(chunkParams(chunk), friendUuid));
+        } else {
+            db().update("DELETE FROM " + PERMISSION_TABLE
+                            + " WHERE " + chunkWhere() + " AND player_uuid = ? AND permission_type = 'ALLOW'",
+                    append(chunkParams(chunk), friendUuid));
         }
     }
 
@@ -342,44 +414,53 @@ public class ChunkAPIImpl implements IChunkAPI {
         ApiManagerValidateParameter.validatePlayer(friend);
         String friendUuid = friend.getUniqueId().toString();
 
-        return getFriendsAsync(chunk).thenCompose(list -> {
-            List<String> newList = new ArrayList<>(list);
-            if (newList.contains("*")) {
-                List<String> explicit = Arrays.stream(Bukkit.getOfflinePlayers())
-                        .map(p -> p.getUniqueId().toString())
-                        .filter(id -> !id.equals(friendUuid))
-                        .collect(Collectors.toList());
-                String joined = String.join(",", explicit);
-                return repo().updateColumnAsync(TABLE, "friend_uuids", joined, chunkWhere(), chunkParams(chunk));
+        return isTrustAllActiveAsync(chunk).thenCompose(trustAll -> {
+            if (trustAll) {
+                return db().updateAsync("INSERT INTO " + PERMISSION_TABLE
+                                + " (server_id, world, x, z, player_uuid, permission_type)"
+                                + " VALUES (?, ?, ?, ?, ?, 'DENY')"
+                                + " ON DUPLICATE KEY UPDATE permission_type = 'DENY'",
+                        append(chunkParams(chunk), friendUuid));
+            } else {
+                return db().updateAsync("DELETE FROM " + PERMISSION_TABLE
+                                + " WHERE " + chunkWhere() + " AND player_uuid = ? AND permission_type = 'ALLOW'",
+                        append(chunkParams(chunk), friendUuid));
             }
-            newList.remove(friendUuid);
-            String joined = String.join(",", newList);
-            return repo().updateColumnAsync(TABLE, "friend_uuids", joined, chunkWhere(), chunkParams(chunk));
         });
     }
 
     @Override
     public void setAllFriends(Chunk chunk) {
         ApiManagerValidateParameter.validateChunk(chunk);
-        repo().updateColumn(TABLE, "friend_uuids", "*", chunkWhere(), chunkParams(chunk));
+        repo().updateColumn(TABLE, "trust_all", true, chunkWhere(), chunkParams(chunk));
+        db().update("DELETE FROM " + PERMISSION_TABLE + " WHERE " + chunkWhere(),
+                chunkParams(chunk));
     }
 
     @Override
     public CompletableFuture<Void> setAllFriendsAsync(Chunk chunk) {
         ApiManagerValidateParameter.validateChunk(chunk);
-        return repo().updateColumnAsync(TABLE, "friend_uuids", "*", chunkWhere(), chunkParams(chunk));
+        return repo().updateColumnAsync(TABLE, "trust_all", true, chunkWhere(), chunkParams(chunk))
+                .thenCompose(v -> db().updateAsync(
+                        "DELETE FROM " + PERMISSION_TABLE + " WHERE " + chunkWhere(),
+                        chunkParams(chunk)));
     }
 
     @Override
     public void clearFriends(Chunk chunk) {
         ApiManagerValidateParameter.validateChunk(chunk);
-        repo().updateColumn(TABLE, "friend_uuids", "", chunkWhere(), chunkParams(chunk));
+        repo().updateColumn(TABLE, "trust_all", false, chunkWhere(), chunkParams(chunk));
+        db().update("DELETE FROM " + PERMISSION_TABLE + " WHERE " + chunkWhere(),
+                chunkParams(chunk));
     }
 
     @Override
     public CompletableFuture<Void> clearFriendsAsync(Chunk chunk) {
         ApiManagerValidateParameter.validateChunk(chunk);
-        return repo().updateColumnAsync(TABLE, "friend_uuids", "", chunkWhere(), chunkParams(chunk));
+        return repo().updateColumnAsync(TABLE, "trust_all", false, chunkWhere(), chunkParams(chunk))
+                .thenCompose(v -> db().updateAsync(
+                        "DELETE FROM " + PERMISSION_TABLE + " WHERE " + chunkWhere(),
+                        chunkParams(chunk)));
     }
 
     @Override
@@ -387,8 +468,26 @@ public class ChunkAPIImpl implements IChunkAPI {
         ApiManagerValidateParameter.validateChunk(chunk);
         ApiManagerValidateParameter.validatePlayer(friend);
         String friendUuid = friend.getUniqueId().toString();
-        List<String> friend_uuids = getFriends(chunk);
-        return friend_uuids.contains("*") || friend_uuids.contains(friendUuid);
+
+        return Boolean.TRUE.equals(db().query(conn -> {
+            try (PreparedStatement ps = conn.prepareStatement(
+                    "SELECT permission_type FROM " + PERMISSION_TABLE
+                            + " WHERE " + chunkWhere() + " AND player_uuid = ?")) {
+                setParameters(ps, append(chunkParams(chunk), friendUuid));
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) return "ALLOW".equals(rs.getString("permission_type"));
+                }
+            }
+
+            try (PreparedStatement ps = conn.prepareStatement(
+                    "SELECT trust_all FROM " + TABLE + " WHERE " + chunkWhere())) {
+                setParameters(ps, chunkParams(chunk));
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) return rs.getBoolean("trust_all");
+                }
+            }
+            return false;
+        }));
     }
 
     @Override
@@ -396,8 +495,26 @@ public class ChunkAPIImpl implements IChunkAPI {
         ApiManagerValidateParameter.validateChunk(chunk);
         ApiManagerValidateParameter.validatePlayer(friend);
         String friendUuid = friend.getUniqueId().toString();
-        return getFriendsAsync(chunk).thenApply(list ->
-            list.contains("*") || list.contains(friendUuid));
+
+        return db().queryAsync(conn -> {
+            try (PreparedStatement ps = conn.prepareStatement(
+                    "SELECT permission_type FROM " + PERMISSION_TABLE
+                            + " WHERE " + chunkWhere() + " AND player_uuid = ?")) {
+                setParameters(ps, append(chunkParams(chunk), friendUuid));
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) return "ALLOW".equals(rs.getString("permission_type"));
+                }
+            }
+
+            try (PreparedStatement ps = conn.prepareStatement(
+                    "SELECT trust_all FROM " + TABLE + " WHERE " + chunkWhere())) {
+                setParameters(ps, chunkParams(chunk));
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) return rs.getBoolean("trust_all");
+                }
+            }
+            return false;
+        });
     }
 
     @Override
@@ -405,18 +522,12 @@ public class ChunkAPIImpl implements IChunkAPI {
         ApiManagerValidateParameter.validateChunk(chunk);
         return db().query(conn -> {
             try (PreparedStatement ps = conn.prepareStatement(
-                    String.format("SELECT owner_uuid FROM %s WHERE server_id = ? AND world = ? AND x = ? AND z = ?", TABLE))) {
-                ps.setString(1, ApiManager.getServerId());
-                ps.setString(2, chunk.getWorld().getName());
-                ps.setInt(3, chunk.getX());
-                ps.setInt(4, chunk.getZ());
+                    "SELECT owner_uuid FROM " + TABLE + " WHERE " + chunkWhere())) {
+                setParameters(ps, chunkParams(chunk));
                 try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) {
-                        String u = rs.getString("owner_uuid");
-                        if (u == null || u.isEmpty()) return null;
-                        return UUID.fromString(u);
-                    }
-                    return null;
+                    if (!rs.next()) return null;
+                    String u = rs.getString("owner_uuid");
+                    return (u == null || u.isEmpty()) ? null : UUID.fromString(u);
                 }
             }
         });
@@ -427,18 +538,12 @@ public class ChunkAPIImpl implements IChunkAPI {
         ApiManagerValidateParameter.validateChunk(chunk);
         return db().queryAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement(
-                    String.format("SELECT owner_uuid FROM %s WHERE server_id = ? AND world = ? AND x = ? AND z = ?", TABLE))) {
-                ps.setString(1, ApiManager.getServerId());
-                ps.setString(2, chunk.getWorld().getName());
-                ps.setInt(3, chunk.getX());
-                ps.setInt(4, chunk.getZ());
+                    "SELECT owner_uuid FROM " + TABLE + " WHERE " + chunkWhere())) {
+                setParameters(ps, chunkParams(chunk));
                 try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) {
-                        String u = rs.getString("owner_uuid");
-                        if (u == null || u.isEmpty()) return null;
-                        return UUID.fromString(u);
-                    }
-                    return null;
+                    if (!rs.next()) return null;
+                    String u = rs.getString("owner_uuid");
+                    return (u == null || u.isEmpty()) ? null : UUID.fromString(u);
                 }
             }
         });
@@ -447,48 +552,38 @@ public class ChunkAPIImpl implements IChunkAPI {
     @Override
     public List<Chunk> getChunks(OfflinePlayer player) {
         ApiManagerValidateParameter.validatePlayer(player);
-        String uuid = player.getUniqueId().toString();
-
         return db().query(conn -> {
+            List<Chunk> chunks = new ArrayList<>();
             try (PreparedStatement ps = conn.prepareStatement(
-                    String.format("SELECT world, x, z FROM %s WHERE owner_uuid = ? AND server_id = ?", TABLE))) {
-                ps.setString(1, uuid);
+                    "SELECT world, x, z FROM " + TABLE + " WHERE owner_uuid = ? AND server_id = ?")) {
+                ps.setString(1, player.getUniqueId().toString());
                 ps.setString(2, ApiManager.getServerId());
                 try (ResultSet rs = ps.executeQuery()) {
-                    List<Chunk> chunks = new ArrayList<>();
                     while (rs.next()) {
-                        String worldName = rs.getString("world");
-                        int x = rs.getInt("x");
-                        int z = rs.getInt("z");
-
-                        World world = Bukkit.getWorld(worldName);
-                        if (world != null) {
-                            chunks.add(world.getChunkAt(x, z));
-                        }
+                        World world = Bukkit.getWorld(rs.getString("world"));
+                        if (world != null) chunks.add(world.getChunkAt(rs.getInt("x"), rs.getInt("z")));
                     }
-                    return chunks;
                 }
             }
+            return chunks;
         });
     }
 
     @Override
     public CompletableFuture<List<Chunk>> getChunksAsync(OfflinePlayer player) {
         ApiManagerValidateParameter.validatePlayer(player);
-        String uuid = player.getUniqueId().toString();
-
         return db().queryAsync(conn -> {
             List<String[]> data = new ArrayList<>();
             try (PreparedStatement ps = conn.prepareStatement(
-                    String.format("SELECT world, x, z FROM %s WHERE owner_uuid = ? AND server_id = ?", TABLE))) {
-                ps.setString(1, uuid);
+                    "SELECT world, x, z FROM " + TABLE + " WHERE owner_uuid = ? AND server_id = ?")) {
+                ps.setString(1, player.getUniqueId().toString());
                 ps.setString(2, ApiManager.getServerId());
                 try (ResultSet rs = ps.executeQuery()) {
                     while (rs.next()) {
                         data.add(new String[]{
-                            rs.getString("world"),
-                            String.valueOf(rs.getInt("x")),
-                            String.valueOf(rs.getInt("z"))
+                                rs.getString("world"),
+                                String.valueOf(rs.getInt("x")),
+                                String.valueOf(rs.getInt("z"))
                         });
                     }
                 }
@@ -498,11 +593,7 @@ public class ChunkAPIImpl implements IChunkAPI {
             List<Chunk> chunks = new ArrayList<>();
             for (String[] entry : data) {
                 World world = Bukkit.getWorld(entry[0]);
-                if (world != null) {
-                    int x = Integer.parseInt(entry[1]);
-                    int z = Integer.parseInt(entry[2]);
-                    chunks.add(world.getChunkAt(x, z));
-                }
+                if (world != null) chunks.add(world.getChunkAt(Integer.parseInt(entry[1]), Integer.parseInt(entry[2])));
             }
             return chunks;
         });
