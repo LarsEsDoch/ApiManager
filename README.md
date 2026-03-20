@@ -2,7 +2,7 @@
 
 **ApiManager** is a Paper plugin that serves as a shared MariaDB database layer for other plugins on your server. Instead of every plugin managing its own connection pool and database logic, they all depend on ApiManager — which provides a single HikariCP connection pool, a rich `DatabaseRepository` helper API, and 21 pre-built domain-specific APIs (player data, economy, bans, ranks, and more).
 
-> **Version:** 4.6.0 | **Author:** LarsEsDoch | **Paper API:** 1.21.11 | **Java:** 21
+> **Version:** 5.0.0 | **Author:** LarsEsDoch | **Paper API:** 1.21.11 | **Java:** 21
 
 ---
 
