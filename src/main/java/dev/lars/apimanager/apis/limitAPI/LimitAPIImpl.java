@@ -144,18 +144,13 @@ public class LimitAPIImpl implements ILimitAPI {
     @Override
     public void increaseMaxChunks(OfflinePlayer player, int amount) {
         ApiManagerValidateParameter.validatePlayer(player);
-        Integer current = getMaxChunks(player);
-        if (current == null) return;
-        setMaxChunks(player, current + amount);
+        repo().increaseColumn(TABLE, "max_chunks", amount, "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
     public CompletableFuture<Void> increaseMaxChunksAsync(OfflinePlayer player, int amount) {
         ApiManagerValidateParameter.validatePlayer(player);
-        return getMaxChunksAsync(player).thenCompose(current -> {
-            if (current == null) return CompletableFuture.completedFuture(null);
-            return setMaxChunksAsync(player, current + amount);
-        });
+        return repo().increaseColumnAsync(TABLE, "max_chunks", amount, "uuid = ?", player.getUniqueId().toString());
     }
 
     @Override
